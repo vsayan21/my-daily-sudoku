@@ -25,10 +25,14 @@ class _DailyEasySectionState extends State<DailyEasySection> {
   @override
   void initState() {
     super.initState();
-    const debugForceDailyKey = false;
-    _dailyKey = kDebugMode && debugForceDailyKey
-        ? buildDailyKey(now: DateTime(2026, 1, 28))
-        : buildDailyKey();
+    const debugForceDailyKey = bool.fromEnvironment(
+      'DAILY_KEY_OVERRIDE',
+      defaultValue: false,
+    );
+    final debugDate = kDebugMode && debugForceDailyKey
+        ? DateTime(2026, 1, 28)
+        : null;
+    _dailyKey = buildDailyKey(now: debugDate);
     final repository = DailySudokuRepositoryImpl(
       dataSource: SudokuAssetsDataSource(),
     );

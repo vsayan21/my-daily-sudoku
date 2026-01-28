@@ -62,13 +62,13 @@ class SudokuCellWidget extends StatelessWidget {
 
   Color _backgroundColor(ColorScheme colorScheme) {
     if (isConflict) {
-      return colorScheme.error.withOpacity(0.18);
+      return colorScheme.error.withValues(alpha: 0.18);
     }
     if (isSelected) {
-      return colorScheme.primary.withOpacity(0.2);
+      return colorScheme.primary.withValues(alpha: 0.2);
     }
     if (isHighlighted) {
-      return colorScheme.primary.withOpacity(0.08);
+      return colorScheme.primary.withValues(alpha: 0.08);
     }
     return Colors.transparent;
   }

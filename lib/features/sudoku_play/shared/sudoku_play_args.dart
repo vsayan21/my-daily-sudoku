@@ -1,4 +1,4 @@
-import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
+import '../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 
 /// Navigation arguments for the Sudoku play screen.
 class SudokuPlayArgs {
