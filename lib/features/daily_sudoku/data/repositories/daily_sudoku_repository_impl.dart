@@ -1,4 +1,5 @@
 import '../../domain/entities/daily_sudoku.dart';
+import '../../domain/entities/sudoku_difficulty.dart';
 import '../../domain/repositories/daily_sudoku_repository.dart';
 import '../datasources/sudoku_assets_datasource.dart';
 
@@ -9,8 +10,15 @@ class DailySudokuRepositoryImpl implements DailySudokuRepository {
   const DailySudokuRepositoryImpl({required this.dataSource});
 
   @override
-  Future<List<DailySudoku>> fetchEasyPuzzles() async {
-    final models = await dataSource.loadEasyPuzzles();
-    return models.map((model) => model.toEntity()).toList();
+  Future<List<DailySudoku>> fetchPuzzles(SudokuDifficulty difficulty) async {
+    final models = await dataSource.loadPuzzles(difficulty);
+    return models
+        .map(
+          (model) => model.toEntity(
+            difficulty: difficulty,
+            dateKey: '',
+          ),
+        )
+        .toList();
   }
 }

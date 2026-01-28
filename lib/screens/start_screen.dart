@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../features/daily_sudoku/application/usecases/get_today_sudoku.dart';
+import '../features/daily_sudoku/data/datasources/sudoku_assets_datasource.dart';
+import '../features/daily_sudoku/data/repositories/daily_sudoku_repository_impl.dart';
+import '../features/daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../models/difficulty_option.dart';
 import '../screens/profile_screen.dart';
 import '../screens/statistics_screen.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/difficulty_card.dart';
 import '../features/streak/presentation/streak_section.dart';
-import '../features/daily_sudoku/presentation/daily_easy_section.dart';
+import '../features/sudoku_play/presentation/screens/sudoku_play_screen.dart';
+import '../features/sudoku_play/shared/sudoku_play_args.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -19,11 +24,17 @@ class _StartScreenState extends State<StartScreen> {
   int _selectedIndex = 0;
   int _currentTab = 0;
   late final PageController _pageController;
+  late final GetTodaySudoku _getTodaySudoku;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentTab);
+    _getTodaySudoku = GetTodaySudoku(
+      repository: DailySudokuRepositoryImpl(
+        dataSource: SudokuAssetsDataSource(),
+      ),
+    );
   }
 
   @override
@@ -47,6 +58,42 @@ class _StartScreenState extends State<StartScreen> {
         icon: Icons.bolt_outlined,
       ),
     ];
+  }
+
+  SudokuDifficulty _difficultyForIndex(int index) {
+    switch (index) {
+      case 0:
+        return SudokuDifficulty.easy;
+      case 1:
+        return SudokuDifficulty.medium;
+      case 2:
+        return SudokuDifficulty.hard;
+      default:
+        return SudokuDifficulty.easy;
+    }
+  }
+
+  Future<SudokuPlayArgs> _loadDailyPuzzle(SudokuDifficulty difficulty) async {
+    final selection = await _getTodaySudoku.execute(difficulty);
+    return SudokuPlayArgs(
+      difficulty: difficulty,
+      puzzleId: selection.id,
+      puzzleString: selection.puzzle,
+      dailyKey: selection.dateKey,
+    );
+  }
+
+  Future<void> _handleStart() async {
+    final difficulty = _difficultyForIndex(_selectedIndex);
+    final args = await _loadDailyPuzzle(difficulty);
+    if (!mounted) {
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SudokuPlayScreen(args: args),
+      ),
+    );
   }
 
   @override
@@ -86,7 +133,6 @@ class _StartScreenState extends State<StartScreen> {
                         ?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 20),
-                  const DailyEasySection(),
                   const SizedBox(height: 24),
                   Expanded(
                     child: ListView(
@@ -129,7 +175,7 @@ class _StartScreenState extends State<StartScreen> {
       ),
       floatingActionButton: _currentTab == 0
           ? FloatingActionButton.extended(
-              onPressed: () {},
+              onPressed: _handleStart,
               backgroundColor: colorScheme.primary,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.play_arrow_rounded),
