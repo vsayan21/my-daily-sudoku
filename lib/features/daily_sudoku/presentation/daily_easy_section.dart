@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../application/usecases/get_today_easy_sudoku.dart';
@@ -23,7 +24,10 @@ class _DailyEasySectionState extends State<DailyEasySection> {
   @override
   void initState() {
     super.initState();
-    _dailyKey = dailyKeyToday();
+    const debugForceDailyKey = false;
+    _dailyKey = kDebugMode && debugForceDailyKey
+        ? buildDailyKey(now: DateTime(2026, 1, 28))
+        : buildDailyKey();
     final repository = DailySudokuRepositoryImpl(
       dataSource: SudokuAssetsDataSource(),
     );

@@ -20,7 +20,7 @@ class GetTodayEasySudoku {
     if (puzzles.isEmpty) {
       throw StateError('No easy puzzles available.');
     }
-    final key = dailyKeyForDate(nowProvider());
+    final key = buildDailyKey(now: nowProvider());
     final hash = stableHashFnv1a32(key);
     final index = (hash % puzzles.length).abs();
     return puzzles[index];
