@@ -69,7 +69,11 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                   isPaused: _controller.isPaused,
                   onPauseToggle: _controller.togglePause,
                 ),
-                SudokuTimerBar(formattedTime: _controller.formattedTime),
+                SudokuTimerBar(
+                  formattedTime: _controller.formattedTime,
+                  showPenalty: _controller.showPenalty,
+                  penaltySecondsLast: _controller.penaltySecondsLast,
+                ),
                 const SizedBox(height: _spacingMedium),
                 Expanded(
                   child: Center(
