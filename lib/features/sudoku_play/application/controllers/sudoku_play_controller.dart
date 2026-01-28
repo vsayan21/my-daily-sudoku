@@ -1,12 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../domain/entities/sudoku_board.dart';
-import '../../domain/logic/sudoku_conflict_checker.dart';
 import '../services/game_timer.dart';
 
 /// Controller for Sudoku play interactions.
@@ -22,8 +18,7 @@ class SudokuPlayController extends ChangeNotifier {
         _difficulty = difficulty,
         _dateKey = dateKey,
         _puzzleId = puzzleId,
-        _puzzleString = puzzleString,
-        _conflicts = SudokuConflictChecker().findConflicts(board.currentValues) {
+        _puzzleString = puzzleString {
     _gameTimer.addListener(_handleTimerTick);
     _gameTimer.start();
   }
@@ -34,14 +29,9 @@ class SudokuPlayController extends ChangeNotifier {
   String _puzzleId;
   String _puzzleString;
   SudokuPosition? _selectedCell;
-  Set<SudokuPosition> _conflicts;
   final GameTimer _gameTimer = GameTimer();
   bool _isPaused = false;
   bool _isManuallyPaused = false;
-  int _mistakesCount = 0;
-  int _penaltySecondsLast = 0;
-  DateTime? _penaltyEndsAt;
-  Timer? _penaltyTimer;
 
   /// Current Sudoku board state.
   SudokuBoard get board => _board;
@@ -49,24 +39,11 @@ class SudokuPlayController extends ChangeNotifier {
   /// Currently selected cell position.
   SudokuPosition? get selectedCell => _selectedCell;
 
-  /// Cells that are currently in conflict.
-  Set<SudokuPosition> get conflicts => _conflicts;
-
   /// Whether the game is currently paused.
   bool get isPaused => _isPaused;
 
   /// Current formatted time (mm:ss).
   String get formattedTime => _formatDuration(_gameTimer.elapsedSeconds);
-
-  /// Number of mistakes made in the current game.
-  int get mistakesCount => _mistakesCount;
-
-  /// Whether the penalty animation should be visible.
-  bool get showPenalty =>
-      _penaltyEndsAt != null && DateTime.now().isBefore(_penaltyEndsAt!);
-
-  /// Last applied penalty seconds.
-  int get penaltySecondsLast => _penaltySecondsLast;
 
   /// Builds a session snapshot for persistence.
   ActiveGameSession exportSession() {
@@ -94,7 +71,6 @@ class SudokuPlayController extends ChangeNotifier {
       currentValues: _stringToGrid(session.current),
     );
     _selectedCell = null;
-    _recomputeConflicts();
     _isManuallyPaused = false;
     _isPaused = false;
     _gameTimer.startFrom(session.elapsedSeconds);
@@ -126,10 +102,6 @@ class SudokuPlayController extends ChangeNotifier {
       return;
     }
     _board = _board.setValue(selection.row, selection.col, value);
-    _recomputeConflicts();
-    if (value != 0 && _conflicts.contains(selection)) {
-      _applyPenalty(5);
-    }
     notifyListeners();
   }
 
@@ -192,7 +164,6 @@ class SudokuPlayController extends ChangeNotifier {
   void dispose() {
     _gameTimer.removeListener(_handleTimerTick);
     _gameTimer.dispose();
-    _penaltyTimer?.cancel();
     super.dispose();
   }
 
@@ -229,20 +200,4 @@ class SudokuPlayController extends ChangeNotifier {
     return '$minutes:$remaining';
   }
 
-  void _recomputeConflicts() {
-    _conflicts = SudokuConflictChecker().findConflicts(_board.currentValues);
-  }
-
-  void _applyPenalty(int seconds) {
-    if (seconds <= 0 || _isPaused) {
-      return;
-    }
-    _gameTimer.addPenalty(seconds);
-    _mistakesCount++;
-    _penaltySecondsLast = seconds;
-    _penaltyEndsAt = DateTime.now().add(const Duration(seconds: 1));
-    _penaltyTimer?.cancel();
-    _penaltyTimer = Timer(const Duration(seconds: 1), notifyListeners);
-    HapticFeedback.lightImpact();
-  }
 }

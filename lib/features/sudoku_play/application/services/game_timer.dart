@@ -9,14 +9,10 @@ class GameTimer extends ChangeNotifier {
   final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
   int _stopwatchSeconds = 0;
-  int _penaltySeconds = 0;
   int _baseSeconds = 0;
 
   /// Elapsed time in seconds.
-  int get elapsedSeconds => _stopwatchSeconds + _penaltySeconds;
-
-  /// Accumulated penalty seconds.
-  int get penaltySeconds => _penaltySeconds;
+  int get elapsedSeconds => _stopwatchSeconds;
 
   /// Starts the timer from zero.
   void start() {
@@ -63,18 +59,8 @@ class GameTimer extends ChangeNotifier {
       ..reset()
       ..stop();
     _stopwatchSeconds = 0;
-    _penaltySeconds = 0;
     _baseSeconds = 0;
     _stopTicker();
-    notifyListeners();
-  }
-
-  /// Adds a penalty in seconds.
-  void addPenalty(int seconds) {
-    if (seconds <= 0) {
-      return;
-    }
-    _penaltySeconds += seconds;
     notifyListeners();
   }
 

@@ -10,7 +10,6 @@ class SudokuGrid extends StatelessWidget {
     super.key,
     required this.board,
     required this.selectedCell,
-    required this.conflicts,
     required this.onCellTap,
   });
 
@@ -19,9 +18,6 @@ class SudokuGrid extends StatelessWidget {
 
   /// Selected cell position.
   final SudokuPosition? selectedCell;
-
-  /// Positions that are in conflict.
-  final Set<SudokuPosition> conflicts;
 
   /// Called when a cell is tapped.
   final void Function(int row, int col) onCellTap;
@@ -47,7 +43,6 @@ class SudokuGrid extends StatelessWidget {
                     selectedCell?.row == row && selectedCell?.col == col;
                 final isHighlighted = selectedCell != null &&
                     (selectedCell!.row == row || selectedCell!.col == col);
-                final isConflict = conflicts.contains((row: row, col: col));
                 rowChildren.add(
                   SizedBox(
                     width: cellSize,
@@ -57,7 +52,6 @@ class SudokuGrid extends StatelessWidget {
                       isGiven: cell.isGiven,
                       isSelected: isSelected,
                       isHighlighted: isHighlighted,
-                      isConflict: isConflict,
                       border: _cellBorder(context, row, col),
                       onTap: () => onCellTap(row, col),
                     ),
