@@ -30,7 +30,7 @@ class StartScreen extends StatefulWidget {
   State<StartScreen> createState() => _StartScreenState();
 }
 
-class _StartScreenState extends State<StartScreen> {
+class _StartScreenState extends State<StartScreen> with WidgetsBindingObserver {
   int _selectedIndex = 0;
   int _currentTab = 0;
   late final PageController _pageController;
@@ -41,6 +41,7 @@ class _StartScreenState extends State<StartScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pageController = PageController(initialPage: _currentTab);
     _getTodaySudoku = GetTodaySudoku(
       repository: DailySudokuRepositoryImpl(
@@ -53,8 +54,16 @@ class _StartScreenState extends State<StartScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _clearStaleSessionIfNeeded();
+    }
   }
 
   List<DifficultyOption> _buildOptions(AppLocalizations loc) {
@@ -114,6 +123,39 @@ class _StartScreenState extends State<StartScreen> {
     setState(() => _activeSession = session);
   }
 
+  String _todayKey() => buildDailyKey();
+
+  bool _isSessionForToday(ActiveGameSession? session) {
+    if (session == null) {
+      return false;
+    }
+    return session.dateKey == _todayKey();
+  }
+
+  bool _isValidActiveSession(
+    ActiveGameSession? session, {
+    required SudokuDifficulty selected,
+  }) {
+    if (!_isSessionForToday(session)) {
+      return false;
+    }
+    return session?.difficulty == selected;
+  }
+
+  Future<void> _clearStaleSessionIfNeeded() async {
+    final session = _activeSession;
+    if (session == null || _isSessionForToday(session)) {
+      return;
+    }
+    final repository = await _activeGameRepository;
+    final clearUseCase = ClearActiveGame(repository: repository);
+    await clearUseCase.execute();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _activeSession = null);
+  }
+
   String _difficultyLabel(AppLocalizations loc, SudokuDifficulty difficulty) {
     switch (difficulty) {
       case SudokuDifficulty.easy:
@@ -146,15 +188,18 @@ class _StartScreenState extends State<StartScreen> {
   Future<void> _handleStart() async {
     final difficulty = _difficultyForIndex(_selectedIndex);
     final session = _activeSession;
-    if (session != null && session.difficulty == difficulty) {
+    if (_isValidActiveSession(session, selected: difficulty)) {
       final args = SudokuPlayArgs(
-        difficulty: session.difficulty,
+        difficulty: session!.difficulty,
         puzzleId: session.puzzleId ?? 'active',
         puzzleString: session.puzzle,
         dailyKey: session.dateKey,
       );
       await _openPlayScreen(args: args, session: session);
       return;
+    }
+    if (session != null && !_isSessionForToday(session)) {
+      await _clearStaleSessionIfNeeded();
     }
     final args = await _loadDailyPuzzle(difficulty);
     if (!mounted) {
@@ -164,6 +209,10 @@ class _StartScreenState extends State<StartScreen> {
   }
 
   Future<void> _handleContinue(ActiveGameSession session) async {
+    if (!_isSessionForToday(session)) {
+      await _clearStaleSessionIfNeeded();
+      return;
+    }
     final args = SudokuPlayArgs(
       difficulty: session.difficulty,
       puzzleId: session.puzzleId ?? 'active',
@@ -189,8 +238,7 @@ class _StartScreenState extends State<StartScreen> {
     final options = _buildOptions(loc);
     final colorScheme = Theme.of(context).colorScheme;
     final activeSession = _activeSession;
-    final todayKey = buildDailyKey();
-    final hasActive = activeSession != null && activeSession.dateKey == todayKey;
+    final hasActive = _isSessionForToday(activeSession);
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
