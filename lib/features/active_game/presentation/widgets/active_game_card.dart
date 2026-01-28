@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class ActiveGameCard extends StatelessWidget {
@@ -40,7 +38,7 @@ class ActiveGameCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(_cornerRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -72,7 +70,7 @@ class ActiveGameCard extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
+                  color: colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(

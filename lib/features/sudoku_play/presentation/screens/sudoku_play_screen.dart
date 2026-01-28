@@ -99,8 +99,18 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: WillPopScope(
-        onWillPop: _handleWillPop,
+      body: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          if (didPop) {
+            return;
+          }
+          final shouldPop = await _handleWillPop();
+          if (!mounted || !shouldPop) {
+            return;
+          }
+          Navigator.of(context).pop();
+        },
         child: SafeArea(
           child: AnimatedBuilder(
             animation: _controller,
