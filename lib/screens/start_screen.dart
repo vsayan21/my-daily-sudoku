@@ -126,22 +126,6 @@ class _StartScreenState extends State<StartScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () {},
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Text('Start'),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                 ],
               ),
               const StatisticsScreen(),
@@ -161,6 +145,18 @@ class _StartScreenState extends State<StartScreen> {
           );
         },
       ),
+      floatingActionButton: _currentTab == 0
+          ? FloatingActionButton.extended(
+              onPressed: () {},
+              backgroundColor: colorScheme.primary,
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: const Text('Start'),
+              shape: const StadiumBorder(),
+              elevation: 2,
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
