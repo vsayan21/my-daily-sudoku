@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../../active_game/domain/entities/active_game_session.dart';
+import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../domain/entities/sudoku_board.dart';
 import '../../domain/logic/sudoku_conflict_checker.dart';
 import '../services/game_timer.dart';
@@ -10,13 +12,25 @@ class SudokuPlayController extends ChangeNotifier {
   /// Creates a controller with the given board.
   SudokuPlayController({
     required SudokuBoard board,
+    required SudokuDifficulty difficulty,
+    required String dateKey,
+    required String puzzleId,
+    required String puzzleString,
   })  : _board = board,
+        _difficulty = difficulty,
+        _dateKey = dateKey,
+        _puzzleId = puzzleId,
+        _puzzleString = puzzleString,
         _conflicts = SudokuConflictChecker().findConflicts(board.currentValues) {
     _gameTimer.addListener(_handleTimerTick);
     _gameTimer.start();
   }
 
   SudokuBoard _board;
+  SudokuDifficulty _difficulty;
+  String _dateKey;
+  String _puzzleId;
+  String _puzzleString;
   SudokuPosition? _selectedCell;
   Set<SudokuPosition> _conflicts;
   final GameTimer _gameTimer = GameTimer();
@@ -37,6 +51,42 @@ class SudokuPlayController extends ChangeNotifier {
 
   /// Current formatted time (mm:ss).
   String get formattedTime => _formatDuration(_gameTimer.elapsedSeconds);
+
+  /// Builds a session snapshot for persistence.
+  ActiveGameSession exportSession() {
+    return ActiveGameSession(
+      difficulty: _difficulty,
+      dateKey: _dateKey,
+      puzzleId: _puzzleId,
+      puzzle: _puzzleString,
+      current: _gridToString(_board.currentValues),
+      givens: _puzzleString,
+      elapsedSeconds: _gameTimer.elapsedSeconds,
+      isPaused: _isPaused,
+      lastUpdatedEpochMs: DateTime.now().millisecondsSinceEpoch,
+    );
+  }
+
+  /// Restores the controller from a saved session.
+  void restoreFromSession(ActiveGameSession session) {
+    _difficulty = session.difficulty;
+    _dateKey = session.dateKey;
+    _puzzleId = session.puzzleId ?? _puzzleId;
+    _puzzleString = session.puzzle;
+    _board = SudokuBoard(
+      initialValues: _stringToGrid(session.puzzle),
+      currentValues: _stringToGrid(session.current),
+    );
+    _selectedCell = null;
+    _recomputeConflicts();
+    _isManuallyPaused = false;
+    _isPaused = false;
+    _gameTimer.startFrom(session.elapsedSeconds);
+    if (session.isPaused) {
+      pause();
+    }
+    notifyListeners();
+  }
 
   /// Selects a cell by row and column.
   void selectCell(int row, int col) {
@@ -128,6 +178,29 @@ class SudokuPlayController extends ChangeNotifier {
 
   void _handleTimerTick() {
     notifyListeners();
+  }
+
+  String _gridToString(List<List<int>> values) {
+    final buffer = StringBuffer();
+    for (final row in values) {
+      for (final cell in row) {
+        buffer.write(cell.toString());
+      }
+    }
+    return buffer.toString();
+  }
+
+  List<List<int>> _stringToGrid(String value) {
+    if (value.length != 81) {
+      throw ArgumentError('Puzzle string must be 81 characters long.');
+    }
+    return List.generate(9, (row) {
+      return List.generate(9, (col) {
+        final char = value[row * 9 + col];
+        final parsed = int.tryParse(char);
+        return parsed ?? 0;
+      });
+    });
   }
 
   String _formatDuration(int seconds) {
