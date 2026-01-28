@@ -56,8 +56,8 @@ class SudokuTimerBar extends StatelessWidget {
               : null,
         ),
         duration: _animationDuration,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
             Text(
               formattedTime,
@@ -67,27 +67,29 @@ class SudokuTimerBar extends StatelessWidget {
                 color: colorScheme.onSurface,
               ),
             ),
-            const SizedBox(width: 8),
-            AnimatedScale(
-              scale: showPenalty ? 1 : 0.9,
-              duration: _animationDuration,
-              child: AnimatedOpacity(
-                opacity: showPenalty ? 1 : 0,
+            Align(
+              alignment: Alignment.centerRight,
+              child: AnimatedScale(
+                scale: showPenalty ? 1 : 0.9,
                 duration: _animationDuration,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: penaltyColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '+${penaltySecondsLast}s',
-                    style: textTheme.labelLarge?.copyWith(
-                      color: penaltyColor,
-                      fontWeight: FontWeight.w600,
+                child: AnimatedOpacity(
+                  opacity: showPenalty ? 1 : 0,
+                  duration: _animationDuration,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: penaltyColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '+${penaltySecondsLast}s',
+                      style: textTheme.labelLarge?.copyWith(
+                        color: penaltyColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
