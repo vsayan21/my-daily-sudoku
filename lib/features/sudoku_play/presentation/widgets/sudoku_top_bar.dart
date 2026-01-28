@@ -36,7 +36,7 @@ class SudokuTopBar extends StatelessWidget {
   static const double _iconSpacing = 8;
 
   String _localizedDate(BuildContext context, AppLocalizations loc) {
-    final localeTag = loc.localeName;
+    const localeTag = 'de_CH';
     final parsedDate = DateTime.tryParse(dailyKey);
     if (parsedDate == null) {
       return dailyKey;
