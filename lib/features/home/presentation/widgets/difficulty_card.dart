@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/difficulty_option.dart';
+import '../../domain/models/difficulty_option.dart';
 
 class DifficultyCard extends StatelessWidget {
   const DifficultyCard({

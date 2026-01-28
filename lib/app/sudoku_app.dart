@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
-import 'screens/start_screen.dart';
+import '../features/home/presentation/screens/home_screen.dart';
+import 'di/app_dependencies.dart';
+import 'theme/app_theme.dart';
 
 class SudokuApp extends StatelessWidget {
-  const SudokuApp({super.key});
+  SudokuApp({super.key, AppDependencies? dependencies})
+      : _dependencies = dependencies ?? AppDependencies();
+
+  final AppDependencies _dependencies;
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +22,8 @@ class SudokuApp extends StatelessWidget {
         Locale('it'),
         Locale('fr'),
       ],
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2B6CB0),
-        ),
-        useMaterial3: true,
-      ),
-      home: const StartScreen(),
+      theme: const AppTheme().theme(),
+      home: HomeScreen(dependencies: _dependencies),
     );
   }
 }

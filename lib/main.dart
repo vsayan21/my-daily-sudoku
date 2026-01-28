@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'app.dart';
+import 'app/sudoku_app.dart';
 
 void main() {
-  runApp(const SudokuApp());
+  runApp(SudokuApp());
 }
