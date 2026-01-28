@@ -5,7 +5,6 @@ import '../data/datasources/sudoku_assets_datasource.dart';
 import '../data/repositories/daily_sudoku_repository_impl.dart';
 import '../domain/entities/daily_sudoku.dart';
 import '../shared/daily_key.dart';
-import 'widgets/daily_sudoku_debug_preview.dart';
 import 'widgets/daily_sudoku_header.dart';
 
 /// Section widget displaying today's easy Sudoku.
@@ -48,7 +47,6 @@ class _DailyEasySectionState extends State<DailyEasySection> {
         }
         return _LoadedState(
           dailyKey: _dailyKey,
-          sudoku: sudoku,
         );
       },
     );
@@ -77,11 +75,9 @@ class _ErrorState extends StatelessWidget {
 
 class _LoadedState extends StatelessWidget {
   final String dailyKey;
-  final DailySudoku sudoku;
 
   const _LoadedState({
     required this.dailyKey,
-    required this.sudoku,
   });
 
   @override
@@ -98,8 +94,6 @@ class _LoadedState extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           DailySudokuHeader(dailyKey: dailyKey),
-          const SizedBox(height: 12),
-          DailySudokuDebugPreview(sudoku: sudoku),
         ],
       ),
     );
