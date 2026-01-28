@@ -249,7 +249,7 @@ class _StartScreenState extends State<StartScreen> {
                       onContinue: () => _handleContinue(activeSession),
                       onNewGame: () => _handleNewGame(activeSession),
                     ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: hasActive ? 16 : 24),
                   Expanded(
                     child: ListView(
                       padding: EdgeInsets.zero,
