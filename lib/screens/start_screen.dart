@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/difficulty_option.dart';
 import '../screens/profile_screen.dart';
@@ -7,6 +11,8 @@ import '../widgets/bottom_navigation.dart';
 import '../widgets/difficulty_card.dart';
 import '../features/streak/presentation/streak_section.dart';
 import '../features/daily_sudoku/presentation/daily_easy_section.dart';
+import '../features/sudoku_play/presentation/screens/sudoku_play_screen.dart';
+import '../features/sudoku_play/shared/sudoku_play_args.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -19,6 +25,7 @@ class _StartScreenState extends State<StartScreen> {
   int _selectedIndex = 0;
   int _currentTab = 0;
   late final PageController _pageController;
+  final Random _random = Random();
 
   @override
   void initState() {
@@ -47,6 +54,57 @@ class _StartScreenState extends State<StartScreen> {
         icon: Icons.bolt_outlined,
       ),
     ];
+  }
+
+  SudokuDifficulty _difficultyForIndex(int index) {
+    switch (index) {
+      case 0:
+        return SudokuDifficulty.easy;
+      case 1:
+        return SudokuDifficulty.medium;
+      case 2:
+        return SudokuDifficulty.hard;
+      default:
+        return SudokuDifficulty.easy;
+    }
+  }
+
+  String _assetPathForDifficulty(SudokuDifficulty difficulty) {
+    switch (difficulty) {
+      case SudokuDifficulty.easy:
+        return 'assets/sudoku/easy.json';
+      case SudokuDifficulty.medium:
+        return 'assets/sudoku/medium.json';
+      case SudokuDifficulty.hard:
+        return 'assets/sudoku/hard.json';
+    }
+  }
+
+  Future<SudokuPlayArgs> _loadSamplePuzzle(SudokuDifficulty difficulty) async {
+    final assetPath = _assetPathForDifficulty(difficulty);
+    final rawJson = await rootBundle.loadString(assetPath);
+    final data = (jsonDecode(rawJson) as List<dynamic>)
+        .map((entry) => Map<String, dynamic>.from(entry as Map))
+        .toList();
+    final selection = data[_random.nextInt(data.length)];
+    return SudokuPlayArgs(
+      difficulty: difficulty,
+      puzzleId: selection['id'] as String,
+      puzzleString: selection['puzzle'] as String,
+    );
+  }
+
+  Future<void> _handleStart() async {
+    final difficulty = _difficultyForIndex(_selectedIndex);
+    final args = await _loadSamplePuzzle(difficulty);
+    if (!mounted) {
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SudokuPlayScreen(args: args),
+      ),
+    );
   }
 
   @override
@@ -129,7 +187,7 @@ class _StartScreenState extends State<StartScreen> {
       ),
       floatingActionButton: _currentTab == 0
           ? FloatingActionButton.extended(
-              onPressed: () {},
+              onPressed: _handleStart,
               backgroundColor: colorScheme.primary,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.play_arrow_rounded),
