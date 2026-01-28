@@ -125,14 +125,6 @@ class _StartScreenState extends State<StartScreen> {
     }
   }
 
-  bool _hasActiveForDifficulty(SudokuDifficulty difficulty) {
-    final session = _activeSession;
-    if (session == null) {
-      return false;
-    }
-    return session.difficulty == difficulty;
-  }
-
   Future<void> _openPlayScreen({
     required SudokuPlayArgs args,
     ActiveGameSession? session,
@@ -205,8 +197,6 @@ class _StartScreenState extends State<StartScreen> {
     final activeSession = _activeSession;
     final todayKey = buildDailyKey();
     final hasActive = activeSession != null && activeSession.dateKey == todayKey;
-    final hasActiveForSelected =
-        hasActive && _hasActiveForDifficulty(_difficultyForIndex(_selectedIndex));
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
@@ -249,27 +239,30 @@ class _StartScreenState extends State<StartScreen> {
                       onContinue: () => _handleContinue(activeSession),
                       onNewGame: () => _handleNewGame(activeSession),
                     ),
-                  SizedBox(height: hasActive ? 16 : 24),
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      children: options.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final option = entry.value;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: DifficultyCard(
-                            option: option,
-                            isSelected: _selectedIndex == index,
-                            onPressed: () {
-                              setState(() => _selectedIndex = index);
-                            },
-                          ),
-                        );
-                      }).toList(),
+                  if (!hasActive) ...[
+                    const SizedBox(height: 24),
+                    Expanded(
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        children: options.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final option = entry.value;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: DifficultyCard(
+                              option: option,
+                              isSelected: _selectedIndex == index,
+                              onPressed: () {
+                                setState(() => _selectedIndex = index);
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
+                  ] else
+                    const Spacer(),
                 ],
               ),
               const StatisticsScreen(),
@@ -289,17 +282,13 @@ class _StartScreenState extends State<StartScreen> {
           );
         },
       ),
-      floatingActionButton: _currentTab == 0
+      floatingActionButton: _currentTab == 0 && !hasActive
           ? FloatingActionButton.extended(
               onPressed: _handleStart,
               backgroundColor: colorScheme.primary,
               foregroundColor: Colors.white,
-              icon: Icon(
-                hasActiveForSelected
-                    ? Icons.play_circle_fill_rounded
-                    : Icons.play_arrow_rounded,
-              ),
-              label: Text(hasActiveForSelected ? 'Continue' : loc.start),
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: Text(loc.start),
               shape: const StadiumBorder(),
               elevation: 2,
             )
