@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../domain/streak_state.dart';
 import 'streak_header.dart';
-import 'streak_week_dots.dart';
 
 class StreakCard extends StatelessWidget {
   const StreakCard({
@@ -38,10 +37,6 @@ class StreakCard extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-            const SizedBox(height: 20),
-            StreakWeekDots(
-              todaySolved: state.todaySolved,
             ),
           ],
         ),
