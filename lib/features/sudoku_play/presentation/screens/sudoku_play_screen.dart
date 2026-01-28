@@ -126,10 +126,8 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                     onPauseToggle: _controller.togglePause,
                   ),
                   SudokuTimerBar(
-                  formattedTime: _controller.formattedTime,
-                  showPenalty: _controller.showPenalty,
-                  penaltySecondsLast: _controller.penaltySecondsLast,
-                ),
+                    formattedTime: _controller.formattedTime,
+                  ),
                   const SizedBox(height: _spacingMedium),
                   Expanded(
                     child: Center(
@@ -147,7 +145,6 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                                 child: SudokuGrid(
                                   board: _controller.board,
                                   selectedCell: _controller.selectedCell,
-                                  conflicts: _controller.conflicts,
                                   onCellTap: _controller.selectCell,
                                 ),
                               ),
