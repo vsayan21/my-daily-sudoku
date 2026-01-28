@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 
@@ -34,6 +35,15 @@ class SudokuTopBar extends StatelessWidget {
   static const double _verticalPadding = 12;
   static const double _iconSpacing = 8;
 
+  String _localizedDate(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+    final parsedDate = DateTime.tryParse(dailyKey);
+    if (parsedDate == null) {
+      return dailyKey;
+    }
+    return DateFormat.yMd(locale).format(parsedDate);
+  }
+
   String _localizedDifficulty(AppLocalizations loc) {
     switch (difficulty) {
       case SudokuDifficulty.easy:
@@ -50,6 +60,7 @@ class SudokuTopBar extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final loc = AppLocalizations.of(context)!;
     final difficultyLabel = _localizedDifficulty(loc);
+    final dateLabel = _localizedDate(context);
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: _horizontalPadding,
@@ -74,7 +85,7 @@ class SudokuTopBar extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  dailyKey,
+                  dateLabel,
                   style: textTheme.bodySmall,
                 ),
               ],
