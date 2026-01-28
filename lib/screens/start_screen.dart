@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/difficulty_option.dart';
+import '../screens/profile_screen.dart';
+import '../screens/statistics_screen.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/difficulty_card.dart';
 
@@ -126,14 +128,8 @@ class _StartScreenState extends State<StartScreen> {
                   const SizedBox(height: 16),
                 ],
               ),
-              _ComingSoonPanel(
-                title: 'Statistik',
-                colorScheme: colorScheme,
-              ),
-              _ComingSoonPanel(
-                title: 'Profil',
-                colorScheme: colorScheme,
-              ),
+              const StatisticsScreen(),
+              const ProfileScreen(),
             ],
           ),
         ),
@@ -143,30 +139,6 @@ class _StartScreenState extends State<StartScreen> {
         onDestinationSelected: (index) {
           setState(() => _currentTab = index);
         },
-      ),
-    );
-  }
-}
-
-class _ComingSoonPanel extends StatelessWidget {
-  const _ComingSoonPanel({
-    required this.title,
-    required this.colorScheme,
-  });
-
-  final String title;
-  final ColorScheme colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '$title\ncoming soon',
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
       ),
     );
   }
