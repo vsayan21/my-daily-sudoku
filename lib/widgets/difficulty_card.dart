@@ -20,7 +20,7 @@ class DifficultyCard extends StatelessWidget {
     final borderColor =
         isSelected ? colorScheme.primary : colorScheme.outlineVariant;
     final backgroundColor = isSelected
-        ? colorScheme.primary.withOpacity(0.08)
+        ? colorScheme.primary.withValues(alpha: 0.08)
         : colorScheme.surface;
     return Container(
       padding: const EdgeInsets.all(16),
@@ -30,7 +30,7 @@ class DifficultyCard extends StatelessWidget {
         border: Border.all(color: borderColor, width: isSelected ? 2 : 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -44,7 +44,7 @@ class DifficultyCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.12),
+                color: colorScheme.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(option.icon, color: colorScheme.primary, size: 24),
