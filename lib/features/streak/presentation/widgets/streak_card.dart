@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../domain/streak_state.dart';
 import 'streak_header.dart';
@@ -14,6 +15,7 @@ class StreakCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final loc = AppLocalizations.of(context)!;
     return Card(
       elevation: 0,
       color: colorScheme.surfaceContainerLow,
@@ -30,10 +32,10 @@ class StreakCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: StreakHeader(
-                    title: '${state.streakCount} Day Streak',
+                    title: '${state.streakCount} ${loc.streakTitle}',
                     subtitle: state.todaySolved
-                        ? 'Done for today'
-                        : 'Solve today to keep your streak',
+                        ? loc.streakSubtitleSolved
+                        : loc.streakSubtitleOpen,
                   ),
                 ),
               ],

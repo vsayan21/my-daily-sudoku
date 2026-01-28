@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../application/usecases/get_today_sudoku.dart';
 import '../data/datasources/sudoku_assets_datasource.dart';
@@ -68,7 +69,17 @@ class _LoadingState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator());
+    final loc = AppLocalizations.of(context)!;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 12),
+          Text(loc.loading),
+        ],
+      ),
+    );
   }
 }
 
@@ -77,9 +88,8 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
-      'Unable to load today\'s Sudoku. Please try again later.',
-    );
+    final loc = AppLocalizations.of(context)!;
+    return Text(loc.errorGeneric);
   }
 }
 
