@@ -16,6 +16,19 @@ class StartScreen extends StatefulWidget {
 class _StartScreenState extends State<StartScreen> {
   int _selectedIndex = 0;
   int _currentTab = 0;
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentTab);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   List<DifficultyOption> _buildOptions() {
     return const [
@@ -43,8 +56,11 @@ class _StartScreenState extends State<StartScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-          child: IndexedStack(
-            index: _currentTab,
+          child: PageView(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() => _currentTab = index);
+            },
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,6 +154,11 @@ class _StartScreenState extends State<StartScreen> {
         currentIndex: _currentTab,
         onDestinationSelected: (index) {
           setState(() => _currentTab = index);
+          _pageController.animateToPage(
+            index,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
         },
       ),
     );
