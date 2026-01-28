@@ -10,24 +10,18 @@ class StartScreen extends StatelessWidget {
     return const [
       DifficultyOption(
         title: 'Einfach',
-        subtitle: 'Sanfter Start mit klaren Hinweisen.',
-        accentColor: Color(0xFF38A169),
+        subtitle: 'Leichtes tägliches Sudoku',
         icon: Icons.wb_sunny_outlined,
-        focusTag: '1 tägliches Rätsel',
       ),
       DifficultyOption(
         title: 'Mittel',
-        subtitle: 'Für den täglichen Flow, ausgewogen.',
-        accentColor: Color(0xFFDD6B20),
+        subtitle: 'Ausgewogenes tägliches Sudoku',
         icon: Icons.auto_graph,
-        focusTag: '1 tägliches Rätsel',
       ),
       DifficultyOption(
         title: 'Schwer',
-        subtitle: 'Knifflig für echte Sudoku-Fans.',
-        accentColor: Color(0xFF805AD5),
+        subtitle: 'Herausforderndes tägliches Sudoku',
         icon: Icons.bolt_outlined,
-        focusTag: '1 tägliches Rätsel',
       ),
     ];
   }
@@ -75,16 +69,15 @@ class StartScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Starte mit deinem täglichen Sudoku',
+                        'Dein tägliches Sudoku',
                         style: Theme.of(context)
                             .textTheme
                             .headlineSmall
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
-                        'Jeden Tag steht für alle Nutzer ein einfaches, '
-                        'mittleres und schweres Rätsel bereit.',
+                        'Wähle ein Level und leg direkt los.',
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium
@@ -106,28 +99,12 @@ class StartScreen extends StatelessWidget {
                               .toList(),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: colorScheme.primaryContainer.withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.local_fire_department_outlined,
-                              color: colorScheme.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Dein Fortschritt zählt täglich neu. '
-                                'Bleib dran und halte deine Serie!',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
-                          ],
-                        ),
+                      Text(
+                        'Jeden Tag ein neues Rätsel für alle.',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),

@@ -37,10 +37,10 @@ class DifficultyCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: option.accentColor.withOpacity(0.15),
+                  color: colorScheme.primary.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(option.icon, color: option.accentColor, size: 24),
+                child: Icon(option.icon, color: colorScheme.primary, size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -50,21 +50,6 @@ class DifficultyCard extends StatelessWidget {
                       .textTheme
                       .titleMedium
                       ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: option.accentColor.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  option.focusTag,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: option.accentColor,
-                        fontWeight: FontWeight.w600,
-                      ),
                 ),
               ),
             ],
@@ -83,11 +68,11 @@ class DifficultyCard extends StatelessWidget {
             child: FilledButton(
               onPressed: onPressed,
               style: FilledButton.styleFrom(
-                backgroundColor: option.accentColor,
+                backgroundColor: colorScheme.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
-              child: const Text('Jetzt spielen'),
+              child: const Text('Start'),
             ),
           ),
         ],
