@@ -1,9 +1,9 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../features/daily_sudoku/application/usecases/get_today_sudoku.dart';
+import '../features/daily_sudoku/data/datasources/sudoku_assets_datasource.dart';
+import '../features/daily_sudoku/data/repositories/daily_sudoku_repository_impl.dart';
+import '../features/daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../models/difficulty_option.dart';
 import '../screens/profile_screen.dart';
 import '../screens/statistics_screen.dart';
@@ -24,12 +24,17 @@ class _StartScreenState extends State<StartScreen> {
   int _selectedIndex = 0;
   int _currentTab = 0;
   late final PageController _pageController;
-  final Random _random = Random();
+  late final GetTodaySudoku _getTodaySudoku;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentTab);
+    _getTodaySudoku = GetTodaySudoku(
+      repository: DailySudokuRepositoryImpl(
+        dataSource: SudokuAssetsDataSource(),
+      ),
+    );
   }
 
   @override
@@ -68,34 +73,19 @@ class _StartScreenState extends State<StartScreen> {
     }
   }
 
-  String _assetPathForDifficulty(SudokuDifficulty difficulty) {
-    switch (difficulty) {
-      case SudokuDifficulty.easy:
-        return 'assets/sudoku/easy.json';
-      case SudokuDifficulty.medium:
-        return 'assets/sudoku/medium.json';
-      case SudokuDifficulty.hard:
-        return 'assets/sudoku/hard.json';
-    }
-  }
-
-  Future<SudokuPlayArgs> _loadSamplePuzzle(SudokuDifficulty difficulty) async {
-    final assetPath = _assetPathForDifficulty(difficulty);
-    final rawJson = await rootBundle.loadString(assetPath);
-    final data = (jsonDecode(rawJson) as List<dynamic>)
-        .map((entry) => Map<String, dynamic>.from(entry as Map))
-        .toList();
-    final selection = data[_random.nextInt(data.length)];
+  Future<SudokuPlayArgs> _loadDailyPuzzle(SudokuDifficulty difficulty) async {
+    final selection = await _getTodaySudoku.execute(difficulty);
     return SudokuPlayArgs(
       difficulty: difficulty,
-      puzzleId: selection['id'] as String,
-      puzzleString: selection['puzzle'] as String,
+      puzzleId: selection.id,
+      puzzleString: selection.puzzle,
+      dailyKey: selection.dateKey,
     );
   }
 
   Future<void> _handleStart() async {
     final difficulty = _difficultyForIndex(_selectedIndex);
-    final args = await _loadSamplePuzzle(difficulty);
+    final args = await _loadDailyPuzzle(difficulty);
     if (!mounted) {
       return;
     }

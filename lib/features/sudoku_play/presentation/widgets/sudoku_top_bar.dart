@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../shared/sudoku_play_args.dart';
+import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 
 /// Top bar for the Sudoku play screen.
 class SudokuTopBar extends StatelessWidget {
@@ -9,6 +9,7 @@ class SudokuTopBar extends StatelessWidget {
     super.key,
     required this.difficulty,
     required this.puzzleId,
+    required this.dailyKey,
     required this.onBack,
   });
 
@@ -17,6 +18,9 @@ class SudokuTopBar extends StatelessWidget {
 
   /// Current puzzle identifier.
   final String puzzleId;
+
+  /// Daily key in YYYY-MM-DD format.
+  final String dailyKey;
 
   /// Callback for back navigation.
   final VoidCallback onBack;
@@ -44,7 +48,7 @@ class SudokuTopBar extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  puzzleId,
+                  '$dailyKey • $puzzleId',
                   style: textTheme.bodySmall,
                 ),
               ],

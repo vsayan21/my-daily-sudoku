@@ -1,9 +1,4 @@
-/// Supported Sudoku difficulty levels.
-enum SudokuDifficulty {
-  easy,
-  medium,
-  hard,
-}
+import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 
 /// Navigation arguments for the Sudoku play screen.
 class SudokuPlayArgs {
@@ -12,6 +7,7 @@ class SudokuPlayArgs {
     required this.difficulty,
     required this.puzzleId,
     required this.puzzleString,
+    required this.dailyKey,
   });
 
   /// Selected difficulty.
@@ -22,19 +18,7 @@ class SudokuPlayArgs {
 
   /// 81-character puzzle string (0 = empty).
   final String puzzleString;
-}
 
-/// Convenience helpers for difficulty display.
-extension SudokuDifficultyLabel on SudokuDifficulty {
-  /// Human-readable label for UI.
-  String get label {
-    switch (this) {
-      case SudokuDifficulty.easy:
-        return 'Easy';
-      case SudokuDifficulty.medium:
-        return 'Medium';
-      case SudokuDifficulty.hard:
-        return 'Hard';
-    }
-  }
+  /// Daily key in YYYY-MM-DD format.
+  final String dailyKey;
 }

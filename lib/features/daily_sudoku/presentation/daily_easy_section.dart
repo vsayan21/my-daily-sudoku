@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../application/usecases/get_today_easy_sudoku.dart';
+import '../application/usecases/get_today_sudoku.dart';
 import '../data/datasources/sudoku_assets_datasource.dart';
 import '../data/repositories/daily_sudoku_repository_impl.dart';
 import '../domain/entities/daily_sudoku.dart';
 import '../shared/daily_key.dart';
+import '../domain/entities/sudoku_difficulty.dart';
 import 'widgets/daily_sudoku_header.dart';
 
 /// Section widget displaying today's easy Sudoku.
@@ -31,7 +32,8 @@ class _DailyEasySectionState extends State<DailyEasySection> {
     final repository = DailySudokuRepositoryImpl(
       dataSource: SudokuAssetsDataSource(),
     );
-    _future = GetTodayEasySudoku(repository: repository).execute();
+    _future = GetTodaySudoku(repository: repository)
+        .execute(SudokuDifficulty.easy);
   }
 
   @override

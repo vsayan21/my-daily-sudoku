@@ -1,4 +1,5 @@
 import '../../domain/entities/daily_sudoku.dart';
+import '../../domain/entities/sudoku_difficulty.dart';
 
 /// DTO for a daily Sudoku puzzle loaded from assets.
 class DailySudokuModel {
@@ -22,5 +23,16 @@ class DailySudokuModel {
   }
 
   /// Converts the model to a domain entity.
-  DailySudoku toEntity() => DailySudoku(id: id, puzzle: puzzle, solution: solution);
+  DailySudoku toEntity({
+    required SudokuDifficulty difficulty,
+    required String dateKey,
+  }) {
+    return DailySudoku(
+      id: id,
+      puzzle: puzzle,
+      solution: solution,
+      difficulty: difficulty,
+      dateKey: dateKey,
+    );
+  }
 }

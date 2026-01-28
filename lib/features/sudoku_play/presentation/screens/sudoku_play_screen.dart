@@ -51,6 +51,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen> {
                 SudokuTopBar(
                   difficulty: widget.args.difficulty,
                   puzzleId: widget.args.puzzleId,
+                  dailyKey: widget.args.dailyKey,
                   onBack: () => Navigator.of(context).pop(),
                 ),
                 const SizedBox(height: 12),
