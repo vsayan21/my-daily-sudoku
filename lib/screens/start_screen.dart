@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../features/active_game/application/usecases/clear_active_game.dart';
 import '../features/active_game/application/usecases/load_active_game.dart';
-import '../features/active_game/application/usecases/reset_active_game.dart';
 import '../features/active_game/data/datasources/active_game_local_datasource.dart';
 import '../features/active_game/data/repositories/active_game_repository_impl.dart';
 import '../features/active_game/domain/entities/active_game_session.dart';
@@ -173,20 +173,14 @@ class _StartScreenState extends State<StartScreen> {
     await _openPlayScreen(args: args, session: session);
   }
 
-  Future<void> _handleNewGame(ActiveGameSession session) async {
+  Future<void> _handleReset() async {
     final repository = await _activeGameRepository;
-    final resetUseCase = ResetActiveGame(repository: repository);
-    final refreshed = await resetUseCase.execute(session);
+    final clearUseCase = ClearActiveGame(repository: repository);
+    await clearUseCase.execute();
     if (!mounted) {
       return;
     }
-    final args = SudokuPlayArgs(
-      difficulty: refreshed.difficulty,
-      puzzleId: refreshed.puzzleId ?? 'active',
-      puzzleString: refreshed.puzzle,
-      dailyKey: refreshed.dateKey,
-    );
-    await _openPlayScreen(args: args, session: refreshed);
+    setState(() => _activeSession = null);
   }
 
   @override
@@ -237,7 +231,7 @@ class _StartScreenState extends State<StartScreen> {
                       elapsedSeconds: activeSession.elapsedSeconds,
                       isPaused: activeSession.isPaused,
                       onContinue: () => _handleContinue(activeSession),
-                      onNewGame: () => _handleNewGame(activeSession),
+                      onReset: _handleReset,
                     ),
                   if (!hasActive) ...[
                     const SizedBox(height: 24),

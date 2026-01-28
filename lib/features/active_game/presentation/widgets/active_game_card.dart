@@ -10,7 +10,7 @@ class ActiveGameCard extends StatelessWidget {
     required this.elapsedSeconds,
     required this.isPaused,
     required this.onContinue,
-    required this.onNewGame,
+    required this.onReset,
   });
 
   final String difficultyLabel;
@@ -18,7 +18,7 @@ class ActiveGameCard extends StatelessWidget {
   final int elapsedSeconds;
   final bool isPaused;
   final VoidCallback onContinue;
-  final VoidCallback onNewGame;
+  final VoidCallback onReset;
 
   static const double _cornerRadius = 20;
 
@@ -109,12 +109,12 @@ class ActiveGameCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton(
-                  onPressed: onNewGame,
+                  onPressed: onReset,
                   style: OutlinedButton.styleFrom(
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text('New game'),
+                  child: const Text('Reset'),
                 ),
               ),
             ],
