@@ -10,6 +10,7 @@ class GameTimer extends ChangeNotifier {
   Timer? _timer;
   int _stopwatchSeconds = 0;
   int _penaltySeconds = 0;
+  int _baseSeconds = 0;
 
   /// Elapsed time in seconds.
   int get elapsedSeconds => _stopwatchSeconds + _penaltySeconds;
@@ -19,9 +20,18 @@ class GameTimer extends ChangeNotifier {
 
   /// Starts the timer from zero.
   void start() {
-    reset();
-    _stopwatch.start();
+    startFrom(0);
+  }
+
+  /// Starts the timer from a given elapsed seconds value.
+  void startFrom(int elapsedSeconds) {
+    _baseSeconds = elapsedSeconds;
+    _stopwatchSeconds = elapsedSeconds;
+    _stopwatch
+      ..reset()
+      ..start();
     _startTicker();
+    notifyListeners();
   }
 
   /// Pauses the timer.
@@ -29,7 +39,10 @@ class GameTimer extends ChangeNotifier {
     if (!_stopwatch.isRunning) {
       return;
     }
-    _stopwatch.stop();
+    _baseSeconds = _baseSeconds + _stopwatch.elapsed.inSeconds;
+    _stopwatch
+      ..reset()
+      ..stop();
     _stopTicker();
     _refreshElapsedSeconds();
   }
@@ -51,6 +64,7 @@ class GameTimer extends ChangeNotifier {
       ..stop();
     _stopwatchSeconds = 0;
     _penaltySeconds = 0;
+    _baseSeconds = 0;
     _stopTicker();
     notifyListeners();
   }
@@ -80,7 +94,7 @@ class GameTimer extends ChangeNotifier {
   }
 
   void _refreshElapsedSeconds() {
-    final nextValue = _stopwatch.elapsed.inSeconds;
+    final nextValue = _baseSeconds + _stopwatch.elapsed.inSeconds;
     if (nextValue == _stopwatchSeconds) {
       return;
     }

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../active_game/application/usecases/save_active_game.dart';
+import '../../../active_game/data/datasources/active_game_local_datasource.dart';
+import '../../../active_game/data/repositories/active_game_repository_impl.dart';
+import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../application/controllers/sudoku_play_controller.dart';
 import '../../domain/logic/sudoku_parser.dart';
 import '../../shared/sudoku_play_args.dart';
@@ -15,10 +20,12 @@ class SudokuPlayScreen extends StatefulWidget {
   const SudokuPlayScreen({
     super.key,
     required this.args,
+    this.initialSession,
   });
 
   /// Navigation arguments.
   final SudokuPlayArgs args;
+  final ActiveGameSession? initialSession;
 
   @override
   State<SudokuPlayScreen> createState() => _SudokuPlayScreenState();
@@ -27,6 +34,7 @@ class SudokuPlayScreen extends StatefulWidget {
 class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     with WidgetsBindingObserver {
   late final SudokuPlayController _controller;
+  late final Future<SaveActiveGame> _saveActiveGame;
 
   static const double _horizontalPadding = 16;
   static const double _spacingSmall = 12;
@@ -37,7 +45,18 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     final board = SudokuParser().parse(widget.args.puzzleString);
-    _controller = SudokuPlayController(board: board);
+    _controller = SudokuPlayController(
+      board: board,
+      difficulty: widget.args.difficulty,
+      dateKey: widget.args.dailyKey,
+      puzzleId: widget.args.puzzleId,
+      puzzleString: widget.args.puzzleString,
+    );
+    final session = widget.initialSession;
+    if (session != null) {
+      _controller.restoreFromSession(session);
+    }
+    _saveActiveGame = _buildSaveActiveGame();
   }
 
   @override
@@ -52,70 +71,108 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     _controller.handleAppLifecycleState(state);
   }
 
+  Future<SaveActiveGame> _buildSaveActiveGame() async {
+    final preferences = await SharedPreferences.getInstance();
+    final repository = ActiveGameRepositoryImpl(
+      dataSource: ActiveGameLocalDataSource(preferences),
+    );
+    return SaveActiveGame(repository: repository);
+  }
+
+  Future<bool> _handleWillPop() async {
+    _controller.pause();
+    final session = _controller.exportSession();
+    final saver = await _saveActiveGame;
+    await saver.execute(session);
+    return true;
+  }
+
+  Future<void> _handleBack() async {
+    final shouldPop = await _handleWillPop();
+    if (!mounted || !shouldPop) {
+      return;
+    }
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) {
-            return Column(
-              children: [
-                SudokuTopBar(
-                  difficulty: widget.args.difficulty,
-                  dailyKey: widget.args.dailyKey,
-                  onBack: () => Navigator.of(context).pop(),
-                  isPaused: _controller.isPaused,
-                  onPauseToggle: _controller.togglePause,
-                ),
-                SudokuTimerBar(
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) {
+            return;
+          }
+          final navigator = Navigator.of(context);
+          final shouldPop = await _handleWillPop();
+          if (!mounted || !shouldPop) {
+            return;
+          }
+          navigator.pop();
+        },
+        child: SafeArea(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              return Column(
+                children: [
+                  SudokuTopBar(
+                    difficulty: widget.args.difficulty,
+                    dailyKey: widget.args.dailyKey,
+                    onBack: _handleBack,
+                    isPaused: _controller.isPaused,
+                    onPauseToggle: _controller.togglePause,
+                  ),
+                  SudokuTimerBar(
                   formattedTime: _controller.formattedTime,
                   showPenalty: _controller.showPenalty,
                   penaltySecondsLast: _controller.penaltySecondsLast,
                 ),
-                const SizedBox(height: _spacingMedium),
-                Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: _horizontalPadding,
-                      ),
-                      child: Stack(
-                        children: [
-                          AnimatedOpacity(
-                            duration: const Duration(milliseconds: 200),
-                            opacity: _controller.isPaused ? 0.6 : 1,
-                            child: IgnorePointer(
-                              ignoring: _controller.isPaused,
-                              child: SudokuGrid(
-                                board: _controller.board,
-                                selectedCell: _controller.selectedCell,
-                                conflicts: _controller.conflicts,
-                                onCellTap: _controller.selectCell,
+                  const SizedBox(height: _spacingMedium),
+                  Expanded(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: _horizontalPadding,
+                        ),
+                        child: Stack(
+                          children: [
+                            AnimatedOpacity(
+                              duration: const Duration(milliseconds: 200),
+                              opacity: _controller.isPaused ? 0.6 : 1,
+                              child: IgnorePointer(
+                                ignoring: _controller.isPaused,
+                                child: SudokuGrid(
+                                  board: _controller.board,
+                                  selectedCell: _controller.selectedCell,
+                                  conflicts: _controller.conflicts,
+                                  onCellTap: _controller.selectCell,
+                                ),
                               ),
                             ),
-                          ),
-                          if (_controller.isPaused)
-                            const Positioned.fill(
-                              child: SudokuPauseOverlay(),
-                            ),
-                        ],
+                            if (_controller.isPaused)
+                              const Positioned.fill(
+                                child: SudokuPauseOverlay(),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                IgnorePointer(
-                  ignoring: _controller.isPaused,
-                  child: SudokuNumberPad(
-                    onNumberSelected: _controller.inputValue,
-                    onErase: _controller.erase,
+                  IgnorePointer(
+                    ignoring: _controller.isPaused,
+                    child: SudokuNumberPad(
+                      onNumberSelected: _controller.inputValue,
+                      onErase: _controller.erase,
+                    ),
                   ),
-                ),
-                const SizedBox(height: _spacingSmall),
-              ],
-            );
-          },
+                  const SizedBox(height: _spacingSmall),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

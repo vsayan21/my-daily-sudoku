@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../features/active_game/application/usecases/clear_active_game.dart';
+import '../features/active_game/application/usecases/load_active_game.dart';
+import '../features/active_game/data/datasources/active_game_local_datasource.dart';
+import '../features/active_game/data/repositories/active_game_repository_impl.dart';
+import '../features/active_game/domain/entities/active_game_session.dart';
+import '../features/active_game/domain/repositories/active_game_repository.dart';
+import '../features/active_game/presentation/widgets/active_game_card.dart';
 import '../features/daily_sudoku/application/usecases/get_today_sudoku.dart';
 import '../features/daily_sudoku/data/datasources/sudoku_assets_datasource.dart';
 import '../features/daily_sudoku/data/repositories/daily_sudoku_repository_impl.dart';
 import '../features/daily_sudoku/domain/entities/sudoku_difficulty.dart';
+import '../features/daily_sudoku/shared/daily_key.dart';
 import '../models/difficulty_option.dart';
 import '../screens/profile_screen.dart';
 import '../screens/statistics_screen.dart';
@@ -21,27 +30,40 @@ class StartScreen extends StatefulWidget {
   State<StartScreen> createState() => _StartScreenState();
 }
 
-class _StartScreenState extends State<StartScreen> {
+class _StartScreenState extends State<StartScreen> with WidgetsBindingObserver {
   int _selectedIndex = 0;
   int _currentTab = 0;
   late final PageController _pageController;
   late final GetTodaySudoku _getTodaySudoku;
+  late final Future<ActiveGameRepository> _activeGameRepository;
+  ActiveGameSession? _activeSession;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pageController = PageController(initialPage: _currentTab);
     _getTodaySudoku = GetTodaySudoku(
       repository: DailySudokuRepositoryImpl(
         dataSource: SudokuAssetsDataSource(),
       ),
     );
+    _activeGameRepository = _buildActiveGameRepository();
+    _refreshActiveSession();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _clearStaleSessionIfNeeded();
+    }
   }
 
   List<DifficultyOption> _buildOptions(AppLocalizations loc) {
@@ -84,17 +106,130 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
+  Future<ActiveGameRepository> _buildActiveGameRepository() async {
+    final preferences = await SharedPreferences.getInstance();
+    return ActiveGameRepositoryImpl(
+      dataSource: ActiveGameLocalDataSource(preferences),
+    );
+  }
+
+  Future<void> _refreshActiveSession() async {
+    final repository = await _activeGameRepository;
+    final loader = LoadActiveGame(repository: repository);
+    final session = await loader.execute();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _activeSession = session);
+  }
+
+  String _todayKey() => buildDailyKey();
+
+  bool _isSessionForToday(ActiveGameSession? session) {
+    if (session == null) {
+      return false;
+    }
+    return session.dateKey == _todayKey();
+  }
+
+  bool _isValidActiveSession(
+    ActiveGameSession? session, {
+    required SudokuDifficulty selected,
+  }) {
+    if (!_isSessionForToday(session)) {
+      return false;
+    }
+    return session?.difficulty == selected;
+  }
+
+  Future<void> _clearStaleSessionIfNeeded() async {
+    final session = _activeSession;
+    if (session == null || _isSessionForToday(session)) {
+      return;
+    }
+    final repository = await _activeGameRepository;
+    final clearUseCase = ClearActiveGame(repository: repository);
+    await clearUseCase.execute();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _activeSession = null);
+  }
+
+  String _difficultyLabel(AppLocalizations loc, SudokuDifficulty difficulty) {
+    switch (difficulty) {
+      case SudokuDifficulty.easy:
+        return loc.difficultyEasy;
+      case SudokuDifficulty.medium:
+        return loc.difficultyMedium;
+      case SudokuDifficulty.hard:
+        return loc.difficultyHard;
+    }
+  }
+
+  Future<void> _openPlayScreen({
+    required SudokuPlayArgs args,
+    ActiveGameSession? session,
+  }) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SudokuPlayScreen(
+          args: args,
+          initialSession: session,
+        ),
+      ),
+    );
+    if (!mounted) {
+      return;
+    }
+    await _refreshActiveSession();
+  }
+
   Future<void> _handleStart() async {
     final difficulty = _difficultyForIndex(_selectedIndex);
+    final session = _activeSession;
+    if (_isValidActiveSession(session, selected: difficulty)) {
+      final args = SudokuPlayArgs(
+        difficulty: session!.difficulty,
+        puzzleId: session.puzzleId ?? 'active',
+        puzzleString: session.puzzle,
+        dailyKey: session.dateKey,
+      );
+      await _openPlayScreen(args: args, session: session);
+      return;
+    }
+    if (session != null && !_isSessionForToday(session)) {
+      await _clearStaleSessionIfNeeded();
+    }
     final args = await _loadDailyPuzzle(difficulty);
     if (!mounted) {
       return;
     }
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => SudokuPlayScreen(args: args),
-      ),
+    await _openPlayScreen(args: args);
+  }
+
+  Future<void> _handleContinue(ActiveGameSession session) async {
+    if (!_isSessionForToday(session)) {
+      await _clearStaleSessionIfNeeded();
+      return;
+    }
+    final args = SudokuPlayArgs(
+      difficulty: session.difficulty,
+      puzzleId: session.puzzleId ?? 'active',
+      puzzleString: session.puzzle,
+      dailyKey: session.dateKey,
     );
+    await _openPlayScreen(args: args, session: session);
+  }
+
+  Future<void> _handleReset() async {
+    final repository = await _activeGameRepository;
+    final clearUseCase = ClearActiveGame(repository: repository);
+    await clearUseCase.execute();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _activeSession = null);
   }
 
   @override
@@ -102,6 +237,8 @@ class _StartScreenState extends State<StartScreen> {
     final loc = AppLocalizations.of(context)!;
     final options = _buildOptions(loc);
     final colorScheme = Theme.of(context).colorScheme;
+    final activeSession = _activeSession;
+    final hasActive = _isSessionForToday(activeSession);
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
@@ -134,27 +271,40 @@ class _StartScreenState extends State<StartScreen> {
                         ?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 20),
-                  const SizedBox(height: 24),
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      children: options.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final option = entry.value;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: DifficultyCard(
-                            option: option,
-                            isSelected: _selectedIndex == index,
-                            onPressed: () {
-                              setState(() => _selectedIndex = index);
-                            },
-                          ),
-                        );
-                      }).toList(),
+                  if (hasActive)
+                    ActiveGameCard(
+                      difficultyLabel:
+                          _difficultyLabel(loc, activeSession!.difficulty),
+                      dateKey: activeSession.dateKey,
+                      elapsedSeconds: activeSession.elapsedSeconds,
+                      isPaused: activeSession.isPaused,
+                      onContinue: () => _handleContinue(activeSession),
+                      onReset: _handleReset,
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                  if (!hasActive) ...[
+                    const SizedBox(height: 24),
+                    Expanded(
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        children: options.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final option = entry.value;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: DifficultyCard(
+                              option: option,
+                              isSelected: _selectedIndex == index,
+                              onPressed: () {
+                                setState(() => _selectedIndex = index);
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ] else
+                    const Spacer(),
                 ],
               ),
               const StatisticsScreen(),
@@ -174,7 +324,7 @@ class _StartScreenState extends State<StartScreen> {
           );
         },
       ),
-      floatingActionButton: _currentTab == 0
+      floatingActionButton: _currentTab == 0 && !hasActive
           ? FloatingActionButton.extended(
               onPressed: _handleStart,
               backgroundColor: colorScheme.primary,
