@@ -35,6 +35,10 @@ class SudokuCellWidget extends StatelessWidget {
   /// Called when the cell is tapped.
   final VoidCallback onTap;
 
+  static const double _conflictOpacity = 0.14;
+  static const double _selectedOpacity = 0.16;
+  static const double _highlightOpacity = 0.05;
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -62,13 +66,13 @@ class SudokuCellWidget extends StatelessWidget {
 
   Color _backgroundColor(ColorScheme colorScheme) {
     if (isConflict) {
-      return colorScheme.error.withValues(alpha: 0.18);
+      return colorScheme.error.withValues(alpha: _conflictOpacity);
     }
     if (isSelected) {
-      return colorScheme.primary.withValues(alpha: 0.2);
+      return colorScheme.primary.withValues(alpha: _selectedOpacity);
     }
     if (isHighlighted) {
-      return colorScheme.primary.withValues(alpha: 0.08);
+      return colorScheme.primary.withValues(alpha: _highlightOpacity);
     }
     return Colors.transparent;
   }

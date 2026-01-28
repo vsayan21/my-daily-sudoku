@@ -9,22 +9,30 @@ class SudokuTopBar extends StatelessWidget {
   const SudokuTopBar({
     super.key,
     required this.difficulty,
-    required this.puzzleId,
     required this.dailyKey,
     required this.onBack,
+    required this.isPaused,
+    required this.onPauseToggle,
   });
 
   /// Selected difficulty.
   final SudokuDifficulty difficulty;
-
-  /// Current puzzle identifier.
-  final String puzzleId;
 
   /// Daily key in YYYY-MM-DD format.
   final String dailyKey;
 
   /// Callback for back navigation.
   final VoidCallback onBack;
+
+  /// Whether the game is paused.
+  final bool isPaused;
+
+  /// Callback for pause/resume toggle.
+  final VoidCallback onPauseToggle;
+
+  static const double _horizontalPadding = 16;
+  static const double _verticalPadding = 12;
+  static const double _iconSpacing = 8;
 
   String _localizedDifficulty(AppLocalizations loc) {
     switch (difficulty) {
@@ -43,7 +51,10 @@ class SudokuTopBar extends StatelessWidget {
     final loc = AppLocalizations.of(context)!;
     final difficultyLabel = _localizedDifficulty(loc);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: _horizontalPadding,
+        vertical: _verticalPadding,
+      ),
       child: Row(
         children: [
           IconButton(
@@ -51,7 +62,7 @@ class SudokuTopBar extends StatelessWidget {
             icon: const Icon(Icons.arrow_back),
             tooltip: loc.cancel,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: _iconSpacing),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,11 +74,16 @@ class SudokuTopBar extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '$dailyKey • $puzzleId',
+                  dailyKey,
                   style: textTheme.bodySmall,
                 ),
               ],
             ),
+          ),
+          IconButton(
+            onPressed: onPauseToggle,
+            icon: Icon(isPaused ? Icons.play_arrow : Icons.pause),
+            tooltip: isPaused ? 'Resume' : 'Pause',
           ),
         ],
       ),
