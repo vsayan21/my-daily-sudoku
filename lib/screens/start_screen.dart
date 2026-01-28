@@ -5,6 +5,7 @@ import '../screens/profile_screen.dart';
 import '../screens/statistics_screen.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/difficulty_card.dart';
+import '../features/daily_sudoku/presentation/daily_easy_section.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -105,6 +106,8 @@ class _StartScreenState extends State<StartScreen> {
                         .bodyMedium
                         ?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
+                  const SizedBox(height: 20),
+                  const DailyEasySection(),
                   const SizedBox(height: 24),
                   Expanded(
                     child: ListView(
