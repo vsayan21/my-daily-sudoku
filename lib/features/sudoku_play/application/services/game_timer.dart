@@ -26,7 +26,7 @@ class GameTimer extends ChangeNotifier {
   /// Starts the timer from a given elapsed seconds value.
   void startFrom(int elapsedSeconds) {
     _baseSeconds = elapsedSeconds;
-    _elapsedSeconds = elapsedSeconds;
+    _stopwatchSeconds = elapsedSeconds;
     _stopwatch
       ..reset()
       ..start();

@@ -101,15 +101,16 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: PopScope(
         canPop: false,
-        onPopInvoked: (didPop) async {
+        onPopInvokedWithResult: (didPop, result) async {
           if (didPop) {
             return;
           }
+          final navigator = Navigator.of(context);
           final shouldPop = await _handleWillPop();
           if (!mounted || !shouldPop) {
             return;
           }
-          Navigator.of(context).pop();
+          navigator.pop();
         },
         child: SafeArea(
           child: AnimatedBuilder(
