@@ -3,24 +3,28 @@ import 'package:flutter/material.dart';
 import '../models/difficulty_option.dart';
 import '../widgets/difficulty_card.dart';
 
-class StartScreen extends StatelessWidget {
+class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
+
+  @override
+  State<StartScreen> createState() => _StartScreenState();
+}
+
+class _StartScreenState extends State<StartScreen> {
+  int _selectedIndex = 0;
 
   List<DifficultyOption> _buildOptions() {
     return const [
       DifficultyOption(
-        title: 'Einfach',
-        subtitle: 'Leichtes tägliches Sudoku',
+        title: 'Leicht',
         icon: Icons.wb_sunny_outlined,
       ),
       DifficultyOption(
         title: 'Mittel',
-        subtitle: 'Ausgewogenes tägliches Sudoku',
         icon: Icons.auto_graph,
       ),
       DifficultyOption(
         title: 'Schwer',
-        subtitle: 'Herausforderndes tägliches Sudoku',
         icon: Icons.bolt_outlined,
       ),
     ];
@@ -86,25 +90,37 @@ class StartScreen extends StatelessWidget {
                       const SizedBox(height: 24),
                       Expanded(
                         child: Column(
-                          children: options
-                              .map(
-                                (option) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 16),
-                                  child: DifficultyCard(
-                                    option: option,
-                                    onPressed: () {},
-                                  ),
-                                ),
-                              )
-                              .toList(),
+                          children: options.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final option = entry.value;
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: DifficultyCard(
+                                option: option,
+                                isSelected: _selectedIndex == index,
+                                onPressed: () {
+                                  setState(() => _selectedIndex = index);
+                                },
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
-                      Text(
-                        'Jeden Tag ein neues Rätsel für alle.',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: colorScheme.onSurfaceVariant),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () {},
+                          style: FilledButton.styleFrom(
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text('Start'),
+                        ),
                       ),
                     ],
                   ),
