@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/difficulty_option.dart';
 import '../widgets/difficulty_card.dart';
-import '../widgets/streak_overview_card.dart';
+import '../features/streak/presentation/streak_section.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -35,16 +35,6 @@ class _StartScreenState extends State<StartScreen> {
   Widget build(BuildContext context) {
     final options = _buildOptions();
     final colorScheme = Theme.of(context).colorScheme;
-    final today = DateTime.now();
-    final days = List.generate(
-      7,
-      (index) => DateTime(
-        today.year,
-        today.month,
-        today.day,
-      ).subtract(Duration(days: 6 - index)),
-    );
-    final hasCompletedToday = false;
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
@@ -53,10 +43,8 @@ class _StartScreenState extends State<StartScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StreakOverviewCard(
-                streakCount: 12,
-                hasCompletedToday: hasCompletedToday,
-                days: days,
+              StreakSection(
+                onSolveToday: () {},
               ),
               const SizedBox(height: 24),
               Text(
