@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../features/daily_sudoku/application/usecases/get_today_sudoku.dart';
 import '../features/daily_sudoku/data/datasources/sudoku_assets_datasource.dart';
