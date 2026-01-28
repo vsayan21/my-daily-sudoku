@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/difficulty_option.dart';
 import '../widgets/difficulty_card.dart';
+import '../features/streak/presentation/streak_section.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -42,29 +43,7 @@ class _StartScreenState extends State<StartScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(
-                      Icons.grid_4x4_outlined,
-                      color: colorScheme.onPrimaryContainer,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'My Daily Sudoku',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ],
+              StreakSection(
               ),
               const SizedBox(height: 24),
               Text(
