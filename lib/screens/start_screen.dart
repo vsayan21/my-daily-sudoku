@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../features/daily_sudoku/application/usecases/get_today_sudoku.dart';
 import '../features/daily_sudoku/data/datasources/sudoku_assets_datasource.dart';
@@ -43,18 +44,18 @@ class _StartScreenState extends State<StartScreen> {
     super.dispose();
   }
 
-  List<DifficultyOption> _buildOptions() {
-    return const [
+  List<DifficultyOption> _buildOptions(AppLocalizations loc) {
+    return [
       DifficultyOption(
-        title: 'Leicht',
+        title: loc.difficultyEasy,
         icon: Icons.wb_sunny_outlined,
       ),
       DifficultyOption(
-        title: 'Mittel',
+        title: loc.difficultyMedium,
         icon: Icons.auto_graph,
       ),
       DifficultyOption(
-        title: 'Schwer',
+        title: loc.difficultyHard,
         icon: Icons.bolt_outlined,
       ),
     ];
@@ -98,7 +99,8 @@ class _StartScreenState extends State<StartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final options = _buildOptions();
+    final loc = AppLocalizations.of(context)!;
+    final options = _buildOptions(loc);
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -114,11 +116,10 @@ class _StartScreenState extends State<StartScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  StreakSection(
-                  ),
+                  const StreakSection(),
                   const SizedBox(height: 24),
                   Text(
-                    'Dein tägliches Sudoku',
+                    loc.dailySudokuTitle,
                     style: Theme.of(context)
                         .textTheme
                         .headlineSmall
@@ -126,7 +127,7 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Wähle ein Level und leg direkt los.',
+                    loc.dailySudokuSubtitle,
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
@@ -179,7 +180,7 @@ class _StartScreenState extends State<StartScreen> {
               backgroundColor: colorScheme.primary,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.play_arrow_rounded),
-              label: const Text('Start'),
+              label: Text(loc.start),
               shape: const StadiumBorder(),
               elevation: 2,
             )
