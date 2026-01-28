@@ -10,7 +10,6 @@ import '../screens/statistics_screen.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/difficulty_card.dart';
 import '../features/streak/presentation/streak_section.dart';
-import '../features/daily_sudoku/presentation/daily_easy_section.dart';
 import '../features/sudoku_play/presentation/screens/sudoku_play_screen.dart';
 import '../features/sudoku_play/shared/sudoku_play_args.dart';
 
@@ -144,7 +143,6 @@ class _StartScreenState extends State<StartScreen> {
                         ?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 20),
-                  const DailyEasySection(),
                   const SizedBox(height: 24),
                   Expanded(
                     child: ListView(
