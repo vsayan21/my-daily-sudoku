@@ -22,5 +22,15 @@
   "navigationStatistics": "Statistics",
   "navigationProfile": "Profile",
   "comingSoon": "Coming soon",
-  "sudoku": "Sudoku"
+  "sudoku": "Sudoku",
+  "activeGameContinueTitle": "Continue your Sudoku",
+  "activeGameStatusPaused": "Paused · {elapsed}",
+  "@activeGameStatusPaused": {
+    "placeholders": {
+      "elapsed": {}
+    }
+  },
+  "activeGameStatusInProgress": "In progress",
+  "activeGameContinue": "Continue",
+  "activeGameReset": "Reset"
 }
