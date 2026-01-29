@@ -321,6 +321,7 @@ class SudokuPlayController extends ChangeNotifier {
         if (position != null && value != null) {
           _board = _board.setValue(position.row, position.col, value);
           _hintedCells.add(position);
+          _selectedCell = (row: position.row, col: position.col);
         }
         if (action.message != null) {
           HintFeedbackOverlay.showMessage(context, action.message!);

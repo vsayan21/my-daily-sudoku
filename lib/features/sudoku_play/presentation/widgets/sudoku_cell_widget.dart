@@ -39,7 +39,7 @@ class SudokuCellWidget extends StatelessWidget {
   /// Called when the cell is tapped.
   final VoidCallback onTap;
 
-  static const double _selectedOpacity = 0.12;
+  static const double _selectedOpacity = 0.6;
   static const double _highlightOpacity = 0.08;
   static const double _conflictOpacity = 0.35;
 
@@ -99,7 +99,8 @@ class SudokuCellWidget extends StatelessWidget {
           .withValues(alpha: _conflictOpacity);
     }
     if (isSelected) {
-      return colorScheme.primary.withValues(alpha: _selectedOpacity);
+      return colorScheme.secondaryContainer
+          .withValues(alpha: _selectedOpacity);
     }
     if (isHighlighted) {
       return colorScheme.primary.withValues(alpha: _highlightOpacity);
