@@ -32,7 +32,8 @@ class ActiveGameCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final statusLabel = isPaused ? 'Paused · Time stopped' : 'In progress';
+    final statusLabel =
+        isPaused ? 'Paused · ${_formatElapsed()}' : 'In progress';
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -83,6 +84,16 @@ class ActiveGameCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (!isPaused) ...[
+                const SizedBox(width: 12),
+                Text(
+                  _formatElapsed(),
+                  style: textTheme.titleMedium?.copyWith(
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 6),
@@ -93,33 +104,6 @@ class ActiveGameCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: colorScheme.outlineVariant),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  'Time',
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  _formatElapsed(),
-                  style: textTheme.titleLarge?.copyWith(
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 16),
           Row(
             children: [
