@@ -4,6 +4,7 @@ import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../../hints/application/hint_controller.dart';
 import '../../../hints/domain/hint_result.dart';
+import '../../../hints/domain/hint_service.dart';
 import '../../../hints/presentation/hint_feedback_overlay.dart';
 import '../../domain/entities/sudoku_board.dart';
 import '../../domain/entities/sudoku_move.dart';
@@ -181,12 +182,19 @@ class SudokuPlayController extends ChangeNotifier {
     _isHintBusy = true;
     notifyListeners();
 
+    final selection = _selectedCell;
     final action = await _hintController.requestHint(
       board: _board,
       solution: _solutionString,
+      selected: selection == null
+          ? null
+          : HintSelection(
+              position: selection,
+              isEditable: _board.isEditable(selection.row, selection.col) &&
+                  !_hintedCells.contains(selection),
+              isEmpty: _board.currentValues[selection.row][selection.col] == 0,
+            ),
     );
-    _gameTimer.addPenaltySeconds(5);
-    _showHintPenalty(5);
     await _applyHintAction(context, action);
   }
 
@@ -299,6 +307,11 @@ class SudokuPlayController extends ChangeNotifier {
     });
   }
 
+  void _applyHintPenalty() {
+    _gameTimer.addPenaltySeconds(5);
+    _showHintPenalty(5);
+  }
+
   Future<void> _applyHintAction(
     BuildContext context,
     HintAction action,
@@ -306,6 +319,8 @@ class SudokuPlayController extends ChangeNotifier {
     switch (action.result) {
       case HintResult.revealedConflicts:
         _transientHighlightedCells = action.conflicts;
+        _selectedCell = action.selectedPosition ?? _selectedCell;
+        _applyHintPenalty();
         notifyListeners();
         if (action.message != null) {
           HintFeedbackOverlay.showMessage(context, action.message!);
@@ -321,8 +336,10 @@ class SudokuPlayController extends ChangeNotifier {
         if (position != null && value != null) {
           _board = _board.setValue(position.row, position.col, value);
           _hintedCells.add(position);
-          _selectedCell = (row: position.row, col: position.col);
+          _selectedCell = action.selectedPosition ??
+              (row: position.row, col: position.col);
         }
+        _applyHintPenalty();
         if (action.message != null) {
           HintFeedbackOverlay.showMessage(context, action.message!);
         }

@@ -22,6 +22,7 @@ class HintController {
   Future<HintAction> requestHint({
     required SudokuBoard board,
     required String solution,
+    HintSelection? selected,
   }) async {
     if (!_isValidSolution(solution)) {
       return const HintAction(
@@ -33,6 +34,7 @@ class HintController {
     final action = _hintService.requestHint(
       board: board,
       solution: solution,
+      selected: selected,
     );
 
     return action;

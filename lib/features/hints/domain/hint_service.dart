@@ -11,6 +11,7 @@ class HintAction {
     this.conflicts = const {},
     this.filledPosition,
     this.filledValue,
+    this.selectedPosition,
     this.message,
   });
 
@@ -26,8 +27,30 @@ class HintAction {
   /// Value filled into the hinted cell.
   final int? filledValue;
 
+  /// Selected cell position to focus in the UI.
+  final SudokuPosition? selectedPosition;
+
   /// Optional message to display to the user.
   final String? message;
+}
+
+/// Details about a selected cell for hint targeting.
+class HintSelection {
+  /// Creates a selection snapshot.
+  const HintSelection({
+    required this.position,
+    required this.isEditable,
+    required this.isEmpty,
+  });
+
+  /// Selected cell position.
+  final SudokuPosition position;
+
+  /// Whether the cell is editable (not a given or locked hint).
+  final bool isEditable;
+
+  /// Whether the cell is empty.
+  final bool isEmpty;
 }
 
 /// Contract for hint generation services.
@@ -36,6 +59,7 @@ abstract class HintService {
   HintAction requestHint({
     required SudokuBoard board,
     required String solution,
+    HintSelection? selected,
   });
 }
 
@@ -55,19 +79,38 @@ class DefaultHintService implements HintService {
   HintAction requestHint({
     required SudokuBoard board,
     required String solution,
+    HintSelection? selected,
   }) {
     final conflicts = _conflictFinder.findConflicts(board.currentValues);
     if (conflicts.isNotEmpty) {
+      final selectedConflict = _pickTopLeft(conflicts);
       return HintAction(
         result: HintResult.revealedConflicts,
         conflicts: conflicts,
+        selectedPosition: selectedConflict,
         message: 'Conflicts found',
       );
     }
 
-    final pick = _hintPicker.pickFirstEmpty(
+    if (selected != null) {
+      if (!selected.isEditable) {
+        return const HintAction(
+          result: HintResult.noOp,
+          message: 'Select an empty cell',
+        );
+      }
+      if (!selected.isEmpty) {
+        return const HintAction(
+          result: HintResult.noOp,
+          message: 'Clear the cell or select an empty one.',
+        );
+      }
+    }
+
+    final pick = _hintPicker.pickTarget(
       board: board,
       solution: solution,
+      selected: selected?.position,
     );
     if (pick == null) {
       return const HintAction(
@@ -80,6 +123,22 @@ class DefaultHintService implements HintService {
       result: HintResult.filledCell,
       filledPosition: (row: pick.row, col: pick.col),
       filledValue: pick.value,
+      selectedPosition: (row: pick.row, col: pick.col),
     );
+  }
+
+  SudokuPosition? _pickTopLeft(Set<SudokuPosition> conflicts) {
+    if (conflicts.isEmpty) {
+      return null;
+    }
+    return conflicts.reduce((current, next) {
+      if (next.row < current.row) {
+        return next;
+      }
+      if (next.row == current.row && next.col < current.col) {
+        return next;
+      }
+      return current;
+    });
   }
 }
