@@ -32,5 +32,8 @@
   },
   "activeGameStatusInProgress": "In corso",
   "activeGameContinue": "Continua",
-  "activeGameReset": "Reimposta"
+  "activeGameReset": "Reimposta",
+  "sudokuActionHint": "Suggerimento",
+  "sudokuActionErase": "Cancella",
+  "sudokuActionUndo": "Annulla"
 }

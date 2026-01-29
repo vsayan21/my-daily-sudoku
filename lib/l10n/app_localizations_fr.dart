@@ -95,4 +95,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get activeGameReset => 'Réinitialiser';
+
+  @override
+  String get sudokuActionHint => 'Indice';
+
+  @override
+  String get sudokuActionErase => 'Effacer';
+
+  @override
+  String get sudokuActionUndo => 'Annuler';
 }

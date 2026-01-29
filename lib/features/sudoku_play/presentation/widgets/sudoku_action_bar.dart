@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 /// Compact action bar for Sudoku tools.
 class SudokuActionBar extends StatelessWidget {
@@ -25,6 +26,7 @@ class SudokuActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final buttonStyle = FilledButton.styleFrom(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       shape: const StadiumBorder(),
@@ -41,9 +43,9 @@ class SudokuActionBar extends StatelessWidget {
       children: [
         Expanded(
           child: _ActionButton(
-            label: 'Tipp',
+            label: loc.sudokuActionHint,
             icon: Icons.lightbulb_outline_rounded,
-            tooltip: 'Hint',
+            tooltip: loc.sudokuActionHint,
             onPressed: onHintPressed,
             style: buttonStyle,
           ),
@@ -51,9 +53,9 @@ class SudokuActionBar extends StatelessWidget {
         const SizedBox(width: _spacing),
         Expanded(
           child: _ActionButton(
-            label: 'Löschen',
+            label: loc.sudokuActionErase,
             icon: Icons.backspace_outlined,
-            tooltip: 'Löschen',
+            tooltip: loc.sudokuActionErase,
             onPressed: onErasePressed,
             style: buttonStyle,
           ),
@@ -61,9 +63,9 @@ class SudokuActionBar extends StatelessWidget {
         const SizedBox(width: _spacing),
         Expanded(
           child: _ActionButton(
-            label: 'Zurück',
+            label: loc.sudokuActionUndo,
             icon: Icons.undo_rounded,
-            tooltip: 'Zurück',
+            tooltip: loc.sudokuActionUndo,
             onPressed: onUndoPressed,
             style: buttonStyle,
           ),
