@@ -33,5 +33,8 @@
   },
   "activeGameStatusInProgress": "Läuft",
   "activeGameContinue": "Weiter",
-  "activeGameReset": "Zurücksetzen"
+  "activeGameReset": "Zurücksetzen",
+  "sudokuActionHint": "Tipp",
+  "sudokuActionErase": "Löschen",
+  "sudokuActionUndo": "Zurück"
 }

@@ -96,4 +96,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activeGameReset => 'Reset';
+
+  @override
+  String get sudokuActionHint => 'Hint';
+
+  @override
+  String get sudokuActionErase => 'Erase';
+
+  @override
+  String get sudokuActionUndo => 'Undo';
 }
