@@ -38,6 +38,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
   late final Future<SaveActiveGame> _saveActiveGame;
 
   static const double _horizontalPadding = 16;
+  static const double _spacingExtraSmall = 8;
   static const double _spacingSmall = 12;
   static const double _spacingMedium = 16;
 
@@ -145,7 +146,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                           : _controller.undo,
                     ),
                   ),
-                  const SizedBox(height: _spacingSmall),
+                  const SizedBox(height: _spacingExtraSmall),
                   Expanded(
                     child: Center(
                       child: Padding(
