@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/difficulty_option.dart';
+import '../../domain/models/difficulty_option.dart';
 
 class DifficultyCard extends StatelessWidget {
   const DifficultyCard({
@@ -21,7 +21,7 @@ class DifficultyCard extends StatelessWidget {
         isSelected ? colorScheme.primary : colorScheme.outlineVariant;
     final backgroundColor = isSelected
         ? colorScheme.primary.withValues(alpha: 0.08)
-        : colorScheme.surface;
+        : colorScheme.surfaceContainerLow;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -30,7 +30,7 @@ class DifficultyCard extends StatelessWidget {
         border: Border.all(color: borderColor, width: isSelected ? 2 : 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: colorScheme.shadow.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),

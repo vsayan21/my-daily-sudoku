@@ -31,8 +31,8 @@ class SudokuCellWidget extends StatelessWidget {
   /// Called when the cell is tapped.
   final VoidCallback onTap;
 
-  static const double _selectedOpacity = 0.16;
-  static const double _highlightOpacity = 0.05;
+  static const double _selectedOpacity = 0.12;
+  static const double _highlightOpacity = 0.08;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class SudokuCellWidget extends StatelessWidget {
     final background = _backgroundColor(colorScheme);
     final textStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
           fontWeight: isGiven ? FontWeight.w700 : FontWeight.w500,
-          color: isGiven ? colorScheme.onSurface : colorScheme.primary,
+          color: isGiven ? colorScheme.onSurface : colorScheme.onSurfaceVariant,
         );
 
     return GestureDetector(
