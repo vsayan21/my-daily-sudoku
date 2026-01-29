@@ -45,6 +45,8 @@ class SudokuPlayController extends ChangeNotifier {
   final Set<SudokuPosition> _hintedCells = {};
   Set<SudokuPosition> _transientHighlightedCells = {};
   bool _isHintBusy = false;
+  int _hintPenaltySeconds = 0;
+  int _penaltyToken = 0;
 
   /// Current Sudoku board state.
   SudokuBoard get board => _board;
@@ -64,6 +66,10 @@ class SudokuPlayController extends ChangeNotifier {
 
   /// Cells filled by hints.
   Set<SudokuPosition> get hintedCells => _hintedCells;
+
+  /// Latest hint penalty label to display.
+  String? get hintPenaltyLabel =>
+      _hintPenaltySeconds > 0 ? '+$_hintPenaltySeconds sec' : null;
 
   /// Whether there is a move available to undo.
   bool get canUndo => _history.isNotEmpty;
@@ -180,6 +186,7 @@ class SudokuPlayController extends ChangeNotifier {
       solution: _solutionString,
     );
     _gameTimer.addPenaltySeconds(5);
+    _showHintPenalty(5);
     await _applyHintAction(context, action);
   }
 
@@ -273,6 +280,23 @@ class SudokuPlayController extends ChangeNotifier {
     final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
     final remaining = (seconds % 60).toString().padLeft(2, '0');
     return '$minutes:$remaining';
+  }
+
+  void _showHintPenalty(int seconds) {
+    if (seconds <= 0) {
+      return;
+    }
+    _hintPenaltySeconds = seconds;
+    _penaltyToken += 1;
+    final token = _penaltyToken;
+    notifyListeners();
+    Future<void>.delayed(const Duration(seconds: 2), () {
+      if (token != _penaltyToken) {
+        return;
+      }
+      _hintPenaltySeconds = 0;
+      notifyListeners();
+    });
   }
 
   Future<void> _applyHintAction(

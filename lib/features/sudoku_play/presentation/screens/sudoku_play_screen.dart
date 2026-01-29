@@ -133,6 +133,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                 ),
                 SudokuTimerBar(
                   formattedTime: _controller.formattedTime,
+                  penaltyText: _controller.hintPenaltyLabel,
                 ),
                 const SizedBox(height: _spacingMedium),
                 Padding(

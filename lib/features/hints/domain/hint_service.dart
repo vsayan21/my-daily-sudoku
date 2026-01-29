@@ -80,7 +80,6 @@ class DefaultHintService implements HintService {
       result: HintResult.filledCell,
       filledPosition: (row: pick.row, col: pick.col),
       filledValue: pick.value,
-      message: 'Hint used',
     );
   }
 }
