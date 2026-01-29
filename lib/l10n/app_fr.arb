@@ -10,6 +10,7 @@
   "streakSubtitleOpen": "Résous un Sudoku aujourd’hui pour conserver ta série",
   "dailySudokuTitle": "Ton Sudoku du jour",
   "dailySudokuSubtitle": "Choisis un niveau et commence tout de suite",
+  "selectDifficultyTitle": "Sélectionner la difficulté",
   "todaysEasy": "Le Sudoku facile du jour",
   "todaysMedium": "Le Sudoku moyen du jour",
   "todaysHard": "Le Sudoku difficile du jour",

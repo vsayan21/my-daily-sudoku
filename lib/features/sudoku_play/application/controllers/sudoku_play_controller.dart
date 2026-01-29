@@ -89,7 +89,7 @@ class SudokuPlayController extends ChangeNotifier {
   /// Selects a cell by row and column.
   void selectCell(int row, int col) {
     if (_isPaused) {
-      return;
+      resume(manual: true);
     }
     _selectedCell = (row: row, col: col);
     notifyListeners();

@@ -157,18 +157,17 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                             AnimatedOpacity(
                               duration: const Duration(milliseconds: 200),
                               opacity: _controller.isPaused ? 0.6 : 1,
-                              child: IgnorePointer(
-                                ignoring: _controller.isPaused,
-                                child: SudokuGrid(
-                                  board: _controller.board,
-                                  selectedCell: _controller.selectedCell,
-                                  onCellTap: _controller.selectCell,
-                                ),
+                              child: SudokuGrid(
+                                board: _controller.board,
+                                selectedCell: _controller.selectedCell,
+                                onCellTap: _controller.selectCell,
                               ),
                             ),
                             if (_controller.isPaused)
                               const Positioned.fill(
-                                child: SudokuPauseOverlay(),
+                                child: IgnorePointer(
+                                  child: SudokuPauseOverlay(),
+                                ),
                               ),
                           ],
                         ),
