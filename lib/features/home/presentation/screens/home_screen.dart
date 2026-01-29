@@ -249,7 +249,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         if (activeSession != null) ...[
                           const SizedBox(height: 12),
                           ActiveGameCard(
-                            session: activeSession,
+                            difficultyLabel: _difficultyLabel(loc, activeSession.difficulty),
+                            dateKey: activeSession.dateKey,
+                            elapsedSeconds: activeSession.elapsedSeconds,
+                            isPaused: activeSession.isPaused,
                             onContinue: () => _handleContinue(activeSession),
                             onReset: _handleReset,
                           ),
@@ -283,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           FilledButton.icon(
                             onPressed: _handleStart,
                             icon: const Icon(Icons.play_arrow_rounded),
-                            label: Text(loc.startGame),
+                            label: Text(loc.start),
                           ),
                           const SizedBox(height: 24),
                         ],

@@ -40,6 +40,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dailySudokuSubtitle => 'Scegli un livello e inizia subito';
 
   @override
+  String get selectDifficultyTitle => 'Select Difficulty';
+
+  @override
   String get todaysEasy => 'Il Sudoku facile di oggi';
 
   @override
