@@ -36,7 +36,7 @@ class SudokuPlayController extends ChangeNotifier {
   String _puzzleId;
   String _puzzleString;
   String _solutionString;
-  final Future<HintController> _hintController;
+  final HintController _hintController;
   SudokuPosition? _selectedCell;
   final GameTimer _gameTimer = GameTimer();
   bool _isPaused = false;
@@ -168,7 +168,6 @@ class SudokuPlayController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Placeholder hint handler.
   Future<void> onHintPressed(BuildContext context) async {
     if (_isPaused || _isHintBusy) {
       return;
@@ -176,30 +175,11 @@ class SudokuPlayController extends ChangeNotifier {
     _isHintBusy = true;
     notifyListeners();
 
-    final hintController = await _hintController;
-    var action = await hintController.requestHint(
+    final action = await _hintController.requestHint(
       board: _board,
       solution: _solutionString,
-      dateKey: _dateKey,
     );
-
-    if (action.result == HintResult.blockedNeedsAd) {
-      _isHintBusy = false;
-      notifyListeners();
-      final shouldWatchAd = await _showHintAdPrompt(context);
-      if (!shouldWatchAd || _isPaused) {
-        return;
-      }
-      _isHintBusy = true;
-      notifyListeners();
-      action = await hintController.requestHint(
-        board: _board,
-        solution: _solutionString,
-        dateKey: _dateKey,
-        fromAd: true,
-      );
-    }
-
+    _gameTimer.addPenaltySeconds(5);
     await _applyHintAction(context, action);
   }
 
@@ -331,43 +311,6 @@ class SudokuPlayController extends ChangeNotifier {
         _isHintBusy = false;
         notifyListeners();
         break;
-      case HintResult.blockedNeedsAd:
-        _isHintBusy = false;
-        notifyListeners();
-        break;
     }
-  }
-
-  Future<bool> _showHintAdPrompt(BuildContext context) async {
-    final result = await showModalBottomSheet<bool>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Need another hint?',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Watch Ad to get 1 hint'),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-    return result ?? false;
   }
 }

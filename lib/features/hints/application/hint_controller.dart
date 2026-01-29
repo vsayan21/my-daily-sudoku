@@ -1,7 +1,4 @@
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../sudoku_play/domain/entities/sudoku_board.dart';
-import '../data/hint_quota_store.dart';
 import '../domain/hint_result.dart';
 import '../domain/hint_service.dart';
 
@@ -10,36 +7,22 @@ class HintController {
   /// Creates a hint controller.
   HintController({
     required HintService hintService,
-    required HintQuotaStore quotaStore,
-  })  : _hintService = hintService,
-        _quotaStore = quotaStore;
+  }) : _hintService = hintService;
 
   final HintService _hintService;
-  final HintQuotaStore _quotaStore;
 
-  /// Builds a controller using shared preferences.
-  static Future<HintController> create() async {
-    final preferences = await SharedPreferences.getInstance();
+  /// Builds a controller using default implementations.
+  static HintController create() {
     return HintController(
       hintService: DefaultHintService(),
-      quotaStore: HintQuotaStore(preferences),
     );
   }
 
-  /// Attempts to use a hint, respecting daily quota rules.
+  /// Attempts to use a hint.
   Future<HintAction> requestHint({
     required SudokuBoard board,
     required String solution,
-    required String dateKey,
-    bool fromAd = false,
   }) async {
-    if (!fromAd) {
-      final count = await _quotaStore.getHintCount(dateKey);
-      if (count >= 1) {
-        return const HintAction(result: HintResult.blockedNeedsAd);
-      }
-    }
-
     if (!_isValidSolution(solution)) {
       return const HintAction(
         result: HintResult.noOp,
@@ -47,20 +30,10 @@ class HintController {
       );
     }
 
-    if (fromAd) {
-      await _quotaStore.incrementHintCount(dateKey);
-    }
-
     final action = _hintService.requestHint(
       board: board,
       solution: solution,
     );
-
-    if (!fromAd &&
-        (action.result == HintResult.revealedConflicts ||
-            action.result == HintResult.filledCell)) {
-      await _quotaStore.incrementHintCount(dateKey);
-    }
 
     return action;
   }

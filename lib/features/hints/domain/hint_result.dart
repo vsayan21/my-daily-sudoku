@@ -3,5 +3,4 @@ enum HintResult {
   revealedConflicts,
   filledCell,
   noOp,
-  blockedNeedsAd,
 }

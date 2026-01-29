@@ -64,6 +64,15 @@ class GameTimer extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Adds a time penalty in seconds.
+  void addPenaltySeconds(int seconds) {
+    if (seconds <= 0) {
+      return;
+    }
+    _baseSeconds += seconds;
+    _refreshElapsedSeconds();
+  }
+
   @override
   void dispose() {
     _stopTicker();
