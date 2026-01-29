@@ -3,7 +3,7 @@ import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../features/home/presentation/screens/home_screen.dart';
 import 'di/app_dependencies.dart';
-import 'theme/app_theme.dart';
+import '../shared/theme/app_theme.dart';
 
 class SudokuApp extends StatelessWidget {
   SudokuApp({super.key, AppDependencies? dependencies})
@@ -22,7 +22,9 @@ class SudokuApp extends StatelessWidget {
         Locale('it'),
         Locale('fr'),
       ],
-      theme: const AppTheme().theme(),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: HomeScreen(dependencies: _dependencies),
     );
   }

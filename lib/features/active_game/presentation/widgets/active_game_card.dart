@@ -37,11 +37,11 @@ class ActiveGameCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant,
+        color: colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(_cornerRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: colorScheme.shadow.withValues(alpha: 0.12),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -69,17 +69,13 @@ class ActiveGameCard extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: isPaused
-                      ? colorScheme.surface
-                      : colorScheme.primary.withValues(alpha: 0.12),
+                  color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
                   statusLabel,
                   style: textTheme.labelMedium?.copyWith(
-                    color: isPaused
-                        ? colorScheme.onSurfaceVariant
-                        : colorScheme.primary,
+                    color: colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -91,6 +87,7 @@ class ActiveGameCard extends StatelessWidget {
                   style: textTheme.titleMedium?.copyWith(
                     fontFeatures: const [FontFeature.tabularFigures()],
                     fontWeight: FontWeight.w700,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -108,9 +105,9 @@ class ActiveGameCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: onContinue,
-                  style: ElevatedButton.styleFrom(
+                  style: FilledButton.styleFrom(
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),

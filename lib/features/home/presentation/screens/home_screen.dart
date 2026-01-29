@@ -280,18 +280,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 ),
                               ),
                           const SizedBox(height: 12),
-                          ElevatedButton.icon(
+                          FilledButton.icon(
                             onPressed: _handleStart,
                             icon: const Icon(Icons.play_arrow_rounded),
                             label: Text(loc.startGame),
-                            style: ElevatedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 14),
-                              textStyle: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
                           ),
                           const SizedBox(height: 24),
                         ],
