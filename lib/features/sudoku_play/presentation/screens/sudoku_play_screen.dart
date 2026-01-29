@@ -37,10 +37,9 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
   late final SudokuPlayController _controller;
   late final Future<SaveActiveGame> _saveActiveGame;
 
-  static const double _horizontalPadding = 16;
-  static const double _spacingExtraSmall = 8;
+  static const double _horizontalPadding = 8;
   static const double _spacingSmall = 12;
-  static const double _spacingMedium = 16;
+  static const double _spacingMedium = 30;
 
   @override
   void initState() {
@@ -146,32 +145,30 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                           : _controller.undo,
                     ),
                   ),
-                  const SizedBox(height: _spacingExtraSmall),
+                  const SizedBox(height: _spacingMedium),
                   Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: _horizontalPadding,
-                        ),
-                        child: Stack(
-                          children: [
-                            AnimatedOpacity(
-                              duration: const Duration(milliseconds: 200),
-                              opacity: _controller.isPaused ? 0.6 : 1,
-                              child: SudokuGrid(
-                                board: _controller.board,
-                                selectedCell: _controller.selectedCell,
-                                onCellTap: _controller.selectCell,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding,
+                      ),
+                      child: Stack(
+                        children: [
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 200),
+                            opacity: _controller.isPaused ? 0.6 : 1,
+                            child: SudokuGrid(
+                              board: _controller.board,
+                              selectedCell: _controller.selectedCell,
+                              onCellTap: _controller.selectCell,
+                            ),
+                          ),
+                          if (_controller.isPaused)
+                            const Positioned.fill(
+                              child: IgnorePointer(
+                                child: SudokuPauseOverlay(),
                               ),
                             ),
-                            if (_controller.isPaused)
-                              const Positioned.fill(
-                                child: IgnorePointer(
-                                  child: SudokuPauseOverlay(),
-                                ),
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   ),

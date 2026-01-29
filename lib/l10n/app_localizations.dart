@@ -256,7 +256,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Paused · {elapsed}'**
-  String activeGameStatusPaused(String elapsed);
+  String activeGameStatusPaused(Object elapsed);
 
   /// No description provided for @activeGameStatusInProgress.
   ///

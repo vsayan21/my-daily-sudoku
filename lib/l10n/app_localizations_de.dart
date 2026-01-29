@@ -86,7 +86,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activeGameContinueTitle => 'Sudoku fortsetzen';
 
   @override
-  String activeGameStatusPaused(String elapsed) {
+  String activeGameStatusPaused(Object elapsed) {
     return 'Pausiert · $elapsed';
   }
 
