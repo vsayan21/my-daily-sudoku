@@ -251,50 +251,46 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             onContinue: () => _handleContinue(activeSession),
                             onReset: _handleReset,
                           ),
-                        const SizedBox(height: 24),
-                        Text(
-                          loc.selectDifficultyTitle,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 12),
-                        ...options.asMap().entries.map(
-                              (entry) => Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: DifficultyCard(
-                                  option: entry.value,
-                                  isSelected: _selectedIndex == entry.key,
-                                  onPressed: () {
-                                    setState(() => _selectedIndex = entry.key);
-                                  },
+                        if (activeSession == null) ...[
+                          const SizedBox(height: 24),
+                          Text(
+                            loc.selectDifficultyTitle,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 12),
+                          ...options.asMap().entries.map(
+                                (entry) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: DifficultyCard(
+                                    option: entry.value,
+                                    isSelected: _selectedIndex == entry.key,
+                                    onPressed: () {
+                                      setState(
+                                        () => _selectedIndex = entry.key,
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                        const SizedBox(height: 12),
-                        ElevatedButton.icon(
-                          onPressed: _handleStart,
-                          icon: const Icon(Icons.play_arrow_rounded),
-                          label: Text(
-                            activeSession != null &&
-                                    _isValidActiveSession(
-                                      activeSession,
-                                      selected:
-                                          _difficultyForIndex(_selectedIndex),
-                                    )
-                                ? loc.continueGame
-                                : loc.startGame,
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            textStyle: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                          const SizedBox(height: 12),
+                          ElevatedButton.icon(
+                            onPressed: _handleStart,
+                            icon: const Icon(Icons.play_arrow_rounded),
+                            label: Text(loc.startGame),
+                            style: ElevatedButton.styleFrom(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 14),
+                              textStyle: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
+                          const SizedBox(height: 24),
+                        ],
                       ],
                     ),
                   ),
