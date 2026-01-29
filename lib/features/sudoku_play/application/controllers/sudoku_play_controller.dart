@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
+import '../../../hints/application/hint_controller.dart';
+import '../../../hints/domain/hint_result.dart';
+import '../../../hints/presentation/hint_feedback_overlay.dart';
 import '../../domain/entities/sudoku_board.dart';
 import '../../domain/entities/sudoku_move.dart';
 import '../services/game_timer.dart';
@@ -15,11 +18,14 @@ class SudokuPlayController extends ChangeNotifier {
     required String dateKey,
     required String puzzleId,
     required String puzzleString,
+    required String solutionString,
   })  : _board = board,
         _difficulty = difficulty,
         _dateKey = dateKey,
         _puzzleId = puzzleId,
-        _puzzleString = puzzleString {
+        _puzzleString = puzzleString,
+        _solutionString = solutionString,
+        _hintController = HintController.create() {
     _gameTimer.addListener(_handleTimerTick);
     _gameTimer.start();
   }
@@ -29,11 +35,16 @@ class SudokuPlayController extends ChangeNotifier {
   String _dateKey;
   String _puzzleId;
   String _puzzleString;
+  String _solutionString;
+  final Future<HintController> _hintController;
   SudokuPosition? _selectedCell;
   final GameTimer _gameTimer = GameTimer();
   bool _isPaused = false;
   bool _isManuallyPaused = false;
   final List<SudokuMove> _history = [];
+  final Set<SudokuPosition> _hintedCells = {};
+  Set<SudokuPosition> _transientHighlightedCells = {};
+  bool _isHintBusy = false;
 
   /// Current Sudoku board state.
   SudokuBoard get board => _board;
@@ -43,6 +54,16 @@ class SudokuPlayController extends ChangeNotifier {
 
   /// Whether the game is currently paused.
   bool get isPaused => _isPaused;
+
+  /// Whether the hint flow is running.
+  bool get isHintBusy => _isHintBusy;
+
+  /// Cells temporarily highlighted for conflicts.
+  Set<SudokuPosition> get transientHighlightedCells =>
+      _transientHighlightedCells;
+
+  /// Cells filled by hints.
+  Set<SudokuPosition> get hintedCells => _hintedCells;
 
   /// Whether there is a move available to undo.
   bool get canUndo => _history.isNotEmpty;
@@ -79,6 +100,8 @@ class SudokuPlayController extends ChangeNotifier {
     _history.clear();
     _isManuallyPaused = false;
     _isPaused = false;
+    _hintedCells.clear();
+    _transientHighlightedCells = {};
     _gameTimer.startFrom(session.elapsedSeconds);
     if (session.isPaused) {
       pause();
@@ -105,6 +128,9 @@ class SudokuPlayController extends ChangeNotifier {
       return;
     }
     if (!_board.isEditable(selection.row, selection.col)) {
+      return;
+    }
+    if (_hintedCells.contains(selection)) {
       return;
     }
     final previousValue = _board.currentValues[selection.row][selection.col];
@@ -143,13 +169,38 @@ class SudokuPlayController extends ChangeNotifier {
   }
 
   /// Placeholder hint handler.
-  void onHintPressed(BuildContext context) {
-    if (_isPaused) {
+  Future<void> onHintPressed(BuildContext context) async {
+    if (_isPaused || _isHintBusy) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Hints coming soon')),
+    _isHintBusy = true;
+    notifyListeners();
+
+    final hintController = await _hintController;
+    var action = await hintController.requestHint(
+      board: _board,
+      solution: _solutionString,
+      dateKey: _dateKey,
     );
+
+    if (action.result == HintResult.blockedNeedsAd) {
+      _isHintBusy = false;
+      notifyListeners();
+      final shouldWatchAd = await _showHintAdPrompt(context);
+      if (!shouldWatchAd || _isPaused) {
+        return;
+      }
+      _isHintBusy = true;
+      notifyListeners();
+      action = await hintController.requestHint(
+        board: _board,
+        solution: _solutionString,
+        dateKey: _dateKey,
+        fromAd: true,
+      );
+    }
+
+    await _applyHintAction(context, action);
   }
 
   /// Toggles pause state from user action.
@@ -244,4 +295,79 @@ class SudokuPlayController extends ChangeNotifier {
     return '$minutes:$remaining';
   }
 
+  Future<void> _applyHintAction(
+    BuildContext context,
+    HintAction action,
+  ) async {
+    switch (action.result) {
+      case HintResult.revealedConflicts:
+        _transientHighlightedCells = action.conflicts;
+        notifyListeners();
+        if (action.message != null) {
+          HintFeedbackOverlay.showMessage(context, action.message!);
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 2500));
+        _transientHighlightedCells = {};
+        _isHintBusy = false;
+        notifyListeners();
+        break;
+      case HintResult.filledCell:
+        final position = action.filledPosition;
+        final value = action.filledValue;
+        if (position != null && value != null) {
+          _board = _board.setValue(position.row, position.col, value);
+          _hintedCells.add(position);
+        }
+        if (action.message != null) {
+          HintFeedbackOverlay.showMessage(context, action.message!);
+        }
+        _isHintBusy = false;
+        notifyListeners();
+        break;
+      case HintResult.noOp:
+        if (action.message != null) {
+          HintFeedbackOverlay.showMessage(context, action.message!);
+        }
+        _isHintBusy = false;
+        notifyListeners();
+        break;
+      case HintResult.blockedNeedsAd:
+        _isHintBusy = false;
+        notifyListeners();
+        break;
+    }
+  }
+
+  Future<bool> _showHintAdPrompt(BuildContext context) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Need another hint?',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Watch Ad to get 1 hint'),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    return result ?? false;
+  }
 }

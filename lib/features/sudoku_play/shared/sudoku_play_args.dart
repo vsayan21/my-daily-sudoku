@@ -7,6 +7,7 @@ class SudokuPlayArgs {
     required this.difficulty,
     required this.puzzleId,
     required this.puzzleString,
+    required this.solutionString,
     required this.dailyKey,
   });
 
@@ -18,6 +19,9 @@ class SudokuPlayArgs {
 
   /// 81-character puzzle string (0 = empty).
   final String puzzleString;
+
+  /// 81-character solution string.
+  final String solutionString;
 
   /// Daily key in YYYY-MM-DD format.
   final String dailyKey;

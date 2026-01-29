@@ -51,6 +51,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
       dateKey: widget.args.dailyKey,
       puzzleId: widget.args.puzzleId,
       puzzleString: widget.args.puzzleString,
+      solutionString: widget.args.solutionString,
     );
     final session = widget.initialSession;
     if (session != null) {
@@ -139,7 +140,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                     horizontal: _horizontalPadding,
                   ),
                   child: SudokuActionBar(
-                    onHintPressed: _controller.isPaused
+                    onHintPressed: _controller.isPaused || _controller.isHintBusy
                         ? null
                         : () => _controller.onHintPressed(context),
                     onErasePressed:
@@ -162,6 +163,9 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                           child: SudokuGrid(
                             board: _controller.board,
                             selectedCell: _controller.selectedCell,
+                            hintedCells: _controller.hintedCells,
+                            transientHighlightedCells:
+                                _controller.transientHighlightedCells,
                             onCellTap: _controller.selectCell,
                           ),
                         ),
