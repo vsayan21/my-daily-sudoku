@@ -11,6 +11,7 @@ import '../../shared/sudoku_play_args.dart';
 import '../widgets/sudoku_grid.dart';
 import '../widgets/sudoku_number_pad.dart';
 import '../widgets/sudoku_pause_overlay.dart';
+import '../widgets/sudoku_action_bar.dart';
 import '../widgets/sudoku_timer_bar.dart';
 import '../widgets/sudoku_top_bar.dart';
 
@@ -127,6 +128,22 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                   ),
                   SudokuTimerBar(
                     formattedTime: _controller.formattedTime,
+                  ),
+                  const SizedBox(height: _spacingSmall),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: _horizontalPadding,
+                    ),
+                    child: SudokuActionBar(
+                      onHintPressed: _controller.isPaused
+                          ? null
+                          : () => _controller.onHintPressed(context),
+                      onErasePressed:
+                          _controller.isPaused ? null : _controller.erase,
+                      onUndoPressed: _controller.isPaused || !_controller.canUndo
+                          ? null
+                          : _controller.undo,
+                    ),
                   ),
                   const SizedBox(height: _spacingMedium),
                   Expanded(

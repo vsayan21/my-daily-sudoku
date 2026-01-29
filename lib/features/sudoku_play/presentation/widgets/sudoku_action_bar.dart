@@ -1,0 +1,102 @@
+import 'package:flutter/material.dart';
+
+/// Compact action bar for Sudoku tools.
+class SudokuActionBar extends StatelessWidget {
+  /// Creates a Sudoku action bar.
+  const SudokuActionBar({
+    super.key,
+    required this.onHintPressed,
+    required this.onErasePressed,
+    required this.onUndoPressed,
+  });
+
+  /// Called when hint is pressed.
+  final VoidCallback? onHintPressed;
+
+  /// Called when erase is pressed.
+  final VoidCallback? onErasePressed;
+
+  /// Called when undo is pressed.
+  final VoidCallback? onUndoPressed;
+
+  static const double _spacing = 8;
+  static const double _buttonHeight = 40;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final buttonStyle = FilledButton.styleFrom(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      visualDensity: VisualDensity.compact,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      minimumSize: const Size(0, _buttonHeight),
+      textStyle: theme.textTheme.labelMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+    );
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: _ActionButton(
+            label: 'Tipp',
+            icon: Icons.lightbulb_outline_rounded,
+            tooltip: 'Hint',
+            onPressed: onHintPressed,
+            style: buttonStyle,
+          ),
+        ),
+        const SizedBox(width: _spacing),
+        Expanded(
+          child: _ActionButton(
+            label: 'Löschen',
+            icon: Icons.backspace_outlined,
+            tooltip: 'Löschen',
+            onPressed: onErasePressed,
+            style: buttonStyle,
+          ),
+        ),
+        const SizedBox(width: _spacing),
+        Expanded(
+          child: _ActionButton(
+            label: 'Zurück',
+            icon: Icons.undo_rounded,
+            tooltip: 'Zurück',
+            onPressed: onUndoPressed,
+            style: buttonStyle,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.label,
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+    required this.style,
+  });
+
+  final String label;
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onPressed;
+  final ButtonStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: FilledButton.tonalIcon(
+        onPressed: onPressed,
+        style: style,
+        icon: Icon(icon, size: 18),
+        label: Text(label, overflow: TextOverflow.ellipsis),
+      ),
+    );
+  }
+}
