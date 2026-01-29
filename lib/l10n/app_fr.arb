@@ -23,5 +23,18 @@
   "navigationStatistics": "Statistiques",
   "navigationProfile": "Profil",
   "comingSoon": "Bientôt disponible",
-  "sudoku": "Sudoku"
+  "sudoku": "Sudoku",
+  "activeGameContinueTitle": "Reprendre votre Sudoku",
+  "activeGameStatusPaused": "En pause · {elapsed}",
+  "@activeGameStatusPaused": {
+    "placeholders": {
+      "elapsed": {}
+    }
+  },
+  "activeGameStatusInProgress": "En cours",
+  "activeGameContinue": "Continuer",
+  "activeGameReset": "Réinitialiser",
+  "sudokuActionHint": "Indice",
+  "sudokuActionErase": "Effacer",
+  "sudokuActionUndo": "Annuler"
 }

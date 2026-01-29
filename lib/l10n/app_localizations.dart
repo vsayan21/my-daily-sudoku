@@ -245,6 +245,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sudoku'**
   String get sudoku;
+
+  /// No description provided for @activeGameContinueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue your Sudoku'**
+  String get activeGameContinueTitle;
+
+  /// No description provided for @activeGameStatusPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused · {elapsed}'**
+  String activeGameStatusPaused(Object elapsed);
+
+  /// No description provided for @activeGameStatusInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get activeGameStatusInProgress;
+
+  /// No description provided for @activeGameContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get activeGameContinue;
+
+  /// No description provided for @activeGameReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get activeGameReset;
+
+  /// No description provided for @sudokuActionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint'**
+  String get sudokuActionHint;
+
+  /// No description provided for @sudokuActionErase.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase'**
+  String get sudokuActionErase;
+
+  /// No description provided for @sudokuActionUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get sudokuActionUndo;
 }
 
 class _AppLocalizationsDelegate

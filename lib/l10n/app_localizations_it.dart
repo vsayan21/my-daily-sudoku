@@ -80,4 +80,30 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get sudoku => 'Sudoku';
+
+  @override
+  String get activeGameContinueTitle => 'Riprendi il tuo Sudoku';
+
+  @override
+  String activeGameStatusPaused(Object elapsed) {
+    return 'In pausa · $elapsed';
+  }
+
+  @override
+  String get activeGameStatusInProgress => 'In corso';
+
+  @override
+  String get activeGameContinue => 'Continua';
+
+  @override
+  String get activeGameReset => 'Reimposta';
+
+  @override
+  String get sudokuActionHint => 'Suggerimento';
+
+  @override
+  String get sudokuActionErase => 'Cancella';
+
+  @override
+  String get sudokuActionUndo => 'Annulla';
 }

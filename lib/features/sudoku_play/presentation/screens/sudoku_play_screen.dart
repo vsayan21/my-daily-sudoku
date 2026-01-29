@@ -11,6 +11,7 @@ import '../../shared/sudoku_play_args.dart';
 import '../widgets/sudoku_grid.dart';
 import '../widgets/sudoku_number_pad.dart';
 import '../widgets/sudoku_pause_overlay.dart';
+import '../widgets/sudoku_action_bar.dart';
 import '../widgets/sudoku_timer_bar.dart';
 import '../widgets/sudoku_top_bar.dart';
 
@@ -36,9 +37,9 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
   late final SudokuPlayController _controller;
   late final Future<SaveActiveGame> _saveActiveGame;
 
-  static const double _horizontalPadding = 16;
+  static const double _horizontalPadding = 8;
   static const double _spacingSmall = 12;
-  static const double _spacingMedium = 16;
+  static const double _spacingMedium = 30;
 
   @override
   void initState() {
@@ -129,31 +130,45 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                     formattedTime: _controller.formattedTime,
                   ),
                   const SizedBox(height: _spacingMedium),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: _horizontalPadding,
+                    ),
+                    child: SudokuActionBar(
+                      onHintPressed: _controller.isPaused
+                          ? null
+                          : () => _controller.onHintPressed(context),
+                      onErasePressed:
+                          _controller.isPaused ? null : _controller.erase,
+                      onUndoPressed: _controller.isPaused || !_controller.canUndo
+                          ? null
+                          : _controller.undo,
+                    ),
+                  ),
+                  const SizedBox(height: _spacingMedium),
                   Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: _horizontalPadding,
-                        ),
-                        child: Stack(
-                          children: [
-                            AnimatedOpacity(
-                              duration: const Duration(milliseconds: 200),
-                              opacity: _controller.isPaused ? 0.6 : 1,
-                              child: SudokuGrid(
-                                board: _controller.board,
-                                selectedCell: _controller.selectedCell,
-                                onCellTap: _controller.selectCell,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding,
+                      ),
+                      child: Stack(
+                        children: [
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 200),
+                            opacity: _controller.isPaused ? 0.6 : 1,
+                            child: SudokuGrid(
+                              board: _controller.board,
+                              selectedCell: _controller.selectedCell,
+                              onCellTap: _controller.selectCell,
+                            ),
+                          ),
+                          if (_controller.isPaused)
+                            const Positioned.fill(
+                              child: IgnorePointer(
+                                child: SudokuPauseOverlay(),
                               ),
                             ),
-                            if (_controller.isPaused)
-                              const Positioned.fill(
-                                child: IgnorePointer(
-                                  child: SudokuPauseOverlay(),
-                                ),
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   ),

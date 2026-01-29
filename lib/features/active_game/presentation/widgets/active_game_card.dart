@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 class ActiveGameCard extends StatelessWidget {
   const ActiveGameCard({
@@ -30,8 +31,10 @@ class ActiveGameCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final statusLabel =
-        isPaused ? 'Paused · ${_formatElapsed()}' : 'In progress';
+    final loc = AppLocalizations.of(context)!;
+    final statusLabel = isPaused
+        ? loc.activeGameStatusPaused(_formatElapsed())
+        : loc.activeGameStatusInProgress;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -55,7 +58,7 @@ class ActiveGameCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Continue your Sudoku',
+                  loc.activeGameContinueTitle,
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -109,7 +112,7 @@ class ActiveGameCard extends StatelessWidget {
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text('Continue'),
+                  child: Text(loc.activeGameContinue),
                 ),
               ),
               const SizedBox(width: 12),
@@ -120,7 +123,7 @@ class ActiveGameCard extends StatelessWidget {
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text('Reset'),
+                  child: Text(loc.activeGameReset),
                 ),
               ),
             ],

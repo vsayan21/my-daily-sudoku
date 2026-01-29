@@ -23,5 +23,18 @@
   "navigationStatistics": "Statistik",
   "navigationProfile": "Profil",
   "comingSoon": "Bald verfügbar",
-  "sudoku": "Sudoku"
+  "sudoku": "Sudoku",
+  "activeGameContinueTitle": "Sudoku fortsetzen",
+  "activeGameStatusPaused": "Pausiert · {elapsed}",
+  "@activeGameStatusPaused": {
+    "placeholders": {
+      "elapsed": {}
+    }
+  },
+  "activeGameStatusInProgress": "Läuft",
+  "activeGameContinue": "Weiter",
+  "activeGameReset": "Zurücksetzen",
+  "sudokuActionHint": "Tipp",
+  "sudokuActionErase": "Löschen",
+  "sudokuActionUndo": "Zurück"
 }

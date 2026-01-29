@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../domain/entities/sudoku_board.dart';
+import '../../domain/entities/sudoku_move.dart';
 import '../services/game_timer.dart';
 
 /// Controller for Sudoku play interactions.
@@ -32,6 +33,7 @@ class SudokuPlayController extends ChangeNotifier {
   final GameTimer _gameTimer = GameTimer();
   bool _isPaused = false;
   bool _isManuallyPaused = false;
+  final List<SudokuMove> _history = [];
 
   /// Current Sudoku board state.
   SudokuBoard get board => _board;
@@ -41,6 +43,9 @@ class SudokuPlayController extends ChangeNotifier {
 
   /// Whether the game is currently paused.
   bool get isPaused => _isPaused;
+
+  /// Whether there is a move available to undo.
+  bool get canUndo => _history.isNotEmpty;
 
   /// Current formatted time (mm:ss).
   String get formattedTime => _formatDuration(_gameTimer.elapsedSeconds);
@@ -71,6 +76,7 @@ class SudokuPlayController extends ChangeNotifier {
       currentValues: _stringToGrid(session.current),
     );
     _selectedCell = null;
+    _history.clear();
     _isManuallyPaused = false;
     _isPaused = false;
     _gameTimer.startFrom(session.elapsedSeconds);
@@ -101,12 +107,50 @@ class SudokuPlayController extends ChangeNotifier {
     if (!_board.isEditable(selection.row, selection.col)) {
       return;
     }
+    final previousValue = _board.currentValues[selection.row][selection.col];
+    if (previousValue == value) {
+      return;
+    }
     _board = _board.setValue(selection.row, selection.col, value);
+    _history.add(
+      SudokuMove(
+        row: selection.row,
+        col: selection.col,
+        previousValue: previousValue,
+        newValue: value,
+        timestamp: DateTime.now(),
+      ),
+    );
     notifyListeners();
   }
 
   /// Clears the selected cell.
   void erase() => inputValue(0);
+
+  /// Reverts the most recent move.
+  void undo() {
+    if (_history.isEmpty) {
+      return;
+    }
+    final lastMove = _history.removeLast();
+    _board = _board.setValue(
+      lastMove.row,
+      lastMove.col,
+      lastMove.previousValue,
+    );
+    _selectedCell = (row: lastMove.row, col: lastMove.col);
+    notifyListeners();
+  }
+
+  /// Placeholder hint handler.
+  void onHintPressed(BuildContext context) {
+    if (_isPaused) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Hints coming soon')),
+    );
+  }
 
   /// Toggles pause state from user action.
   void togglePause() {
