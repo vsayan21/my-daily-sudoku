@@ -38,7 +38,6 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
   late final Future<SaveActiveGame> _saveActiveGame;
 
   static const double _horizontalPadding = 8;
-  static const double _spacingSmall = 12;
   static const double _spacingMedium = 30;
 
   @override
@@ -151,9 +150,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                   ),
                 ),
                 const SizedBox(height: _spacingMedium),
-                Expanded(
-                  flex: 7,
-                  child: Padding(
+                Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: _horizontalPadding,
                     ),
@@ -177,14 +174,13 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                       ],
                     ),
                   ),
-                ),
-                const Spacer(),
+
+                const SizedBox(height: _spacingMedium),
                 SudokuNumberRow(
                   onNumberSelected: _controller.inputValue,
                   isPaused: _controller.isPaused,
                   selectedValue: selectedValue,
                 ),
-                const SizedBox(height: _spacingSmall),
               ],
             );
             },
