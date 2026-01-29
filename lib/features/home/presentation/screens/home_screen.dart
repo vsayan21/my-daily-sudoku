@@ -243,6 +243,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        const StreakSection(),
+                        const SizedBox(height: 24),
                         Text(
                           loc.greetingTitle,
                           style: Theme.of(context)
@@ -309,7 +311,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        const StreakSection(),
                       ],
                     ),
                   ),
