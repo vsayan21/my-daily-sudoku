@@ -7,11 +7,15 @@ class SudokuActionBar extends StatelessWidget {
   const SudokuActionBar({
     super.key,
     required this.onHintPressed,
+    required this.onErasePressed,
     required this.onUndoPressed,
   });
 
   /// Called when hint is pressed.
   final VoidCallback? onHintPressed;
+
+  /// Called when erase is pressed.
+  final VoidCallback? onErasePressed;
 
   /// Called when undo is pressed.
   final VoidCallback? onUndoPressed;
@@ -43,6 +47,16 @@ class SudokuActionBar extends StatelessWidget {
             icon: Icons.lightbulb_outline_rounded,
             tooltip: loc.sudokuActionHint,
             onPressed: onHintPressed,
+            style: buttonStyle,
+          ),
+        ),
+        const SizedBox(width: _spacing),
+        Expanded(
+          child: _ActionButton(
+            label: loc.sudokuActionErase,
+            icon: Icons.backspace_outlined,
+            tooltip: loc.sudokuActionErase,
+            onPressed: onErasePressed,
             style: buttonStyle,
           ),
         ),

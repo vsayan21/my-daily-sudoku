@@ -143,6 +143,8 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                     onHintPressed: _controller.isPaused
                         ? null
                         : () => _controller.onHintPressed(context),
+                    onErasePressed:
+                        _controller.isPaused ? null : _controller.erase,
                     onUndoPressed: _controller.isPaused || !_controller.canUndo
                         ? null
                         : _controller.undo,
