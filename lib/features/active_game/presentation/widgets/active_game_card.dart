@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class ActiveGameCard extends StatelessWidget {
@@ -30,7 +32,7 @@ class ActiveGameCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final statusLabel = isPaused ? 'Paused' : 'In progress';
+    final statusLabel = isPaused ? 'Paused · Time stopped' : 'In progress';
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -70,24 +72,39 @@ class ActiveGameCard extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withValues(alpha: 0.1),
+                  color: isPaused
+                      ? colorScheme.surfaceVariant
+                      : colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
                   statusLabel,
                   style: textTheme.labelMedium?.copyWith(
-                    color: colorScheme.primary,
+                    color: isPaused
+                        ? colorScheme.onSurfaceVariant
+                        : colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
               const Spacer(),
-              Text(
-                _formatElapsed(),
-                style: textTheme.titleLarge?.copyWith(
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                  fontWeight: FontWeight.w700,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Time',
+                    style: textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Text(
+                    _formatElapsed(),
+                    style: textTheme.titleLarge?.copyWith(
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

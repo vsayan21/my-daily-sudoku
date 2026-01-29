@@ -15,6 +15,8 @@ import '../../../sudoku_play/shared/sudoku_play_args.dart';
 import '../../domain/models/difficulty_option.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/difficulty_card.dart';
+import '../widgets/page_header.dart';
+import '../widgets/section_title.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../statistics/presentation/screens/statistics_screen.dart';
 
@@ -242,15 +244,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        const PageHeader(
+                          title: 'MyDailySudoku',
+                          subtitle: 'Today',
+                        ),
+                        const SizedBox(height: 16),
+                        const SectionTitle(title: 'Today'),
+                        const SizedBox(height: 12),
                         const StreakSection(),
-                        const SizedBox(height: 24),
-                        const SizedBox(height: 8),
-                        if (activeSession != null)
+                        if (activeSession != null) ...[
+                          const SizedBox(height: 12),
                           ActiveGameCard(
                             session: activeSession,
                             onContinue: () => _handleContinue(activeSession),
                             onReset: _handleReset,
                           ),
+                        ],
+                        const SizedBox(height: 24),
                         if (activeSession == null) ...[
                           const SizedBox(height: 24),
                           Text(
