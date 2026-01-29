@@ -129,7 +129,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                   SudokuTimerBar(
                     formattedTime: _controller.formattedTime,
                   ),
-                  const SizedBox(height: _spacingSmall),
+                  const SizedBox(height: _spacingMedium),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: _horizontalPadding,
@@ -145,7 +145,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                           : _controller.undo,
                     ),
                   ),
-                  const SizedBox(height: _spacingMedium),
+                  const SizedBox(height: _spacingSmall),
                   Expanded(
                     child: Center(
                       child: Padding(
