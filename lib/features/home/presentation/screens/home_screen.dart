@@ -221,7 +221,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final options = _buildOptions(loc);
-    final colorScheme = Theme.of(context).colorScheme;
     final activeSession = _activeSession;
 
     return Scaffold(
@@ -245,22 +244,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       children: [
                         const StreakSection(),
                         const SizedBox(height: 24),
-                        Text(
-                          loc.greetingTitle,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          loc.greetingSubtitle,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: colorScheme.onSurfaceVariant),
-                        ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 8),
                         if (activeSession != null)
                           ActiveGameCard(
                             session: activeSession,
