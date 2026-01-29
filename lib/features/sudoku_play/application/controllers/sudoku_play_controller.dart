@@ -124,9 +124,6 @@ class SudokuPlayController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Clears the selected cell.
-  void erase() => inputValue(0);
-
   /// Reverts the most recent move.
   void undo() {
     if (_history.isEmpty) {

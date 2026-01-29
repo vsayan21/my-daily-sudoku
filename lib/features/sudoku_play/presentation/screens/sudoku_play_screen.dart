@@ -9,7 +9,7 @@ import '../../application/controllers/sudoku_play_controller.dart';
 import '../../domain/logic/sudoku_parser.dart';
 import '../../shared/sudoku_play_args.dart';
 import '../widgets/sudoku_grid.dart';
-import '../widgets/sudoku_number_pad.dart';
+import '../widgets/sudoku_number_row.dart';
 import '../widgets/sudoku_pause_overlay.dart';
 import '../widgets/sudoku_action_bar.dart';
 import '../widgets/sudoku_timer_bar.dart';
@@ -114,74 +114,77 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
           navigator.pop();
         },
         child: SafeArea(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              return Column(
-                children: [
-                  SudokuTopBar(
-                    difficulty: widget.args.difficulty,
-                    dailyKey: widget.args.dailyKey,
-                    onBack: _handleBack,
-                    isPaused: _controller.isPaused,
-                    onPauseToggle: _controller.togglePause,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) {
+            final selectedCell = _controller.selectedCell;
+            final selectedValue = selectedCell == null
+                ? null
+                : _controller.board.currentValues[selectedCell.row]
+                    [selectedCell.col];
+            return Column(
+              children: [
+                SudokuTopBar(
+                  difficulty: widget.args.difficulty,
+                  dailyKey: widget.args.dailyKey,
+                  onBack: _handleBack,
+                  isPaused: _controller.isPaused,
+                  onPauseToggle: _controller.togglePause,
+                ),
+                SudokuTimerBar(
+                  formattedTime: _controller.formattedTime,
+                ),
+                const SizedBox(height: _spacingMedium),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: _horizontalPadding,
                   ),
-                  SudokuTimerBar(
-                    formattedTime: _controller.formattedTime,
+                  child: SudokuActionBar(
+                    onHintPressed: _controller.isPaused
+                        ? null
+                        : () => _controller.onHintPressed(context),
+                    onUndoPressed: _controller.isPaused || !_controller.canUndo
+                        ? null
+                        : _controller.undo,
                   ),
-                  const SizedBox(height: _spacingMedium),
-                  Padding(
+                ),
+                const SizedBox(height: _spacingMedium),
+                Expanded(
+                  flex: 7,
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: _horizontalPadding,
                     ),
-                    child: SudokuActionBar(
-                      onHintPressed: _controller.isPaused
-                          ? null
-                          : () => _controller.onHintPressed(context),
-                      onErasePressed:
-                          _controller.isPaused ? null : _controller.erase,
-                      onUndoPressed: _controller.isPaused || !_controller.canUndo
-                          ? null
-                          : _controller.undo,
-                    ),
-                  ),
-                  const SizedBox(height: _spacingMedium),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: _horizontalPadding,
-                      ),
-                      child: Stack(
-                        children: [
-                          AnimatedOpacity(
-                            duration: const Duration(milliseconds: 200),
-                            opacity: _controller.isPaused ? 0.6 : 1,
-                            child: SudokuGrid(
-                              board: _controller.board,
-                              selectedCell: _controller.selectedCell,
-                              onCellTap: _controller.selectCell,
+                    child: Stack(
+                      children: [
+                        AnimatedOpacity(
+                          duration: const Duration(milliseconds: 200),
+                          opacity: _controller.isPaused ? 0.6 : 1,
+                          child: SudokuGrid(
+                            board: _controller.board,
+                            selectedCell: _controller.selectedCell,
+                            onCellTap: _controller.selectCell,
+                          ),
+                        ),
+                        if (_controller.isPaused)
+                          const Positioned.fill(
+                            child: IgnorePointer(
+                              child: SudokuPauseOverlay(),
                             ),
                           ),
-                          if (_controller.isPaused)
-                            const Positioned.fill(
-                              child: IgnorePointer(
-                                child: SudokuPauseOverlay(),
-                              ),
-                            ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
-                  IgnorePointer(
-                    ignoring: _controller.isPaused,
-                    child: SudokuNumberPad(
-                      onNumberSelected: _controller.inputValue,
-                      onErase: _controller.erase,
-                    ),
-                  ),
-                  const SizedBox(height: _spacingSmall),
-                ],
-              );
+                ),
+                const Spacer(),
+                SudokuNumberRow(
+                  onNumberSelected: _controller.inputValue,
+                  isPaused: _controller.isPaused,
+                  selectedValue: selectedValue,
+                ),
+                const SizedBox(height: _spacingSmall),
+              ],
+            );
             },
           ),
         ),
