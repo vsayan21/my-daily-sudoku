@@ -162,6 +162,12 @@ abstract class AppLocalizations {
   /// **'Choose a level and start right away'**
   String get dailySudokuSubtitle;
 
+  /// No description provided for @selectDifficultyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Difficulty'**
+  String get selectDifficultyTitle;
+
   /// No description provided for @todaysEasy.
   ///
   /// In en, this message translates to:
