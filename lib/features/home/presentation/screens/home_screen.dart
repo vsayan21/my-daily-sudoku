@@ -16,7 +16,6 @@ import '../../domain/models/difficulty_option.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/difficulty_card.dart';
 import '../widgets/page_header.dart';
-import '../widgets/section_title.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../statistics/presentation/screens/statistics_screen.dart';
 
@@ -244,13 +243,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const PageHeader(
-                          title: 'MyDailySudoku',
-                          subtitle: 'Today',
-                        ),
+                        const PageHeader(title: 'MyDailySudoku'),
                         const SizedBox(height: 16),
-                        const SectionTitle(title: 'Today'),
-                        const SizedBox(height: 12),
                         const StreakSection(),
                         if (activeSession != null) ...[
                           const SizedBox(height: 12),
