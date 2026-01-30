@@ -81,27 +81,28 @@ class DifficultyCard extends StatelessWidget {
                     Row(
                       children: [
                         Text('Solved', style: detailStyle),
-                        Expanded(
-                          child: Center(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  solvedState!.timeLabel ?? '--:--',
-                                  style: timeStyle,
-                                ),
-                                if (medal != null) ...[
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    Icons.emoji_events_rounded,
-                                    size: 18,
-                                    color: _medalColor(colorScheme, medal),
-                                  ),
-                                ],
-                              ],
-                            ),
+                        const Spacer(),
+                        if (medal != null)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Icon(
+                                Icons.emoji_events_rounded,
+                                size: 20,
+                                color: _medalColor(colorScheme, medal),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                solvedState!.timeLabel ?? '--:--',
+                                style: timeStyle,
+                              ),
+                            ],
+                          )
+                        else
+                          Text(
+                            solvedState!.timeLabel ?? '--:--',
+                            style: timeStyle,
                           ),
-                        ),
                       ],
                     ),
                   ],
