@@ -198,22 +198,11 @@ class SudokuPlayController extends ChangeNotifier {
                 !_hintedCells.contains(selection),
             isEmpty: _board.currentValues[selection.row][selection.col] == 0,
           );
-    var action = await _hintController.requestHint(
+    final action = await _hintController.requestHint(
       board: _board,
       solution: _solutionString,
-      dateKey: _dateKey,
       selected: selectionSnapshot,
     );
-    if (action.result == HintResult.noOp &&
-        action.message == 'Need another hint?') {
-      action = await _hintController.requestHint(
-        board: _board,
-        solution: _solutionString,
-        dateKey: _dateKey,
-        selected: selectionSnapshot,
-        fromAd: true,
-      );
-    }
     await _applyHintAction(action);
   }
 
