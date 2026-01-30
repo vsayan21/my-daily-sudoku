@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
 import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../../hints/application/hint_controller.dart';
@@ -49,6 +50,9 @@ class SudokuPlayController extends ChangeNotifier {
   int _penaltyToken = 0;
   String? _inlineHintMessage;
   int _inlineHintToken = 0;
+  bool _isDisposed = false;
+  Timer? _hintPenaltyTimer;
+  Timer? _inlineHintTimer;
 
   /// Current Sudoku board state.
   SudokuBoard get board => _board;
@@ -91,6 +95,7 @@ class SudokuPlayController extends ChangeNotifier {
       puzzle: _puzzleString,
       current: _gridToString(_board.currentValues),
       givens: _puzzleString,
+      hinted: _hintedToString(_hintedCells),
       elapsedSeconds: _gameTimer.elapsedSeconds,
       isPaused: _isPaused,
       lastUpdatedEpochMs: DateTime.now().millisecondsSinceEpoch,
@@ -112,6 +117,7 @@ class SudokuPlayController extends ChangeNotifier {
     _isManuallyPaused = false;
     _isPaused = false;
     _hintedCells.clear();
+    _hintedCells.addAll(_stringToHinted(session.hinted));
     _transientHighlightedCells = {};
     _gameTimer.startFrom(session.elapsedSeconds);
     if (session.isPaused) {
@@ -187,17 +193,18 @@ class SudokuPlayController extends ChangeNotifier {
     notifyListeners();
 
     final selection = _selectedCell;
+    final selectionSnapshot = selection == null
+        ? null
+        : HintSelection(
+            position: selection,
+            isEditable: _board.isEditable(selection.row, selection.col) &&
+                !_hintedCells.contains(selection),
+            isEmpty: _board.currentValues[selection.row][selection.col] == 0,
+          );
     final action = await _hintController.requestHint(
       board: _board,
       solution: _solutionString,
-      selected: selection == null
-          ? null
-          : HintSelection(
-              position: selection,
-              isEditable: _board.isEditable(selection.row, selection.col) &&
-                  !_hintedCells.contains(selection),
-              isEmpty: _board.currentValues[selection.row][selection.col] == 0,
-            ),
+      selected: selectionSnapshot,
     );
     await _applyHintAction(action);
   }
@@ -256,6 +263,9 @@ class SudokuPlayController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
+    _hintPenaltyTimer?.cancel();
+    _inlineHintTimer?.cancel();
     _gameTimer.removeListener(_handleTimerTick);
     _gameTimer.dispose();
     super.dispose();
@@ -275,6 +285,16 @@ class SudokuPlayController extends ChangeNotifier {
     return buffer.toString();
   }
 
+  String _hintedToString(Set<SudokuPosition> hinted) {
+    final buffer = StringBuffer();
+    for (var row = 0; row < 9; row++) {
+      for (var col = 0; col < 9; col++) {
+        buffer.write(hinted.contains((row: row, col: col)) ? '1' : '0');
+      }
+    }
+    return buffer.toString();
+  }
+
   List<List<int>> _stringToGrid(String value) {
     if (value.length != 81) {
       throw ArgumentError('Puzzle string must be 81 characters long.');
@@ -286,6 +306,22 @@ class SudokuPlayController extends ChangeNotifier {
         return parsed ?? 0;
       });
     });
+  }
+
+  Set<SudokuPosition> _stringToHinted(String value) {
+    if (value.length != 81) {
+      return {};
+    }
+    final hinted = <SudokuPosition>{};
+    for (var row = 0; row < 9; row++) {
+      for (var col = 0; col < 9; col++) {
+        final char = value[row * 9 + col];
+        if (char == '1') {
+          hinted.add((row: row, col: col));
+        }
+      }
+    }
+    return hinted;
   }
 
   String _formatDuration(int seconds) {
@@ -301,13 +337,14 @@ class SudokuPlayController extends ChangeNotifier {
     _hintPenaltySeconds = seconds;
     _penaltyToken += 1;
     final token = _penaltyToken;
-    notifyListeners();
-    Future<void>.delayed(const Duration(seconds: 2), () {
+    _notifySafely();
+    _hintPenaltyTimer?.cancel();
+    _hintPenaltyTimer = Timer(const Duration(seconds: 2), () {
       if (token != _penaltyToken) {
         return;
       }
       _hintPenaltySeconds = 0;
-      notifyListeners();
+      _notifySafely();
     });
   }
 
@@ -325,11 +362,11 @@ class SudokuPlayController extends ChangeNotifier {
         if (action.message != null) {
           showInlineHint(action.message!);
         }
-        notifyListeners();
+        _notifySafely();
         await Future<void>.delayed(const Duration(milliseconds: 2500));
         _transientHighlightedCells = {};
         _isHintBusy = false;
-        notifyListeners();
+        _notifySafely();
         break;
       case HintResult.filledCell:
         final position = action.filledPosition;
@@ -345,14 +382,14 @@ class SudokuPlayController extends ChangeNotifier {
           showInlineHint(action.message!);
         }
         _isHintBusy = false;
-        notifyListeners();
+        _notifySafely();
         break;
       case HintResult.noOp:
         if (action.message != null) {
           showInlineHint(action.message!);
         }
         _isHintBusy = false;
-        notifyListeners();
+        _notifySafely();
         break;
     }
   }
@@ -362,13 +399,21 @@ class SudokuPlayController extends ChangeNotifier {
     _inlineHintMessage = message;
     _inlineHintToken += 1;
     final token = _inlineHintToken;
-    notifyListeners();
-    Future<void>.delayed(const Duration(seconds: 2), () {
+    _notifySafely();
+    _inlineHintTimer?.cancel();
+    _inlineHintTimer = Timer(const Duration(seconds: 2), () {
       if (token != _inlineHintToken) {
         return;
       }
       _inlineHintMessage = null;
-      notifyListeners();
+      _notifySafely();
     });
+  }
+
+  void _notifySafely() {
+    if (_isDisposed) {
+      return;
+    }
+    notifyListeners();
   }
 }

@@ -181,6 +181,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final session = _activeSession;
     if (_isValidActiveSession(session, selected: difficulty)) {
       final selection = await _loadDailySelection(session!.difficulty);
+      if (!mounted) {
+        return;
+      }
       final args = SudokuPlayArgs(
         difficulty: session.difficulty,
         puzzleId: session.puzzleId ?? 'active',
@@ -207,6 +210,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       return;
     }
     final selection = await _loadDailySelection(session.difficulty);
+    if (!mounted) {
+      return;
+    }
     final args = SudokuPlayArgs(
       difficulty: session.difficulty,
       puzzleId: session.puzzleId ?? 'active',
