@@ -11,6 +11,7 @@ import '../../shared/sudoku_play_args.dart';
 import '../widgets/sudoku_grid.dart';
 import '../widgets/sudoku_number_row.dart';
 import '../widgets/sudoku_pause_overlay.dart';
+import '../widgets/inline_hint_message.dart';
 import '../widgets/sudoku_action_bar.dart';
 import '../widgets/sudoku_timer_bar.dart';
 import '../widgets/sudoku_top_bar.dart';
@@ -51,6 +52,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
       dateKey: widget.args.dailyKey,
       puzzleId: widget.args.puzzleId,
       puzzleString: widget.args.puzzleString,
+      solutionString: widget.args.solutionString,
     );
     final session = widget.initialSession;
     if (session != null) {
@@ -132,6 +134,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                 ),
                 SudokuTimerBar(
                   formattedTime: _controller.formattedTime,
+                  penaltyText: _controller.hintPenaltyLabel,
                 ),
                 const SizedBox(height: _spacingMedium),
                 Padding(
@@ -139,14 +142,23 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                     horizontal: _horizontalPadding,
                   ),
                   child: SudokuActionBar(
-                    onHintPressed: _controller.isPaused
+                    onHintPressed: _controller.isPaused || _controller.isHintBusy
                         ? null
-                        : () => _controller.onHintPressed(context),
+                        : _controller.onHintPressed,
                     onErasePressed:
                         _controller.isPaused ? null : _controller.erase,
                     onUndoPressed: _controller.isPaused || !_controller.canUndo
                         ? null
                         : _controller.undo,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: _horizontalPadding,
+                  ),
+                  child: InlineHintMessage(
+                    message: _controller.inlineHintMessage,
                   ),
                 ),
                 const SizedBox(height: _spacingMedium),
@@ -162,6 +174,9 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                           child: SudokuGrid(
                             board: _controller.board,
                             selectedCell: _controller.selectedCell,
+                            hintedCells: _controller.hintedCells,
+                            transientHighlightedCells:
+                                _controller.transientHighlightedCells,
                             onCellTap: _controller.selectCell,
                           ),
                         ),
