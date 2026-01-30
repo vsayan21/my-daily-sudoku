@@ -79,11 +79,13 @@ class DifficultyCard extends StatelessWidget {
                   if (isSolved && solvedState?.timeLabel != null) ...[
                     const SizedBox(height: 6),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text('Solved', style: detailStyle),
                         const Spacer(),
                         if (medal != null)
                           Column(
+                            mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Icon(
