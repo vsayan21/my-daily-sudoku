@@ -35,7 +35,7 @@ class SudokuPlayController extends ChangeNotifier {
   String _dateKey;
   String _puzzleId;
   String _puzzleString;
-  String _solutionString;
+  final String _solutionString;
   final HintController _hintController;
   SudokuPosition? _selectedCell;
   final GameTimer _gameTimer = GameTimer();
