@@ -49,6 +49,7 @@ class SudokuPlayController extends ChangeNotifier {
   int _penaltyToken = 0;
   String? _inlineHintMessage;
   int _inlineHintToken = 0;
+  bool _isDisposed = false;
 
   /// Current Sudoku board state.
   SudokuBoard get board => _board;
@@ -259,6 +260,7 @@ class SudokuPlayController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _gameTimer.removeListener(_handleTimerTick);
     _gameTimer.dispose();
     super.dispose();
@@ -330,13 +332,13 @@ class SudokuPlayController extends ChangeNotifier {
     _hintPenaltySeconds = seconds;
     _penaltyToken += 1;
     final token = _penaltyToken;
-    notifyListeners();
+    _notifySafely();
     Future<void>.delayed(const Duration(seconds: 2), () {
       if (token != _penaltyToken) {
         return;
       }
       _hintPenaltySeconds = 0;
-      notifyListeners();
+      _notifySafely();
     });
   }
 
@@ -354,11 +356,11 @@ class SudokuPlayController extends ChangeNotifier {
         if (action.message != null) {
           showInlineHint(action.message!);
         }
-        notifyListeners();
+        _notifySafely();
         await Future<void>.delayed(const Duration(milliseconds: 2500));
         _transientHighlightedCells = {};
         _isHintBusy = false;
-        notifyListeners();
+        _notifySafely();
         break;
       case HintResult.filledCell:
         final position = action.filledPosition;
@@ -374,14 +376,14 @@ class SudokuPlayController extends ChangeNotifier {
           showInlineHint(action.message!);
         }
         _isHintBusy = false;
-        notifyListeners();
+        _notifySafely();
         break;
       case HintResult.noOp:
         if (action.message != null) {
           showInlineHint(action.message!);
         }
         _isHintBusy = false;
-        notifyListeners();
+        _notifySafely();
         break;
     }
   }
@@ -391,13 +393,20 @@ class SudokuPlayController extends ChangeNotifier {
     _inlineHintMessage = message;
     _inlineHintToken += 1;
     final token = _inlineHintToken;
-    notifyListeners();
+    _notifySafely();
     Future<void>.delayed(const Duration(seconds: 2), () {
       if (token != _inlineHintToken) {
         return;
       }
       _inlineHintMessage = null;
-      notifyListeners();
+      _notifySafely();
     });
+  }
+
+  void _notifySafely() {
+    if (_isDisposed) {
+      return;
+    }
+    notifyListeners();
   }
 }
