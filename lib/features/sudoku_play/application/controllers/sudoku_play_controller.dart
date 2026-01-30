@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
 import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../../hints/application/hint_controller.dart';
@@ -50,6 +51,8 @@ class SudokuPlayController extends ChangeNotifier {
   String? _inlineHintMessage;
   int _inlineHintToken = 0;
   bool _isDisposed = false;
+  Timer? _hintPenaltyTimer;
+  Timer? _inlineHintTimer;
 
   /// Current Sudoku board state.
   SudokuBoard get board => _board;
@@ -261,6 +264,8 @@ class SudokuPlayController extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
+    _hintPenaltyTimer?.cancel();
+    _inlineHintTimer?.cancel();
     _gameTimer.removeListener(_handleTimerTick);
     _gameTimer.dispose();
     super.dispose();
@@ -333,7 +338,8 @@ class SudokuPlayController extends ChangeNotifier {
     _penaltyToken += 1;
     final token = _penaltyToken;
     _notifySafely();
-    Future<void>.delayed(const Duration(seconds: 2), () {
+    _hintPenaltyTimer?.cancel();
+    _hintPenaltyTimer = Timer(const Duration(seconds: 2), () {
       if (token != _penaltyToken) {
         return;
       }
@@ -394,7 +400,8 @@ class SudokuPlayController extends ChangeNotifier {
     _inlineHintToken += 1;
     final token = _inlineHintToken;
     _notifySafely();
-    Future<void>.delayed(const Duration(seconds: 2), () {
+    _inlineHintTimer?.cancel();
+    _inlineHintTimer = Timer(const Duration(seconds: 2), () {
       if (token != _inlineHintToken) {
         return;
       }
