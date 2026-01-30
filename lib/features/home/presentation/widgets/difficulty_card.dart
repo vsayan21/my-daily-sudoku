@@ -54,7 +54,7 @@ class DifficultyCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         onTap: onPressed,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(10),
