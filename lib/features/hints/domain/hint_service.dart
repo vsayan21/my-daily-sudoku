@@ -83,7 +83,9 @@ class DefaultHintService implements HintService {
   }) {
     final conflicts = _conflictFinder.findConflicts(board.currentValues);
     if (conflicts.isNotEmpty) {
-      final selectedConflict = _pickTopLeft(conflicts);
+      final selectedConflict =
+          _pickIncorrectConflict(conflicts, board.currentValues, solution) ??
+              _pickTopLeft(conflicts);
       final focusedConflicts =
           selectedConflict == null ? <SudokuPosition>{} : {selectedConflict};
       return HintAction(
@@ -142,5 +144,32 @@ class DefaultHintService implements HintService {
       }
       return current;
     });
+  }
+
+  SudokuPosition? _pickIncorrectConflict(
+    Set<SudokuPosition> conflicts,
+    List<List<int>> grid,
+    String solution,
+  ) {
+    SudokuPosition? candidate;
+    for (final conflict in conflicts) {
+      final index = conflict.row * 9 + conflict.col;
+      if (index < 0 || index >= solution.length) {
+        continue;
+      }
+      final expected = int.tryParse(solution[index]) ?? 0;
+      if (grid[conflict.row][conflict.col] != expected) {
+        if (candidate == null) {
+          candidate = conflict;
+          continue;
+        }
+        if (conflict.row < candidate.row ||
+            (conflict.row == candidate.row &&
+                conflict.col < candidate.col)) {
+          candidate = conflict;
+        }
+      }
+    }
+    return candidate;
   }
 }
