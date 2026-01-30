@@ -1,4 +1,5 @@
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
+import '../../../medals/domain/medal.dart';
 
 class GameResult {
   const GameResult({
@@ -7,7 +8,9 @@ class GameResult {
     required this.completedAtEpochMs,
     required this.elapsedSeconds,
     required this.hintsUsed,
-    required this.pausesCount,
+    required this.movesCount,
+    required this.undoCount,
+    required this.medal,
     required this.resetsCount,
     this.appVersion,
     this.deviceLocale,
@@ -18,7 +21,9 @@ class GameResult {
   final int completedAtEpochMs;
   final int elapsedSeconds;
   final int hintsUsed;
-  final int pausesCount;
+  final int movesCount;
+  final int undoCount;
+  final Medal medal;
   final int resetsCount;
   final String? appVersion;
   final String? deviceLocale;

@@ -6,7 +6,8 @@ class SudokuSolvedDetails {
     required this.difficulty,
     required this.elapsedSeconds,
     required this.hintsUsed,
-    required this.pausesCount,
+    required this.movesCount,
+    required this.undoCount,
     required this.resetsCount,
   });
 
@@ -14,6 +15,7 @@ class SudokuSolvedDetails {
   final SudokuDifficulty difficulty;
   final int elapsedSeconds;
   final int hintsUsed;
-  final int pausesCount;
+  final int movesCount;
+  final int undoCount;
   final int resetsCount;
 }

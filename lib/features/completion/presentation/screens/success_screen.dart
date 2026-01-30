@@ -2,6 +2,7 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
+import '../../../medals/domain/medal.dart';
 import '../../shared/success_screen_args.dart';
 import '../widgets/confetti_layer.dart';
 import '../widgets/stat_tiles_row.dart';
@@ -79,6 +80,7 @@ class _SuccessScreenState extends State<SuccessScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final args = widget.args;
+    final medalLabel = formatMedalLabel(args.medal);
     const heroTitle = 'Solved!';
     const timeLabel = 'Time';
     const doneLabel = 'Done';
@@ -122,12 +124,21 @@ class _SuccessScreenState extends State<SuccessScreen>
                                 value: _formatDuration(args.elapsedSeconds),
                               ),
                             ),
+                            const SizedBox(height: 12),
+                            FadeTransition(
+                              opacity: _tilesOpacity,
+                              child: _MedalBadge(
+                                label: medalLabel,
+                                color: _medalColor(theme, args.medal),
+                              ),
+                            ),
                             const SizedBox(height: 18),
                             FadeTransition(
                               opacity: _tilesOpacity,
                               child: StatTilesRow(
                                 hintsUsed: args.hintsUsed,
-                                pausesCount: args.pausesCount,
+                                movesCount: args.movesCount,
+                                undoCount: args.undoCount,
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -179,5 +190,54 @@ class _SuccessScreenState extends State<SuccessScreen>
       return 'Streak started: 1 day';
     }
     return 'Streak: $count days';
+  }
+
+  Color _medalColor(ThemeData theme, Medal medal) {
+    final scheme = theme.colorScheme;
+    switch (medal) {
+      case Medal.gold:
+        return scheme.tertiary;
+      case Medal.silver:
+        return scheme.secondary;
+      case Medal.bronze:
+        return scheme.primary;
+    }
+  }
+}
+
+class _MedalBadge extends StatelessWidget {
+  const _MedalBadge({
+    required this.label,
+    required this.color,
+  });
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.emoji_events_rounded, color: color, size: 18),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: scheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

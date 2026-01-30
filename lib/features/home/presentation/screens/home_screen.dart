@@ -4,6 +4,7 @@ import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 import '../../../../app/di/app_dependencies.dart';
 import '../../../active_game/application/usecases/clear_active_game.dart';
 import '../../../active_game/application/usecases/load_active_game.dart';
+import '../../../active_game/application/usecases/reset_active_game_for.dart';
 import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../active_game/domain/repositories/active_game_repository.dart';
 import '../../../active_game/presentation/widgets/active_game_card.dart';
@@ -13,7 +14,12 @@ import '../../../daily_sudoku/shared/daily_key.dart';
 import '../../../streak/presentation/streak_section.dart';
 import '../../../sudoku_play/presentation/screens/sudoku_play_screen.dart';
 import '../../../sudoku_play/shared/sudoku_play_args.dart';
+import '../../../statistics/application/usecases/get_game_result_for_day.dart';
+import '../../../statistics/data/datasources/statistics_local_datasource.dart';
+import '../../../statistics/data/repositories/statistics_repository_impl.dart';
+import '../../../statistics/domain/entities/game_result.dart';
 import '../../domain/models/difficulty_option.dart';
+import '../models/difficulty_tile_state.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/difficulty_card.dart';
 import '../widgets/page_header.dart';
@@ -34,7 +40,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _currentTab = 0;
   late final PageController _pageController;
   late final Future<ActiveGameRepository> _activeGameRepository;
+  late final Future<StatisticsRepositoryImpl> _statisticsRepository;
   ActiveGameSession? _activeSession;
+  Map<SudokuDifficulty, GameResult?> _todayResults = {};
 
   @override
   void initState() {
@@ -42,7 +50,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _pageController = PageController(initialPage: _currentTab);
     _activeGameRepository = widget.dependencies.activeGameRepository;
+    _statisticsRepository = _buildStatisticsRepository();
     _refreshActiveSession();
+    _refreshTodayResults();
   }
 
   @override
@@ -56,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _clearStaleSessionIfNeeded();
+      _refreshTodayResults();
     }
   }
 
@@ -93,6 +104,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return widget.dependencies.todaySudokuUseCase.execute(difficulty);
   }
 
+  Future<StatisticsRepositoryImpl> _buildStatisticsRepository() async {
+    final preferences = await widget.dependencies.sharedPreferences;
+    return StatisticsRepositoryImpl(
+      dataSource: StatisticsLocalDataSource(preferences),
+    );
+  }
+
   Future<SudokuPlayArgs> _loadDailyPuzzle(SudokuDifficulty difficulty) async {
     final selection = await _loadDailySelection(difficulty);
     return SudokuPlayArgs(
@@ -112,6 +130,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       return;
     }
     setState(() => _activeSession = session);
+  }
+
+  Future<void> _refreshTodayResults() async {
+    final repository = await _statisticsRepository;
+    final useCase = GetGameResultForDay(repository: repository);
+    final dateKey = _todayKey();
+    final results = <SudokuDifficulty, GameResult?>{};
+    for (final difficulty in SudokuDifficulty.values) {
+      results[difficulty] = await useCase.execute(
+        dateKey: dateKey,
+        difficultyKey: difficulty.name,
+      );
+    }
+    if (!mounted) {
+      return;
+    }
+    setState(() => _todayResults = results);
   }
 
   String _todayKey() => buildDailyKey();
@@ -174,10 +209,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       return;
     }
     await _refreshActiveSession();
+    await _refreshTodayResults();
   }
 
   Future<void> _handleStart() async {
     final difficulty = _difficultyForIndex(_selectedIndex);
+    if (_todayResults[difficulty] != null) {
+      final repository = await _activeGameRepository;
+      final resetUseCase = ResetActiveGameFor(repository: repository);
+      await resetUseCase.execute(
+        dateKey: _todayKey(),
+        difficulty: difficulty,
+      );
+      final args = await _loadDailyPuzzle(difficulty);
+      if (!mounted) {
+        return;
+      }
+      await _openPlayScreen(args: args);
+      return;
+    }
     final session = _activeSession;
     if (_isValidActiveSession(session, selected: difficulty)) {
       final selection = await _loadDailySelection(session!.difficulty);
@@ -238,6 +288,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final loc = AppLocalizations.of(context)!;
     final options = _buildOptions(loc);
     final activeSession = _activeSession;
+    final selectedDifficulty = _difficultyForIndex(_selectedIndex);
+    final isSelectedSolved = _todayResults[selectedDifficulty] != null;
 
     return Scaffold(
       body: SafeArea(
@@ -289,6 +341,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   child: DifficultyCard(
                                     option: entry.value,
                                     isSelected: _selectedIndex == entry.key,
+                                    tileState: _buildTileState(
+                                      difficulty:
+                                          _difficultyForIndex(entry.key),
+                                    ),
                                     onPressed: () {
                                       setState(
                                         () => _selectedIndex = entry.key,
@@ -301,7 +357,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           FilledButton.icon(
                             onPressed: _handleStart,
                             icon: const Icon(Icons.play_arrow_rounded),
-                            label: Text(loc.start),
+                            label: Text(
+                              isSelectedSolved ? 'Try Again' : loc.start,
+                            ),
                           ),
                           const SizedBox(height: 24),
                         ],
@@ -328,5 +386,29 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  DifficultyTileState _buildTileState({
+    required SudokuDifficulty difficulty,
+  }) {
+    final result = _todayResults[difficulty];
+    if (result == null) {
+      return DifficultyTileState(
+        difficulty: difficulty,
+        isSolvedToday: false,
+      );
+    }
+    return DifficultyTileState(
+      difficulty: difficulty,
+      isSolvedToday: true,
+      timeLabel: _formatDuration(result.elapsedSeconds),
+      medal: result.medal,
+    );
+  }
+
+  String _formatDuration(int seconds) {
+    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+    final remaining = (seconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$remaining';
   }
 }

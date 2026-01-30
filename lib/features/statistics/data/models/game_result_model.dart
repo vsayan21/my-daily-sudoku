@@ -1,4 +1,5 @@
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
+import '../../../medals/domain/medal.dart';
 import '../../domain/entities/game_result.dart';
 
 class GameResultModel extends GameResult {
@@ -8,7 +9,9 @@ class GameResultModel extends GameResult {
     required super.completedAtEpochMs,
     required super.elapsedSeconds,
     required super.hintsUsed,
-    required super.pausesCount,
+    required super.movesCount,
+    required super.undoCount,
+    required super.medal,
     required super.resetsCount,
     super.appVersion,
     super.deviceLocale,
@@ -21,7 +24,9 @@ class GameResultModel extends GameResult {
       completedAtEpochMs: result.completedAtEpochMs,
       elapsedSeconds: result.elapsedSeconds,
       hintsUsed: result.hintsUsed,
-      pausesCount: result.pausesCount,
+      movesCount: result.movesCount,
+      undoCount: result.undoCount,
+      medal: result.medal,
       resetsCount: result.resetsCount,
       appVersion: result.appVersion,
       deviceLocale: result.deviceLocale,
@@ -35,7 +40,9 @@ class GameResultModel extends GameResult {
       completedAtEpochMs: json['completedAtEpochMs'] as int? ?? 0,
       elapsedSeconds: json['elapsedSeconds'] as int? ?? 0,
       hintsUsed: json['hintsUsed'] as int? ?? 0,
-      pausesCount: json['pausesCount'] as int? ?? 0,
+      movesCount: json['movesCount'] as int? ?? 0,
+      undoCount: json['undoCount'] as int? ?? 0,
+      medal: parseMedal(json['medal'] as String?),
       resetsCount: json['resetsCount'] as int? ?? 0,
       appVersion: json['appVersion'] as String?,
       deviceLocale: json['deviceLocale'] as String?,
@@ -49,7 +56,9 @@ class GameResultModel extends GameResult {
       'completedAtEpochMs': completedAtEpochMs,
       'elapsedSeconds': elapsedSeconds,
       'hintsUsed': hintsUsed,
-      'pausesCount': pausesCount,
+      'movesCount': movesCount,
+      'undoCount': undoCount,
+      'medal': medal.name,
       'resetsCount': resetsCount,
       'appVersion': appVersion,
       'deviceLocale': deviceLocale,

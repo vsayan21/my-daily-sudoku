@@ -8,6 +8,7 @@ import '../../../active_game/data/repositories/active_game_repository_impl.dart'
 import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../completion/presentation/screens/success_screen.dart';
 import '../../../completion/shared/success_screen_args.dart';
+import '../../../medals/domain/medal_calculator.dart';
 import '../../../statistics/application/usecases/save_game_result.dart';
 import '../../../statistics/data/datasources/statistics_local_datasource.dart';
 import '../../../statistics/data/repositories/statistics_repository_impl.dart';
@@ -129,13 +130,17 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     final completedAtEpochMs = DateTime.now().millisecondsSinceEpoch;
     final locale =
         mounted ? Localizations.localeOf(context).toLanguageTag() : null;
+    final medal = const MedalCalculator()
+        .getMedal(details.difficulty, details.elapsedSeconds);
     final result = GameResult(
       dateKey: details.dateKey,
       difficulty: details.difficulty,
       completedAtEpochMs: completedAtEpochMs,
       elapsedSeconds: details.elapsedSeconds,
       hintsUsed: details.hintsUsed,
-      pausesCount: details.pausesCount,
+      movesCount: details.movesCount,
+      undoCount: details.undoCount,
+      medal: medal,
       resetsCount: details.resetsCount,
       deviceLocale: locale,
     );
@@ -154,7 +159,9 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
             difficulty: details.difficulty,
             elapsedSeconds: details.elapsedSeconds,
             hintsUsed: details.hintsUsed,
-            pausesCount: details.pausesCount,
+            movesCount: details.movesCount,
+            undoCount: details.undoCount,
+            medal: medal,
             streakCount: streakCount,
           ),
         ),
