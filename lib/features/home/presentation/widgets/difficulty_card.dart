@@ -29,7 +29,6 @@ class DifficultyCard extends StatelessWidget {
     final solvedState = tileState;
     final isSolved = solvedState?.isSolvedToday ?? false;
     final medal = solvedState?.medal;
-    final medalLabel = medal == null ? null : formatMedalLabel(medal);
     final detailStyle = Theme.of(context).textTheme.labelMedium?.copyWith(
           color: colorScheme.onSurfaceVariant,
         );
@@ -75,31 +74,24 @@ class DifficultyCard extends StatelessWidget {
                   ),
                   if (isSolved && solvedState?.timeLabel != null) ...[
                     const SizedBox(height: 6),
-                    RichText(
-                      text: TextSpan(
-                        style: detailStyle,
-                        children: [
-                          const TextSpan(text: 'Solved · '),
-                          TextSpan(text: solvedState!.timeLabel),
-                          if (medalLabel != null) ...[
-                            const TextSpan(text: ' · '),
-                            TextSpan(
-                              text: medalLabel,
-                              style: detailStyle?.copyWith(
-                                color: _medalColor(colorScheme, medal!),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+                    Row(
+                      children: [
+                        Text('Solved · ${solvedState!.timeLabel}',
+                            style: detailStyle),
+                        if (medal != null) ...[
+                          const SizedBox(width: 6),
+                          Icon(
+                            Icons.emoji_events_rounded,
+                            size: 16,
+                            color: _medalColor(colorScheme, medal),
+                          ),
                         ],
-                      ),
+                      ],
                     ),
                   ],
                 ],
               ),
             ),
-            if (isSelected)
-              Icon(Icons.check_circle, color: colorScheme.primary),
           ],
         ),
       ),
