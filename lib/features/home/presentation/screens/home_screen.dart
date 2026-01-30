@@ -8,6 +8,7 @@ import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../active_game/domain/repositories/active_game_repository.dart';
 import '../../../active_game/presentation/widgets/active_game_card.dart';
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
+import '../../../daily_sudoku/domain/entities/daily_sudoku.dart';
 import '../../../daily_sudoku/shared/daily_key.dart';
 import '../../../streak/presentation/streak_section.dart';
 import '../../../sudoku_play/presentation/screens/sudoku_play_screen.dart';
@@ -88,13 +89,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
+  Future<DailySudoku> _loadDailySelection(SudokuDifficulty difficulty) async {
+    return widget.dependencies.todaySudokuUseCase.execute(difficulty);
+  }
+
   Future<SudokuPlayArgs> _loadDailyPuzzle(SudokuDifficulty difficulty) async {
-    final selection = await widget.dependencies.todaySudokuUseCase
-        .execute(difficulty);
+    final selection = await _loadDailySelection(difficulty);
     return SudokuPlayArgs(
       difficulty: difficulty,
       puzzleId: selection.id,
       puzzleString: selection.puzzle,
+      solutionString: selection.solution,
       dailyKey: selection.dateKey,
     );
   }
@@ -175,10 +180,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final difficulty = _difficultyForIndex(_selectedIndex);
     final session = _activeSession;
     if (_isValidActiveSession(session, selected: difficulty)) {
+      final selection = await _loadDailySelection(session!.difficulty);
       final args = SudokuPlayArgs(
-        difficulty: session!.difficulty,
+        difficulty: session.difficulty,
         puzzleId: session.puzzleId ?? 'active',
         puzzleString: session.puzzle,
+        solutionString: selection.solution,
         dailyKey: session.dateKey,
       );
       await _openPlayScreen(args: args, session: session);
@@ -199,10 +206,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       await _clearStaleSessionIfNeeded();
       return;
     }
+    final selection = await _loadDailySelection(session.difficulty);
     final args = SudokuPlayArgs(
       difficulty: session.difficulty,
       puzzleId: session.puzzleId ?? 'active',
       puzzleString: session.puzzle,
+      solutionString: selection.solution,
       dailyKey: session.dateKey,
     );
     await _openPlayScreen(args: args, session: session);

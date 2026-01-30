@@ -6,10 +6,14 @@ class SudokuTimerBar extends StatelessWidget {
   const SudokuTimerBar({
     super.key,
     required this.formattedTime,
+    this.penaltyText,
   });
 
   /// Formatted timer text.
   final String formattedTime;
+
+  /// Optional penalty text shown to the right.
+  final String? penaltyText;
 
   static const double _horizontalPadding = 16;
   static const double _verticalPadding = 8;
@@ -31,14 +35,30 @@ class SudokuTimerBar extends StatelessWidget {
           color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(_containerRadius),
         ),
-        child: Text(
-          formattedTime,
-          textAlign: TextAlign.center,
-          style: textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            fontFeatures: const [FontFeature.tabularFigures()],
-            color: colorScheme.onSurface,
-          ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Text(
+              formattedTime,
+              textAlign: TextAlign.center,
+              style: textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                fontFeatures: const [FontFeature.tabularFigures()],
+                color: colorScheme.onSurface,
+              ),
+            ),
+            if (penaltyText != null)
+              Positioned(
+                right: 0,
+                child: Text(
+                  penaltyText!,
+                  style: textTheme.labelLarge?.copyWith(
+                    color: colorScheme.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

@@ -77,7 +77,7 @@ class _NumberButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final baseColor = colorScheme.surfaceContainer;
-    final selectedOverlay = colorScheme.primary.withOpacity(0.12);
+    final selectedOverlay = colorScheme.primary.withValues(alpha: 0.12);
     final backgroundColor = isSelected
         ? Color.alphaBlend(selectedOverlay, baseColor)
         : baseColor;
@@ -85,25 +85,25 @@ class _NumberButton extends StatelessWidget {
     return FilledButton(
       onPressed: onPressed,
       style: ButtonStyle(
-        minimumSize: const MaterialStatePropertyAll(
+        minimumSize: const WidgetStatePropertyAll(
           Size(SudokuNumberRow._minTapSize, SudokuNumberRow._minTapSize),
         ),
-        padding: const MaterialStatePropertyAll(EdgeInsets.zero),
-        shape: const MaterialStatePropertyAll(CircleBorder()),
-        backgroundColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.disabled)) {
-            return colorScheme.onSurface.withOpacity(0.12);
+        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+        shape: const WidgetStatePropertyAll(CircleBorder()),
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return colorScheme.onSurface.withValues(alpha: 0.12);
           }
           return backgroundColor;
         }),
-        foregroundColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.disabled)) {
-            return colorScheme.onSurface.withOpacity(0.38);
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return colorScheme.onSurface.withValues(alpha: 0.38);
           }
           return colorScheme.onSurface;
         }),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        elevation: const MaterialStatePropertyAll(0),
+        elevation: const WidgetStatePropertyAll(0),
       ),
       child: Text(
         label,
