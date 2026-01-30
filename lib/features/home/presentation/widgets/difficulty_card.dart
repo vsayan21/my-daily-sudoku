@@ -32,6 +32,10 @@ class DifficultyCard extends StatelessWidget {
     final detailStyle = Theme.of(context).textTheme.labelMedium?.copyWith(
           color: colorScheme.onSurfaceVariant,
         );
+    final timeStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
+          color: colorScheme.onSurfaceVariant,
+          fontWeight: FontWeight.w600,
+        );
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -77,17 +81,27 @@ class DifficultyCard extends StatelessWidget {
                     Row(
                       children: [
                         Text('Solved', style: detailStyle),
-                        const Spacer(),
-                        Text(solvedState!.timeLabel ?? '--:--',
-                            style: detailStyle),
-                        if (medal != null) ...[
-                          const SizedBox(width: 6),
-                          Icon(
-                            Icons.emoji_events_rounded,
-                            size: 16,
-                            color: _medalColor(colorScheme, medal),
+                        Expanded(
+                          child: Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  solvedState!.timeLabel ?? '--:--',
+                                  style: timeStyle,
+                                ),
+                                if (medal != null) ...[
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.emoji_events_rounded,
+                                    size: 18,
+                                    color: _medalColor(colorScheme, medal),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       ],
                     ),
                   ],
