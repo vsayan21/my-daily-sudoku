@@ -76,7 +76,9 @@ class DifficultyCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Text('Solved · ${solvedState!.timeLabel}',
+                        Text('Solved', style: detailStyle),
+                        const Spacer(),
+                        Text(solvedState!.timeLabel ?? '--:--',
                             style: detailStyle),
                         if (medal != null) ...[
                           const SizedBox(width: 6),
