@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../daily_sudoku/shared/daily_key.dart';
 import '../domain/streak_repository.dart';
 import '../domain/streak_state.dart';
 import 'streak_local_datasource.dart';
@@ -16,10 +17,17 @@ class StreakRepositoryImpl implements StreakRepository {
 
   @override
   Future<StreakState> fetchStreakState() async {
+    final todayKey = buildDailyKey();
+    final lastSolved = _localDataSource.readLastSolvedDate();
+    var todaySolved = _localDataSource.readTodaySolved();
+    if (todaySolved && lastSolved != todayKey) {
+      await _localDataSource.writeTodaySolved(false);
+      todaySolved = false;
+    }
     return StreakState(
       streakCount: _localDataSource.readStreakCount(),
-      todaySolved: _localDataSource.readTodaySolved(),
-      lastSolvedDate: _localDataSource.readLastSolvedDate(),
+      todaySolved: todaySolved,
+      lastSolvedDate: lastSolved,
     );
   }
 }

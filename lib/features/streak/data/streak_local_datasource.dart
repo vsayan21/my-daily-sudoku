@@ -18,4 +18,8 @@ class StreakLocalDataSource {
   String? readLastSolvedDate() {
     return _preferences.getString(StreakKeys.lastSolvedDate);
   }
+
+  Future<void> writeTodaySolved(bool value) {
+    return _preferences.setBool(StreakKeys.todaySolved, value);
+  }
 }
