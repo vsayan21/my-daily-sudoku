@@ -5,7 +5,6 @@ import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../../hints/application/hint_controller.dart';
 import '../../../hints/domain/hint_result.dart';
 import '../../../hints/domain/hint_service.dart';
-import '../../../hints/presentation/hint_feedback_overlay.dart';
 import '../../domain/entities/sudoku_board.dart';
 import '../../domain/entities/sudoku_move.dart';
 import '../services/game_timer.dart';
@@ -48,6 +47,8 @@ class SudokuPlayController extends ChangeNotifier {
   bool _isHintBusy = false;
   int _hintPenaltySeconds = 0;
   int _penaltyToken = 0;
+  String? _inlineHintMessage;
+  int _inlineHintToken = 0;
 
   /// Current Sudoku board state.
   SudokuBoard get board => _board;
@@ -71,6 +72,9 @@ class SudokuPlayController extends ChangeNotifier {
   /// Latest hint penalty label to display.
   String? get hintPenaltyLabel =>
       _hintPenaltySeconds > 0 ? '+$_hintPenaltySeconds sec' : null;
+
+  /// Inline hint message shown below the action bar.
+  String? get inlineHintMessage => _inlineHintMessage;
 
   /// Whether there is a move available to undo.
   bool get canUndo => _history.isNotEmpty;
@@ -175,7 +179,7 @@ class SudokuPlayController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> onHintPressed(BuildContext context) async {
+  Future<void> onHintPressed() async {
     if (_isPaused || _isHintBusy) {
       return;
     }
@@ -195,7 +199,7 @@ class SudokuPlayController extends ChangeNotifier {
               isEmpty: _board.currentValues[selection.row][selection.col] == 0,
             ),
     );
-    await _applyHintAction(context, action);
+    await _applyHintAction(action);
   }
 
   /// Toggles pause state from user action.
@@ -312,19 +316,16 @@ class SudokuPlayController extends ChangeNotifier {
     _showHintPenalty(5);
   }
 
-  Future<void> _applyHintAction(
-    BuildContext context,
-    HintAction action,
-  ) async {
+  Future<void> _applyHintAction(HintAction action) async {
     switch (action.result) {
       case HintResult.revealedConflicts:
         _transientHighlightedCells = action.conflicts;
         _selectedCell = action.selectedPosition ?? _selectedCell;
         _applyHintPenalty();
-        notifyListeners();
         if (action.message != null) {
-          HintFeedbackOverlay.showMessage(context, action.message!);
+          showInlineHint(action.message!);
         }
+        notifyListeners();
         await Future<void>.delayed(const Duration(milliseconds: 2500));
         _transientHighlightedCells = {};
         _isHintBusy = false;
@@ -341,18 +342,33 @@ class SudokuPlayController extends ChangeNotifier {
         }
         _applyHintPenalty();
         if (action.message != null) {
-          HintFeedbackOverlay.showMessage(context, action.message!);
+          showInlineHint(action.message!);
         }
         _isHintBusy = false;
         notifyListeners();
         break;
       case HintResult.noOp:
         if (action.message != null) {
-          HintFeedbackOverlay.showMessage(context, action.message!);
+          showInlineHint(action.message!);
         }
         _isHintBusy = false;
         notifyListeners();
         break;
     }
+  }
+
+  /// Shows an inline hint message for a short duration.
+  void showInlineHint(String message) {
+    _inlineHintMessage = message;
+    _inlineHintToken += 1;
+    final token = _inlineHintToken;
+    notifyListeners();
+    Future<void>.delayed(const Duration(seconds: 2), () {
+      if (token != _inlineHintToken) {
+        return;
+      }
+      _inlineHintMessage = null;
+      notifyListeners();
+    });
   }
 }
