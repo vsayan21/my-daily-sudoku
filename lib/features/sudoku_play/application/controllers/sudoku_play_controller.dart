@@ -192,6 +192,7 @@ class SudokuPlayController extends ChangeNotifier {
     final action = await _hintController.requestHint(
       board: _board,
       solution: _solutionString,
+      dateKey: _dateKey,
       selected: selection == null
           ? null
           : HintSelection(
