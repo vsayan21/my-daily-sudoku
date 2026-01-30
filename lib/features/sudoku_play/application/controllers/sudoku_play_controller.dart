@@ -8,6 +8,7 @@ import '../../../hints/domain/hint_result.dart';
 import '../../../hints/domain/hint_service.dart';
 import '../../domain/entities/sudoku_board.dart';
 import '../../domain/entities/sudoku_move.dart';
+import '../../shared/sudoku_solved_details.dart';
 import '../services/game_timer.dart';
 
 /// Controller for Sudoku play interactions.
@@ -20,6 +21,7 @@ class SudokuPlayController extends ChangeNotifier {
     required String puzzleId,
     required String puzzleString,
     required String solutionString,
+    this.onSolved,
   })  : _board = board,
         _difficulty = difficulty,
         _dateKey = dateKey,
@@ -38,10 +40,15 @@ class SudokuPlayController extends ChangeNotifier {
   String _puzzleString;
   final String _solutionString;
   final HintController _hintController;
+  final ValueChanged<SudokuSolvedDetails>? onSolved;
   SudokuPosition? _selectedCell;
   final GameTimer _gameTimer = GameTimer();
   bool _isPaused = false;
   bool _isManuallyPaused = false;
+  bool _isCompleted = false;
+  bool _hasNotifiedSolved = false;
+  int _hintsUsed = 0;
+  int _pausesCount = 0;
   final List<SudokuMove> _history = [];
   final Set<SudokuPosition> _hintedCells = {};
   Set<SudokuPosition> _transientHighlightedCells = {};
@@ -116,6 +123,10 @@ class SudokuPlayController extends ChangeNotifier {
     _history.clear();
     _isManuallyPaused = false;
     _isPaused = false;
+    _isCompleted = false;
+    _hasNotifiedSolved = false;
+    _hintsUsed = 0;
+    _pausesCount = 0;
     _hintedCells.clear();
     _hintedCells.addAll(_stringToHinted(session.hinted));
     _transientHighlightedCells = {};
@@ -128,6 +139,9 @@ class SudokuPlayController extends ChangeNotifier {
 
   /// Selects a cell by row and column.
   void selectCell(int row, int col) {
+    if (_isCompleted) {
+      return;
+    }
     if (_isPaused) {
       resume(manual: true);
     }
@@ -137,6 +151,9 @@ class SudokuPlayController extends ChangeNotifier {
 
   /// Inputs a value into the selected cell.
   void inputValue(int value) {
+    if (_isCompleted) {
+      return;
+    }
     if (_isPaused) {
       return;
     }
@@ -164,7 +181,8 @@ class SudokuPlayController extends ChangeNotifier {
         timestamp: DateTime.now(),
       ),
     );
-    notifyListeners();
+    _notifySafely();
+    _checkSolved();
   }
 
   /// Clears the selected cell.
@@ -172,6 +190,9 @@ class SudokuPlayController extends ChangeNotifier {
 
   /// Reverts the most recent move.
   void undo() {
+    if (_isCompleted) {
+      return;
+    }
     if (_history.isEmpty) {
       return;
     }
@@ -182,10 +203,14 @@ class SudokuPlayController extends ChangeNotifier {
       lastMove.previousValue,
     );
     _selectedCell = (row: lastMove.row, col: lastMove.col);
-    notifyListeners();
+    _notifySafely();
+    _checkSolved();
   }
 
   Future<void> onHintPressed() async {
+    if (_isCompleted) {
+      return;
+    }
     if (_isPaused || _isHintBusy) {
       return;
     }
@@ -211,6 +236,9 @@ class SudokuPlayController extends ChangeNotifier {
 
   /// Toggles pause state from user action.
   void togglePause() {
+    if (_isCompleted) {
+      return;
+    }
     if (_isPaused) {
       resume(manual: true);
     } else {
@@ -226,6 +254,7 @@ class SudokuPlayController extends ChangeNotifier {
     _isPaused = true;
     if (manual) {
       _isManuallyPaused = true;
+      _pausesCount += 1;
     }
     _gameTimer.pause();
     notifyListeners();
@@ -330,6 +359,53 @@ class SudokuPlayController extends ChangeNotifier {
     return '$minutes:$remaining';
   }
 
+  void _checkSolved() {
+    if (_isCompleted || _hasNotifiedSolved) {
+      return;
+    }
+    if (!_isBoardSolved()) {
+      return;
+    }
+    _isCompleted = true;
+    _gameTimer.pause();
+    final handler = onSolved;
+    if (handler == null) {
+      return;
+    }
+    _hasNotifiedSolved = true;
+    handler(
+      SudokuSolvedDetails(
+        dateKey: _dateKey,
+        difficulty: _difficulty,
+        elapsedSeconds: _gameTimer.elapsedSeconds,
+        hintsUsed: _hintsUsed,
+        pausesCount: _pausesCount,
+        resetsCount: 0,
+      ),
+    );
+  }
+
+  bool _isBoardSolved() {
+    var index = 0;
+    for (var row = 0; row < 9; row++) {
+      for (var col = 0; col < 9; col++) {
+        final value = _board.currentValues[row][col];
+        if (value == 0) {
+          return false;
+        }
+        if (index >= _solutionString.length) {
+          return false;
+        }
+        final solutionValue = int.tryParse(_solutionString[index]) ?? 0;
+        if (value != solutionValue) {
+          return false;
+        }
+        index += 1;
+      }
+    }
+    return index == _solutionString.length;
+  }
+
   void _showHintPenalty(int seconds) {
     if (seconds <= 0) {
       return;
@@ -358,6 +434,7 @@ class SudokuPlayController extends ChangeNotifier {
       case HintResult.revealedConflicts:
         _transientHighlightedCells = action.conflicts;
         _selectedCell = action.selectedPosition ?? _selectedCell;
+        _hintsUsed += 1;
         _applyHintPenalty();
         if (action.message != null) {
           showInlineHint(action.message!);
@@ -377,12 +454,14 @@ class SudokuPlayController extends ChangeNotifier {
           _selectedCell = action.selectedPosition ??
               (row: position.row, col: position.col);
         }
+        _hintsUsed += 1;
         _applyHintPenalty();
         if (action.message != null) {
           showInlineHint(action.message!);
         }
         _isHintBusy = false;
         _notifySafely();
+        _checkSolved();
         break;
       case HintResult.noOp:
         if (action.message != null) {

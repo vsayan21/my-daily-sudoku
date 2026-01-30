@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../active_game/application/usecases/clear_active_game.dart';
 import '../../../active_game/application/usecases/save_active_game.dart';
 import '../../../active_game/data/datasources/active_game_local_datasource.dart';
 import '../../../active_game/data/repositories/active_game_repository_impl.dart';
 import '../../../active_game/domain/entities/active_game_session.dart';
+import '../../../completion/presentation/screens/success_screen.dart';
+import '../../../completion/shared/success_screen_args.dart';
+import '../../../statistics/application/usecases/save_game_result.dart';
+import '../../../statistics/data/datasources/statistics_local_datasource.dart';
+import '../../../statistics/data/repositories/statistics_repository_impl.dart';
+import '../../../statistics/domain/entities/game_result.dart';
+import '../../../streak/application/streak_service.dart';
 import '../../application/controllers/sudoku_play_controller.dart';
 import '../../domain/logic/sudoku_parser.dart';
 import '../../shared/sudoku_play_args.dart';
+import '../../shared/sudoku_solved_details.dart';
 import '../widgets/sudoku_grid.dart';
 import '../widgets/sudoku_number_row.dart';
 import '../widgets/sudoku_pause_overlay.dart';
@@ -37,6 +46,8 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     with WidgetsBindingObserver {
   late final SudokuPlayController _controller;
   late final Future<SaveActiveGame> _saveActiveGame;
+  late final Future<_CompletionServices> _completionServices;
+  bool _isCompleting = false;
 
   static const double _horizontalPadding = 8;
   static const double _spacingMedium = 30;
@@ -53,12 +64,14 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
       puzzleId: widget.args.puzzleId,
       puzzleString: widget.args.puzzleString,
       solutionString: widget.args.solutionString,
+      onSolved: _handleSolved,
     );
     final session = widget.initialSession;
     if (session != null) {
       _controller.restoreFromSession(session);
     }
     _saveActiveGame = _buildSaveActiveGame();
+    _completionServices = _buildCompletionServices();
   }
 
   @override
@@ -81,12 +94,73 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     return SaveActiveGame(repository: repository);
   }
 
+  Future<_CompletionServices> _buildCompletionServices() async {
+    final preferences = await SharedPreferences.getInstance();
+    final activeGameRepository = ActiveGameRepositoryImpl(
+      dataSource: ActiveGameLocalDataSource(preferences),
+    );
+    final statisticsRepository = StatisticsRepositoryImpl(
+      dataSource: StatisticsLocalDataSource(preferences),
+    );
+    return _CompletionServices(
+      clearActiveGame: ClearActiveGame(repository: activeGameRepository),
+      saveGameResult: SaveGameResult(repository: statisticsRepository),
+      streakService: StreakService(preferences),
+    );
+  }
+
   Future<bool> _handleWillPop() async {
+    if (_isCompleting) {
+      return true;
+    }
     _controller.pause();
     final session = _controller.exportSession();
     final saver = await _saveActiveGame;
     await saver.execute(session);
     return true;
+  }
+
+  Future<void> _handleSolved(SudokuSolvedDetails details) async {
+    if (_isCompleting) {
+      return;
+    }
+    _isCompleting = true;
+    final services = await _completionServices;
+    final completedAtEpochMs = DateTime.now().millisecondsSinceEpoch;
+    final locale =
+        mounted ? Localizations.localeOf(context).toLanguageTag() : null;
+    final result = GameResult(
+      dateKey: details.dateKey,
+      difficulty: details.difficulty,
+      completedAtEpochMs: completedAtEpochMs,
+      elapsedSeconds: details.elapsedSeconds,
+      hintsUsed: details.hintsUsed,
+      pausesCount: details.pausesCount,
+      resetsCount: details.resetsCount,
+      deviceLocale: locale,
+    );
+    await services.saveGameResult.execute(result);
+    final streakCount = await services.streakService
+        .updateOnCompletion(details.dateKey);
+    await services.clearActiveGame.execute();
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => SuccessScreen(
+          args: SuccessScreenArgs(
+            dateKey: details.dateKey,
+            difficulty: details.difficulty,
+            elapsedSeconds: details.elapsedSeconds,
+            hintsUsed: details.hintsUsed,
+            pausesCount: details.pausesCount,
+            streakCount: streakCount,
+          ),
+        ),
+      ),
+      (route) => route.isFirst,
+    );
   }
 
   Future<void> _handleBack() async {
@@ -115,54 +189,56 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
           navigator.pop();
         },
         child: SafeArea(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) {
-            final selectedCell = _controller.selectedCell;
-            final selectedValue = selectedCell == null
-                ? null
-                : _controller.board.currentValues[selectedCell.row]
-                    [selectedCell.col];
-            return Column(
-              children: [
-                SudokuTopBar(
-                  difficulty: widget.args.difficulty,
-                  dailyKey: widget.args.dailyKey,
-                  onBack: _handleBack,
-                  isPaused: _controller.isPaused,
-                  onPauseToggle: _controller.togglePause,
-                ),
-                SudokuTimerBar(
-                  formattedTime: _controller.formattedTime,
-                  penaltyText: _controller.hintPenaltyLabel,
-                ),
-                const SizedBox(height: _spacingMedium),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: _horizontalPadding,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              final selectedCell = _controller.selectedCell;
+              final selectedValue = selectedCell == null
+                  ? null
+                  : _controller.board.currentValues[selectedCell.row]
+                      [selectedCell.col];
+              return Column(
+                children: [
+                  SudokuTopBar(
+                    difficulty: widget.args.difficulty,
+                    dailyKey: widget.args.dailyKey,
+                    onBack: _handleBack,
+                    isPaused: _controller.isPaused,
+                    onPauseToggle: _controller.togglePause,
                   ),
-                  child: SudokuActionBar(
-                    onHintPressed: _controller.isPaused || _controller.isHintBusy
-                        ? null
-                        : _controller.onHintPressed,
-                    onErasePressed:
-                        _controller.isPaused ? null : _controller.erase,
-                    onUndoPressed: _controller.isPaused || !_controller.canUndo
-                        ? null
-                        : _controller.undo,
+                  SudokuTimerBar(
+                    formattedTime: _controller.formattedTime,
+                    penaltyText: _controller.hintPenaltyLabel,
                   ),
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: _horizontalPadding,
+                  const SizedBox(height: _spacingMedium),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: _horizontalPadding,
+                    ),
+                    child: SudokuActionBar(
+                      onHintPressed:
+                          _controller.isPaused || _controller.isHintBusy
+                              ? null
+                              : _controller.onHintPressed,
+                      onErasePressed:
+                          _controller.isPaused ? null : _controller.erase,
+                      onUndoPressed:
+                          _controller.isPaused || !_controller.canUndo
+                              ? null
+                              : _controller.undo,
+                    ),
                   ),
-                  child: InlineHintMessage(
-                    message: _controller.inlineHintMessage,
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: _horizontalPadding,
+                    ),
+                    child: InlineHintMessage(
+                      message: _controller.inlineHintMessage,
+                    ),
                   ),
-                ),
-                const SizedBox(height: _spacingMedium),
-                Padding(
+                  const SizedBox(height: _spacingMedium),
+                  Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: _horizontalPadding,
                     ),
@@ -189,19 +265,30 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                       ],
                     ),
                   ),
-
-                const SizedBox(height: _spacingMedium),
-                SudokuNumberRow(
-                  onNumberSelected: _controller.inputValue,
-                  isPaused: _controller.isPaused,
-                  selectedValue: selectedValue,
-                ),
-              ],
-            );
+                  const SizedBox(height: _spacingMedium),
+                  SudokuNumberRow(
+                    onNumberSelected: _controller.inputValue,
+                    isPaused: _controller.isPaused,
+                    selectedValue: selectedValue,
+                  ),
+                ],
+              );
             },
           ),
         ),
       ),
     );
   }
+}
+
+class _CompletionServices {
+  const _CompletionServices({
+    required this.clearActiveGame,
+    required this.saveGameResult,
+    required this.streakService,
+  });
+
+  final ClearActiveGame clearActiveGame;
+  final SaveGameResult saveGameResult;
+  final StreakService streakService;
 }
