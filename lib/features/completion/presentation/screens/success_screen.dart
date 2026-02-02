@@ -7,8 +7,7 @@ import '../widgets/confetti_layer.dart';
 import '../widgets/stat_tiles_row.dart';
 import '../widgets/streak_pill.dart';
 import '../widgets/success_hero.dart';
-import '../widgets/time_highlight_card.dart';
-import '../widgets/time_with_medal.dart';
+import '../widgets/time_result_card.dart';
 
 class SuccessScreen extends StatefulWidget {
   const SuccessScreen({
@@ -81,7 +80,6 @@ class _SuccessScreenState extends State<SuccessScreen>
     final theme = Theme.of(context);
     final args = widget.args;
     const heroTitle = 'Solved!';
-    const timeLabel = 'Time';
     const doneLabel = 'Done';
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -118,14 +116,10 @@ class _SuccessScreenState extends State<SuccessScreen>
                             const SizedBox(height: 28),
                             ScaleTransition(
                               scale: _timeScale,
-                              child: TimeHighlightCard(
-                                label: timeLabel,
-                                value: _formatDuration(args.elapsedSeconds),
-                                valueWidget: TimeWithMedal(
-                                  medal: args.medal,
-                                  timeLabel:
-                                      _formatDuration(args.elapsedSeconds),
-                                ),
+                              child: TimeResultCard(
+                                difficulty: args.difficulty,
+                                elapsedSeconds: args.elapsedSeconds,
+                                medal: args.medal,
                               ),
                             ),
                             const SizedBox(height: 18),
