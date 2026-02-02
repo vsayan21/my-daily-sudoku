@@ -10,7 +10,6 @@ import '../../domain/entities/statistics_summary.dart';
 import '../widgets/best_times_row.dart';
 import '../widgets/medal_summary_row.dart';
 import '../widgets/stat_kpi_card.dart';
-import '../widgets/stats_history_list.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -71,7 +70,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         final summary = viewModel.summary!;
         return _StatisticsBody(
           summary: summary,
-          history: viewModel.history,
           currentStreak: viewModel.currentStreak,
           longestStreak: viewModel.longestStreak,
           title: loc.navigationStatistics,
@@ -84,14 +82,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 class _StatisticsBody extends StatelessWidget {
   const _StatisticsBody({
     required this.summary,
-    required this.history,
     required this.currentStreak,
     required this.longestStreak,
     required this.title,
   });
 
   final StatisticsSummary summary;
-  final List<StatisticsHistoryEntry> history;
   final int currentStreak;
   final int longestStreak;
   final String title;
@@ -171,14 +167,6 @@ class _StatisticsBody extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              'History',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: 12),
-            StatsHistoryList(history: history),
           ],
         ),
       ),
