@@ -111,9 +111,9 @@ class TimeResultCard extends StatelessWidget {
       case Medal.gold:
         return MedalColors.gold;
       case Medal.silver:
-        return scheme.secondary;
+        return MedalColors.silver;
       case Medal.bronze:
-        return scheme.primary;
+        return MedalColors.bronze;
     }
   }
 }

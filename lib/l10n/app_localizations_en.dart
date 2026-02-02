@@ -156,17 +156,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String timeWithMedalSemantics(Object medal, num minutes, num seconds) {
-    return '$medal medal, time ${intl.Intl.pluralLogic(
+    String _temp0 = intl.Intl.pluralLogic(
       minutes,
       locale: localeName,
-      one: '1 minute',
       other: '$minutes minutes',
-    )} ${intl.Intl.pluralLogic(
+      one: '1 minute',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
       seconds,
       locale: localeName,
-      one: '1 second',
       other: '$seconds seconds',
-    )}';
+      one: '1 second',
+    );
+    return '$medal medal, time $_temp0 $_temp1';
   }
 
   @override
@@ -177,12 +179,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String streakLabel(num count) {
-    return intl.Intl.pluralLogic(
+    String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      one: 'Streak started: 1 day',
       other: 'Streak: $count days',
+      one: 'Streak started: 1 day',
     );
+    return '$_temp0';
   }
 
   @override
