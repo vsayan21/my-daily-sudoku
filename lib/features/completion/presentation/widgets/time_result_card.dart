@@ -30,11 +30,9 @@ class TimeResultCard extends StatelessWidget {
     final deltaSeconds = math.max(0, elapsedSeconds - goldSeconds);
     final deltaLabel = _formatDelta(deltaSeconds);
 
-    final badgeBackground = _badgeBackground(scheme, medal);
-    final badgeForeground = _badgeForeground(scheme, medal);
-
     final progressMax = math.max(goldSeconds * 2, 1);
     final progressValue = math.min(elapsedSeconds, progressMax) / progressMax;
+    final timeBackground = _timeBackground(scheme, medal);
 
     return Card(
       elevation: 1,
@@ -46,49 +44,11 @@ class TimeResultCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(
           children: [
-            Row(
-              children: [
-                Text(
-                  'Time',
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: badgeBackground,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.emoji_events_rounded,
-                        size: 14,
-                        color: badgeForeground,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        formatMedalLabel(medal),
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: badgeForeground,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: scheme.primaryContainer.withValues(alpha: 0.25),
+                color: timeBackground,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -132,19 +92,21 @@ class TimeResultCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: LinearProgressIndicator(
-                value: progressValue,
-                minHeight: 6,
-                backgroundColor:
-                    scheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  _medalColor(scheme, medal).withValues(alpha: 0.6),
+            if (!achievedGold) ...[
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: LinearProgressIndicator(
+                  value: progressValue,
+                  minHeight: 6,
+                  backgroundColor:
+                      scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    _medalColor(scheme, medal).withValues(alpha: 0.6),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -185,25 +147,14 @@ class TimeResultCard extends StatelessWidget {
     }
   }
 
-  Color _badgeBackground(ColorScheme scheme, Medal medal) {
+  Color _timeBackground(ColorScheme scheme, Medal medal) {
     switch (medal) {
       case Medal.gold:
-        return scheme.tertiaryContainer.withValues(alpha: 0.7);
+        return scheme.tertiaryContainer.withValues(alpha: 0.25);
       case Medal.silver:
-        return scheme.secondaryContainer.withValues(alpha: 0.7);
+        return scheme.secondaryContainer.withValues(alpha: 0.25);
       case Medal.bronze:
-        return scheme.primaryContainer.withValues(alpha: 0.7);
-    }
-  }
-
-  Color _badgeForeground(ColorScheme scheme, Medal medal) {
-    switch (medal) {
-      case Medal.gold:
-        return scheme.onTertiaryContainer;
-      case Medal.silver:
-        return scheme.onSecondaryContainer;
-      case Medal.bronze:
-        return scheme.onPrimaryContainer;
+        return scheme.primaryContainer.withValues(alpha: 0.25);
     }
   }
 }
