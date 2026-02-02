@@ -48,7 +48,8 @@ class SudokuPlayController extends ChangeNotifier {
   bool _isCompleted = false;
   bool _hasNotifiedSolved = false;
   int _hintsUsed = 0;
-  int _pausesCount = 0;
+  int _movesCount = 0;
+  int _undoCount = 0;
   final List<SudokuMove> _history = [];
   final Set<SudokuPosition> _hintedCells = {};
   Set<SudokuPosition> _transientHighlightedCells = {};
@@ -126,7 +127,8 @@ class SudokuPlayController extends ChangeNotifier {
     _isCompleted = false;
     _hasNotifiedSolved = false;
     _hintsUsed = 0;
-    _pausesCount = 0;
+    _movesCount = 0;
+    _undoCount = 0;
     _hintedCells.clear();
     _hintedCells.addAll(_stringToHinted(session.hinted));
     _transientHighlightedCells = {};
@@ -171,6 +173,7 @@ class SudokuPlayController extends ChangeNotifier {
     if (previousValue == value) {
       return;
     }
+    _movesCount += 1;
     _board = _board.setValue(selection.row, selection.col, value);
     _history.add(
       SudokuMove(
@@ -196,6 +199,7 @@ class SudokuPlayController extends ChangeNotifier {
     if (_history.isEmpty) {
       return;
     }
+    _undoCount += 1;
     final lastMove = _history.removeLast();
     _board = _board.setValue(
       lastMove.row,
@@ -254,7 +258,6 @@ class SudokuPlayController extends ChangeNotifier {
     _isPaused = true;
     if (manual) {
       _isManuallyPaused = true;
-      _pausesCount += 1;
     }
     _gameTimer.pause();
     notifyListeners();
@@ -379,7 +382,8 @@ class SudokuPlayController extends ChangeNotifier {
         difficulty: _difficulty,
         elapsedSeconds: _gameTimer.elapsedSeconds,
         hintsUsed: _hintsUsed,
-        pausesCount: _pausesCount,
+        movesCount: _movesCount,
+        undoCount: _undoCount,
         resetsCount: 0,
       ),
     );

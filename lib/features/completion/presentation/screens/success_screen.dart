@@ -7,7 +7,7 @@ import '../widgets/confetti_layer.dart';
 import '../widgets/stat_tiles_row.dart';
 import '../widgets/streak_pill.dart';
 import '../widgets/success_hero.dart';
-import '../widgets/time_highlight_card.dart';
+import '../widgets/time_result_card.dart';
 
 class SuccessScreen extends StatefulWidget {
   const SuccessScreen({
@@ -80,7 +80,6 @@ class _SuccessScreenState extends State<SuccessScreen>
     final theme = Theme.of(context);
     final args = widget.args;
     const heroTitle = 'Solved!';
-    const timeLabel = 'Time';
     const doneLabel = 'Done';
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -117,9 +116,10 @@ class _SuccessScreenState extends State<SuccessScreen>
                             const SizedBox(height: 28),
                             ScaleTransition(
                               scale: _timeScale,
-                              child: TimeHighlightCard(
-                                label: timeLabel,
-                                value: _formatDuration(args.elapsedSeconds),
+                              child: TimeResultCard(
+                                difficulty: args.difficulty,
+                                elapsedSeconds: args.elapsedSeconds,
+                                medal: args.medal,
                               ),
                             ),
                             const SizedBox(height: 18),
@@ -127,7 +127,8 @@ class _SuccessScreenState extends State<SuccessScreen>
                               opacity: _tilesOpacity,
                               child: StatTilesRow(
                                 hintsUsed: args.hintsUsed,
-                                pausesCount: args.pausesCount,
+                                movesCount: args.movesCount,
+                                undoCount: args.undoCount,
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -164,12 +165,6 @@ class _SuccessScreenState extends State<SuccessScreen>
     );
   }
 
-  String _formatDuration(int seconds) {
-    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
-    final remaining = (seconds % 60).toString().padLeft(2, '0');
-    return '$minutes:$remaining';
-  }
-
   String _difficultyLabel(SudokuDifficulty difficulty) {
     return difficulty.label;
   }
@@ -180,4 +175,5 @@ class _SuccessScreenState extends State<SuccessScreen>
     }
     return 'Streak: $count days';
   }
+
 }

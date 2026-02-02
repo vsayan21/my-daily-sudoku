@@ -4,32 +4,51 @@ class StatTilesRow extends StatelessWidget {
   const StatTilesRow({
     super.key,
     required this.hintsUsed,
-    required this.pausesCount,
+    required this.movesCount,
+    required this.undoCount,
   });
 
   final int hintsUsed;
-  final int pausesCount;
+  final int movesCount;
+  final int undoCount;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _StatTile(
-            icon: Icons.lightbulb_outline_rounded,
-            label: 'Hints used',
-            value: hintsUsed.toString(),
-            usePrimaryContainer: true,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _StatTile(
+                icon: Icons.lightbulb_outline_rounded,
+                label: 'Hints used',
+                value: hintsUsed.toString(),
+                usePrimaryContainer: true,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _StatTile(
+                icon: Icons.edit_note_rounded,
+                label: 'Moves',
+                value: movesCount.toString(),
+                usePrimaryContainer: false,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatTile(
-            icon: Icons.pause_rounded,
-            label: 'Pauses',
-            value: pausesCount.toString(),
-            usePrimaryContainer: false,
-          ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _StatTile(
+                icon: Icons.undo_rounded,
+                label: 'Undo',
+                value: undoCount.toString(),
+                usePrimaryContainer: false,
+              ),
+            ),
+          ],
         ),
       ],
     );
