@@ -67,7 +67,7 @@
   "medalGold": "Or",
   "medalSilver": "Argent",
   "medalBronze": "Bronze",
-  "timeWithMedalSemantics": "Médaille {medal}, temps {minutes, plural, =1{1 minute} other{{minutes} minutes}} {seconds, plural, =1{1 seconde} other{{seconds} secondes}}",
+  "timeWithMedalSemantics": "Succès {medal}, temps {minutes, plural, =1{1 minute} other{{minutes} minutes}} {seconds, plural, =1{1 seconde} other{{seconds} secondes}}",
   "@timeWithMedalSemantics": {
     "placeholders": {
       "medal": {},

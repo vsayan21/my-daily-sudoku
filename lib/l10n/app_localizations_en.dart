@@ -171,7 +171,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$seconds seconds',
       one: '1 second',
     );
-    return '$medal medal, time $_temp0 $_temp1';
+    return '$medal achievement, time $_temp0 $_temp1';
   }
 
   @override

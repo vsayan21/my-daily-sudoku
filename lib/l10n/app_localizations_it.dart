@@ -172,7 +172,7 @@ class AppLocalizationsIt extends AppLocalizations {
       other: '$seconds secondi',
       one: '1 secondo',
     );
-    return 'Medaglia $medal, tempo $_temp0 $_temp1';
+    return 'Obiettivo $medal, tempo $_temp0 $_temp1';
   }
 
   @override

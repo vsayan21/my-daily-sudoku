@@ -162,7 +162,7 @@ class _StatisticsBody extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             StatKpiCard(
-              title: 'Medals',
+              title: 'Achievements',
               child: MedalSummaryRow(
                 goldCount: summary.goldMedals,
                 silverCount: summary.silverMedals,

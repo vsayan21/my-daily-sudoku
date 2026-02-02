@@ -173,7 +173,7 @@ class AppLocalizationsFr extends AppLocalizations {
       other: '$seconds secondes',
       one: '1 seconde',
     );
-    return 'Médaille $medal, temps $_temp0 $_temp1';
+    return 'Succès $medal, temps $_temp0 $_temp1';
   }
 
   @override
