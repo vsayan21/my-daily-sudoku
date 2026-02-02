@@ -387,7 +387,7 @@ abstract class AppLocalizations {
   /// No description provided for @timeWithMedalSemantics.
   ///
   /// In en, this message translates to:
-  /// **'{medal} medal, time {minutes, plural, =1{1 minute} other{{minutes} minutes}} {seconds, plural, =1{1 second} other{{seconds} seconds}}'**
+  /// **'{medal} achievement, time {minutes, plural, =1{1 minute} other{{minutes} minutes}} {seconds, plural, =1{1 second} other{{seconds} seconds}}'**
   String timeWithMedalSemantics(Object medal, num minutes, num seconds);
 
   /// No description provided for @successSolvedTitle.
