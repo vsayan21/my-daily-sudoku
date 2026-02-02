@@ -73,10 +73,11 @@ class DifficultyCard extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     option.title,
+                    textAlign: TextAlign.center,
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
@@ -84,15 +85,10 @@ class DifficultyCard extends StatelessWidget {
                   ),
                   if (isSolved && solvedState?.timeLabel != null) ...[
                     const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Text('Solved', style: detailStyle),
-                        const Spacer(),
-                        Text(
-                          solvedState!.timeLabel ?? '--:--',
-                          style: timeStyle,
-                        ),
-                      ],
+                    Text(
+                      solvedState!.timeLabel ?? '--:--',
+                      textAlign: TextAlign.center,
+                      style: timeStyle,
                     ),
                   ],
                 ],
