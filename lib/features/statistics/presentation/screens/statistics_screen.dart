@@ -74,9 +74,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           history: viewModel.history,
           currentStreak: viewModel.currentStreak,
           longestStreak: viewModel.longestStreak,
-          hintsLabel: loc.statsHintsUsed,
-          movesLabel: loc.statsMoves,
-          undoLabel: loc.statsUndo,
           title: loc.navigationStatistics,
         );
       },
@@ -90,9 +87,6 @@ class _StatisticsBody extends StatelessWidget {
     required this.history,
     required this.currentStreak,
     required this.longestStreak,
-    required this.hintsLabel,
-    required this.movesLabel,
-    required this.undoLabel,
     required this.title,
   });
 
@@ -100,9 +94,6 @@ class _StatisticsBody extends StatelessWidget {
   final List<StatisticsHistoryEntry> history;
   final int currentStreak;
   final int longestStreak;
-  final String hintsLabel;
-  final String movesLabel;
-  final String undoLabel;
   final String title;
 
   @override
@@ -181,34 +172,6 @@ class _StatisticsBody extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             StatKpiCard(
-              title: 'Activity',
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _ActivityTile(
-                      label: hintsLabel,
-                      value: summary.totalHints,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _ActivityTile(
-                      label: movesLabel,
-                      value: summary.totalMoves,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _ActivityTile(
-                      label: undoLabel,
-                      value: summary.totalUndo,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            StatKpiCard(
               title: 'Medals',
               child: MedalSummaryRow(
                 goldCount: summary.goldMedals,
@@ -225,49 +188,6 @@ class _StatisticsBody extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             StatsHistoryList(history: history),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ActivityTile extends StatelessWidget {
-  const _ActivityTile({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final int value;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value.toString(),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-            ),
           ],
         ),
       ),
