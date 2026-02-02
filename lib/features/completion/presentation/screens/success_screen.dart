@@ -8,6 +8,7 @@ import '../widgets/stat_tiles_row.dart';
 import '../widgets/streak_pill.dart';
 import '../widgets/success_hero.dart';
 import '../widgets/time_highlight_card.dart';
+import '../widgets/time_with_medal.dart';
 
 class SuccessScreen extends StatefulWidget {
   const SuccessScreen({
@@ -120,6 +121,11 @@ class _SuccessScreenState extends State<SuccessScreen>
                               child: TimeHighlightCard(
                                 label: timeLabel,
                                 value: _formatDuration(args.elapsedSeconds),
+                                valueWidget: TimeWithMedal(
+                                  medal: args.medal,
+                                  timeLabel:
+                                      _formatDuration(args.elapsedSeconds),
+                                ),
                               ),
                             ),
                             const SizedBox(height: 18),

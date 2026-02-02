@@ -7,10 +7,12 @@ class TimeHighlightCard extends StatelessWidget {
     super.key,
     required this.label,
     required this.value,
+    this.valueWidget,
   });
 
   final String label;
   final String value;
+  final Widget? valueWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +46,16 @@ class TimeHighlightCard extends StatelessWidget {
                 color: colorScheme.primaryContainer.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Text(
-                value,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                  color: colorScheme.onSurface,
-                ),
-              ),
+              child: valueWidget ??
+                  Text(
+                    value,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.displaySmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
             ),
           ],
         ),
