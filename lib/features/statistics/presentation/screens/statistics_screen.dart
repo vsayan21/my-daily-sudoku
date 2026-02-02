@@ -158,15 +158,6 @@ class _StatisticsBody extends StatelessWidget {
               child: Column(
                 children: [
                   BestTimesRow(bestTimes: summary.bestTimesSeconds),
-                  if (summary.averageTimeSeconds != null) ...[
-                    const SizedBox(height: 12),
-                    _InlineStat(
-                      label: 'Average time',
-                      value: StatisticsViewModel.formatDuration(
-                        summary.averageTimeSeconds!.round(),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -232,46 +223,6 @@ class _OverviewStat extends StatelessWidget {
             label,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InlineStat extends StatelessWidget {
-  const _InlineStat({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-          ),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
           ),
         ],
