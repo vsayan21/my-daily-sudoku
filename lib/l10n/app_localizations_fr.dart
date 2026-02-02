@@ -103,6 +103,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sudokuActionHint => 'Indice';
 
   @override
+  String get sudokuActionNotes => 'Notes';
+
+  @override
   String get sudokuActionErase => 'Effacer';
 
   @override

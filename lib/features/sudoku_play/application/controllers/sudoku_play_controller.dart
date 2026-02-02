@@ -48,6 +48,7 @@ class SudokuPlayController extends ChangeNotifier {
   bool _isManuallyPaused = false;
   bool _isCompleted = false;
   bool _hasNotifiedSolved = false;
+  bool _notesMode = false;
   int _hintsUsed = 0;
   int _movesCount = 0;
   int _undoCount = 0;
@@ -74,6 +75,9 @@ class SudokuPlayController extends ChangeNotifier {
 
   /// Whether the hint flow is running.
   bool get isHintBusy => _isHintBusy;
+
+  /// Whether notes mode is enabled.
+  bool get notesMode => _notesMode;
 
   /// Cells temporarily highlighted for conflicts.
   Set<SudokuPosition> get transientHighlightedCells =>
@@ -103,6 +107,7 @@ class SudokuPlayController extends ChangeNotifier {
       puzzleId: _puzzleId,
       puzzle: _puzzleString,
       current: _gridToString(_board.currentValues),
+      notes: _notesToString(_board.notes),
       givens: _puzzleString,
       hinted: _hintedToString(_hintedCells),
       elapsedSeconds: _gameTimer.elapsedSeconds,
@@ -118,8 +123,9 @@ class SudokuPlayController extends ChangeNotifier {
     _puzzleId = session.puzzleId ?? _puzzleId;
     _puzzleString = session.puzzle;
     _board = SudokuBoard(
-      initialValues: _stringToGrid(session.puzzle),
+      initialValues: _stringToFixedGrid(session.puzzle),
       currentValues: _stringToGrid(session.current),
+      notes: _stringToNotes(session.notes),
     );
     _selectedCell = null;
     _history.clear();
@@ -127,6 +133,7 @@ class SudokuPlayController extends ChangeNotifier {
     _isPaused = false;
     _isCompleted = false;
     _hasNotifiedSolved = false;
+    _notesMode = false;
     _hintsUsed = 0;
     _movesCount = 0;
     _undoCount = 0;
@@ -170,18 +177,42 @@ class SudokuPlayController extends ChangeNotifier {
     if (_hintedCells.contains(selection)) {
       return;
     }
-    final previousValue = _board.currentValues[selection.row][selection.col];
-    if (previousValue == value) {
+    final cell = _board.cellAt(selection.row, selection.col);
+    final previousValue = cell.value;
+    final previousNotes = cell.notes;
+    final Set<int> newNotes;
+    final int? newValue;
+    if (_notesMode) {
+      newValue = null;
+      newNotes = Set<int>.from(previousNotes);
+      if (newNotes.contains(value)) {
+        newNotes.remove(value);
+      } else {
+        newNotes.add(value);
+      }
+    } else {
+      newValue = value;
+      newNotes = <int>{};
+    }
+    if (previousValue == newValue &&
+        _setsEqual(previousNotes, newNotes)) {
       return;
     }
     _movesCount += 1;
-    _board = _board.setValue(selection.row, selection.col, value);
+    _board = _board.setCell(
+      row: selection.row,
+      col: selection.col,
+      value: newValue,
+      notes: newNotes,
+    );
     _history.add(
       SudokuMove(
         row: selection.row,
         col: selection.col,
         previousValue: previousValue,
-        newValue: value,
+        newValue: newValue,
+        previousNotes: previousNotes,
+        newNotes: newNotes,
         timestamp: DateTime.now(),
       ),
     );
@@ -190,7 +221,60 @@ class SudokuPlayController extends ChangeNotifier {
   }
 
   /// Clears the selected cell.
-  void erase() => inputValue(0);
+  void erase() {
+    if (_isCompleted) {
+      return;
+    }
+    if (_isPaused) {
+      return;
+    }
+    final selection = _selectedCell;
+    if (selection == null) {
+      return;
+    }
+    if (!_board.isEditable(selection.row, selection.col)) {
+      return;
+    }
+    if (_hintedCells.contains(selection)) {
+      return;
+    }
+    final cell = _board.cellAt(selection.row, selection.col);
+    final previousValue = cell.value;
+    final previousNotes = cell.notes;
+    final int? newValue;
+    final Set<int> newNotes;
+    if (cell.value != null) {
+      newValue = null;
+      newNotes = previousNotes;
+    } else {
+      newValue = null;
+      newNotes = <int>{};
+    }
+    if (previousValue == newValue &&
+        _setsEqual(previousNotes, newNotes)) {
+      return;
+    }
+    _movesCount += 1;
+    _board = _board.setCell(
+      row: selection.row,
+      col: selection.col,
+      value: newValue,
+      notes: newNotes,
+    );
+    _history.add(
+      SudokuMove(
+        row: selection.row,
+        col: selection.col,
+        previousValue: previousValue,
+        newValue: newValue,
+        previousNotes: previousNotes,
+        newNotes: newNotes,
+        timestamp: DateTime.now(),
+      ),
+    );
+    _notifySafely();
+    _checkSolved();
+  }
 
   /// Reverts the most recent move.
   void undo() {
@@ -202,14 +286,27 @@ class SudokuPlayController extends ChangeNotifier {
     }
     _undoCount += 1;
     final lastMove = _history.removeLast();
-    _board = _board.setValue(
-      lastMove.row,
-      lastMove.col,
-      lastMove.previousValue,
+    _board = _board.setCell(
+      row: lastMove.row,
+      col: lastMove.col,
+      value: lastMove.previousValue,
+      notes: lastMove.previousNotes,
     );
     _selectedCell = (row: lastMove.row, col: lastMove.col);
     _notifySafely();
     _checkSolved();
+  }
+
+  /// Toggles the notes entry mode.
+  void toggleNotesMode() {
+    if (_isCompleted) {
+      return;
+    }
+    if (_isPaused) {
+      return;
+    }
+    _notesMode = !_notesMode;
+    notifyListeners();
   }
 
   Future<void> onHintPressed() async {
@@ -229,7 +326,7 @@ class SudokuPlayController extends ChangeNotifier {
             position: selection,
             isEditable: _board.isEditable(selection.row, selection.col) &&
                 !_hintedCells.contains(selection),
-            isEmpty: _board.currentValues[selection.row][selection.col] == 0,
+            isEmpty: _board.cellAt(selection.row, selection.col).isEmpty,
           );
     final action = await _hintController.requestHint(
       board: _board,
@@ -308,11 +405,27 @@ class SudokuPlayController extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _gridToString(List<List<int>> values) {
+  String _gridToString(List<List<int?>> values) {
     final buffer = StringBuffer();
     for (final row in values) {
       for (final cell in row) {
-        buffer.write(cell.toString());
+        buffer.write((cell ?? 0).toString());
+      }
+    }
+    return buffer.toString();
+  }
+
+  String _notesToString(List<List<Set<int>>> values) {
+    final buffer = StringBuffer();
+    var index = 0;
+    for (final row in values) {
+      for (final cell in row) {
+        final mask = _notesToMask(cell);
+        if (index > 0) {
+          buffer.write(',');
+        }
+        buffer.write(mask.toString());
+        index += 1;
       }
     }
     return buffer.toString();
@@ -328,7 +441,20 @@ class SudokuPlayController extends ChangeNotifier {
     return buffer.toString();
   }
 
-  List<List<int>> _stringToGrid(String value) {
+  List<List<int?>> _stringToGrid(String value) {
+    if (value.length != 81) {
+      throw ArgumentError('Puzzle string must be 81 characters long.');
+    }
+    return List.generate(9, (row) {
+      return List.generate(9, (col) {
+        final char = value[row * 9 + col];
+        final parsed = int.tryParse(char);
+        return parsed == null || parsed == 0 ? null : parsed;
+      });
+    });
+  }
+
+  List<List<int>> _stringToFixedGrid(String value) {
     if (value.length != 81) {
       throw ArgumentError('Puzzle string must be 81 characters long.');
     }
@@ -337,6 +463,26 @@ class SudokuPlayController extends ChangeNotifier {
         final char = value[row * 9 + col];
         final parsed = int.tryParse(char);
         return parsed ?? 0;
+      });
+    });
+  }
+
+  List<List<Set<int>>> _stringToNotes(String value) {
+    final emptyNotes = List.generate(9, (_) => List.generate(9, (_) => <int>{}));
+    if (value.isEmpty) {
+      return emptyNotes;
+    }
+    final parts = value.split(',');
+    if (parts.length != 81) {
+      return emptyNotes;
+    }
+    var index = 0;
+    return List.generate(9, (row) {
+      return List.generate(9, (col) {
+        final raw = parts[index];
+        index += 1;
+        final parsed = int.tryParse(raw) ?? 0;
+        return _maskToNotes(parsed);
       });
     });
   }
@@ -355,6 +501,39 @@ class SudokuPlayController extends ChangeNotifier {
       }
     }
     return hinted;
+  }
+
+  int _notesToMask(Set<int> notes) {
+    var mask = 0;
+    for (final note in notes) {
+      if (note < 1 || note > 9) {
+        continue;
+      }
+      mask |= 1 << (note - 1);
+    }
+    return mask;
+  }
+
+  Set<int> _maskToNotes(int mask) {
+    final notes = <int>{};
+    for (var value = 1; value <= 9; value++) {
+      if ((mask & (1 << (value - 1))) != 0) {
+        notes.add(value);
+      }
+    }
+    return notes;
+  }
+
+  bool _setsEqual(Set<int> a, Set<int> b) {
+    if (a.length != b.length) {
+      return false;
+    }
+    for (final value in a) {
+      if (!b.contains(value)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   String _formatDuration(int seconds) {
@@ -395,7 +574,7 @@ class SudokuPlayController extends ChangeNotifier {
     for (var row = 0; row < 9; row++) {
       for (var col = 0; col < 9; col++) {
         final value = _board.currentValues[row][col];
-        if (value == 0) {
+        if (value == null) {
           return false;
         }
         if (index >= _solutionString.length) {
@@ -454,7 +633,12 @@ class SudokuPlayController extends ChangeNotifier {
         final position = action.filledPosition;
         final value = action.filledValue;
         if (position != null && value != null) {
-          _board = _board.setValue(position.row, position.col, value);
+          _board = _board.setCell(
+            row: position.row,
+            col: position.col,
+            value: value,
+            notes: <int>{},
+          );
           _hintedCells.add(position);
           _selectedCell = action.selectedPosition ??
               (row: position.row, col: position.col);

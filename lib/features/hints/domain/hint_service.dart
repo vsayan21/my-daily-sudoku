@@ -82,10 +82,11 @@ class DefaultHintService implements HintService {
     required String solution,
     HintSelection? selected,
   }) {
-    final conflicts = _conflictFinder.findConflicts(board.currentValues);
+    final currentValues = board.currentValuesAsInts;
+    final conflicts = _conflictFinder.findConflicts(currentValues);
     if (conflicts.isNotEmpty) {
       final selectedConflict =
-          _pickIncorrectConflict(conflicts, board.currentValues, solution) ??
+          _pickIncorrectConflict(conflicts, currentValues, solution) ??
               _pickTopLeft(conflicts);
       final focusedConflicts =
           selectedConflict == null ? <SudokuPosition>{} : {selectedConflict};

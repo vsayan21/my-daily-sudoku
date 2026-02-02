@@ -14,6 +14,7 @@ class ResetActiveGame {
   Future<ActiveGameSession> execute(ActiveGameSession session) async {
     final refreshed = session.copyWith(
       current: session.puzzle,
+      notes: '',
       elapsedSeconds: 0,
       isPaused: false,
       lastUpdatedEpochMs: _nowProvider().millisecondsSinceEpoch,

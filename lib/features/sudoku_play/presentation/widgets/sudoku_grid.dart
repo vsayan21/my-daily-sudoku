@@ -60,6 +60,7 @@ class SudokuGrid extends StatelessWidget {
                     height: cellSize,
                     child: SudokuCellWidget(
                       value: cell.value,
+                      notes: cell.notes,
                       isGiven: cell.isGiven,
                       isHinted: isHinted,
                       isSelected: isSelected,

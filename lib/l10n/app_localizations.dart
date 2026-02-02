@@ -282,6 +282,12 @@ abstract class AppLocalizations {
   /// **'Hint'**
   String get sudokuActionHint;
 
+  /// No description provided for @sudokuActionNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get sudokuActionNotes;
+
   /// No description provided for @sudokuActionErase.
   ///
   /// In en, this message translates to:

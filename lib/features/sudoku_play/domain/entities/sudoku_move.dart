@@ -6,6 +6,8 @@ class SudokuMove {
     required this.col,
     required this.previousValue,
     required this.newValue,
+    required this.previousNotes,
+    required this.newNotes,
     required this.timestamp,
   });
 
@@ -16,10 +18,16 @@ class SudokuMove {
   final int col;
 
   /// Value before the move.
-  final int previousValue;
+  final int? previousValue;
 
   /// Value after the move.
-  final int newValue;
+  final int? newValue;
+
+  /// Notes before the move.
+  final Set<int> previousNotes;
+
+  /// Notes after the move.
+  final Set<int> newNotes;
 
   /// When the move occurred.
   final DateTime timestamp;

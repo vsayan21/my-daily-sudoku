@@ -7,18 +7,26 @@ class SudokuActionBar extends StatelessWidget {
   const SudokuActionBar({
     super.key,
     required this.onHintPressed,
+    required this.onNotesPressed,
     required this.onErasePressed,
     required this.onUndoPressed,
+    required this.isNotesMode,
   });
 
   /// Called when hint is pressed.
   final VoidCallback? onHintPressed;
+
+  /// Called when notes toggle is pressed.
+  final VoidCallback? onNotesPressed;
 
   /// Called when erase is pressed.
   final VoidCallback? onErasePressed;
 
   /// Called when undo is pressed.
   final VoidCallback? onUndoPressed;
+
+  /// Whether notes mode is enabled.
+  final bool isNotesMode;
 
   static const double _spacing = 12;
   static const double _buttonHeight = 46;
@@ -37,6 +45,26 @@ class SudokuActionBar extends StatelessWidget {
         fontWeight: FontWeight.w600,
       ),
     );
+    final notesStyle = FilledButton.styleFrom(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      shape: const StadiumBorder(),
+      visualDensity: VisualDensity.standard,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      minimumSize: const Size(0, _buttonHeight),
+      textStyle: theme.textTheme.labelLarge?.copyWith(
+        fontWeight: FontWeight.w700,
+      ),
+      backgroundColor: isNotesMode
+          ? theme.colorScheme.primary
+          : theme.colorScheme.secondaryContainer,
+      foregroundColor: isNotesMode
+          ? theme.colorScheme.onPrimary
+          : theme.colorScheme.onSecondaryContainer,
+      disabledBackgroundColor:
+          theme.colorScheme.onSurface.withValues(alpha: 0.12),
+      disabledForegroundColor:
+          theme.colorScheme.onSurface.withValues(alpha: 0.38),
+    );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -48,6 +76,16 @@ class SudokuActionBar extends StatelessWidget {
             tooltip: loc.sudokuActionHint,
             onPressed: onHintPressed,
             style: buttonStyle,
+          ),
+        ),
+        const SizedBox(width: _spacing),
+        Expanded(
+          child: _ActionButton(
+            label: loc.sudokuActionNotes,
+            icon: Icons.edit_note_rounded,
+            tooltip: loc.sudokuActionNotes,
+            onPressed: onNotesPressed,
+            style: notesStyle,
           ),
         ),
         const SizedBox(width: _spacing),
