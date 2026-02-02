@@ -1,9 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../l10n/app_localizations.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../application/statistics_view_model.dart';
 import '../../application/usecases/load_statistics.dart';
 import '../../data/datasources/statistics_local_datasource.dart';

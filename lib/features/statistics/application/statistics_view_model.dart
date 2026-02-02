@@ -130,7 +130,7 @@ class StatisticsViewModel extends ChangeNotifier {
     final minutes = duration.inMinutes.remainder(60);
     final secs = duration.inSeconds.remainder(60);
     if (hours > 0) {
-      return '${hours}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+      return '$hours:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
     }
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }

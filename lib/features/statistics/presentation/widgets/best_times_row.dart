@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
