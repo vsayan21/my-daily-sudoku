@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../statistics/application/statistics_view_model.dart';
-import '../../statistics/application/usecases/load_statistics.dart';
-import '../../statistics/data/datasources/statistics_local_datasource.dart';
-import '../../statistics/data/repositories/statistics_repository_impl.dart';
-import '../../statistics/domain/entities/statistics_summary.dart';
+import '../../application/statistics_view_model.dart';
+import '../../application/usecases/load_statistics.dart';
+import '../../data/datasources/statistics_local_datasource.dart';
+import '../../data/repositories/statistics_repository_impl.dart';
+import '../../domain/entities/statistics_summary.dart';
 import '../widgets/best_times_row.dart';
 import '../widgets/medal_summary_row.dart';
 import '../widgets/stat_kpi_card.dart';
