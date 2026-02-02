@@ -16,32 +16,43 @@ class MedalSummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _MedalTile(
-            label: 'Gold',
-            count: goldCount,
-            color: MedalColors.gold,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _MedalTile(
-            label: 'Silver',
-            count: silverCount,
-            color: MedalColors.silver,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _MedalTile(
-            label: 'Bronze',
-            count: bronzeCount,
-            color: MedalColors.bronze,
-          ),
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        final columns = maxWidth < 360 ? 2 : 3;
+        final spacing = 12.0;
+        final tileWidth = (maxWidth - (columns - 1) * spacing) / columns;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            SizedBox(
+              width: tileWidth,
+              child: _MedalTile(
+                label: 'Gold',
+                count: goldCount,
+                color: MedalColors.gold,
+              ),
+            ),
+            SizedBox(
+              width: tileWidth,
+              child: _MedalTile(
+                label: 'Silver',
+                count: silverCount,
+                color: MedalColors.silver,
+              ),
+            ),
+            SizedBox(
+              width: tileWidth,
+              child: _MedalTile(
+                label: 'Bronze',
+                count: bronzeCount,
+                color: MedalColors.bronze,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -77,24 +88,28 @@ class _MedalTile extends StatelessWidget {
             child: Icon(Icons.emoji_events, color: color, size: 18),
           ),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                count.toString(),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  count.toString(),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
