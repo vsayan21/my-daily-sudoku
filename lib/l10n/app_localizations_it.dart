@@ -40,7 +40,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dailySudokuSubtitle => 'Scegli un livello e inizia subito';
 
   @override
-  String get selectDifficultyTitle => 'Select Difficulty';
+  String get selectDifficultyTitle => 'Seleziona difficoltà';
 
   @override
   String get todaysEasy => 'Il Sudoku facile di oggi';
@@ -106,4 +106,104 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get sudokuActionUndo => 'Annulla';
+
+  @override
+  String get tryAgain => 'Riprova';
+
+  @override
+  String get pausedLabel => 'In pausa';
+
+  @override
+  String get pause => 'Pausa';
+
+  @override
+  String get resume => 'Riprendi';
+
+  @override
+  String debugPuzzleId(Object id) {
+    return 'ID puzzle: $id';
+  }
+
+  @override
+  String debugRowLabel(Object row) {
+    return 'Riga 1: $row';
+  }
+
+  @override
+  String get statsHintsUsed => 'Suggerimenti usati';
+
+  @override
+  String get statsMoves => 'Mosse';
+
+  @override
+  String get statsUndo => 'Annulla';
+
+  @override
+  String get timeResultGoldAchieved => 'Oro raggiunto';
+
+  @override
+  String timeResultToGold(Object delta) {
+    return '$delta all\'oro';
+  }
+
+  @override
+  String get medalGold => 'Oro';
+
+  @override
+  String get medalSilver => 'Argento';
+
+  @override
+  String get medalBronze => 'Bronzo';
+
+  @override
+  String timeWithMedalSemantics(Object medal, num minutes, num seconds) {
+    return 'Medaglia $medal, tempo ${intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      one: '1 minuto',
+      other: '$minutes minuti',
+    )} ${intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      one: '1 secondo',
+      other: '$seconds secondi',
+    )}';
+  }
+
+  @override
+  String get successSolvedTitle => 'Risolto!';
+
+  @override
+  String get done => 'Fatto';
+
+  @override
+  String streakLabel(num count) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      one: 'Serie iniziata: 1 giorno',
+      other: 'Serie: $count giorni',
+    );
+  }
+
+  @override
+  String get hintSolutionUnavailable => 'Soluzione non disponibile';
+
+  @override
+  String get hintConflictsFound => 'Conflitti trovati';
+
+  @override
+  String get hintSelectEmptyCell => 'Seleziona una cella vuota';
+
+  @override
+  String get hintClearCellOrSelectEmpty =>
+      'Cancella la cella o selezionane una vuota.';
+
+  @override
+  String get hintNoEmptyCells => 'Nessuna cella vuota';
+
+  @override
+  String hintPenaltyLabel(Object seconds) {
+    return '+$seconds sec';
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../active_game/application/usecases/clear_active_game.dart';
@@ -15,6 +16,7 @@ import '../../../statistics/data/repositories/statistics_repository_impl.dart';
 import '../../../statistics/domain/entities/game_result.dart';
 import '../../../streak/application/streak_service.dart';
 import '../../application/controllers/sudoku_play_controller.dart';
+import '../../../hints/domain/hint_message.dart';
 import '../../domain/logic/sudoku_parser.dart';
 import '../../shared/sudoku_play_args.dart';
 import '../../shared/sudoku_solved_details.dart';
@@ -178,8 +180,33 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     Navigator.of(context).pop();
   }
 
+  String? _localizedHintMessage(AppLocalizations loc, HintMessage? message) {
+    switch (message) {
+      case HintMessage.solutionUnavailable:
+        return loc.hintSolutionUnavailable;
+      case HintMessage.conflictsFound:
+        return loc.hintConflictsFound;
+      case HintMessage.selectEmptyCell:
+        return loc.hintSelectEmptyCell;
+      case HintMessage.clearCellOrSelectEmpty:
+        return loc.hintClearCellOrSelectEmpty;
+      case HintMessage.noEmptyCells:
+        return loc.hintNoEmptyCells;
+      case null:
+        return null;
+    }
+  }
+
+  String? _localizedHintPenalty(AppLocalizations loc, int? seconds) {
+    if (seconds == null) {
+      return null;
+    }
+    return loc.hintPenaltyLabel(seconds);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: PopScope(
@@ -215,7 +242,10 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                   ),
                   SudokuTimerBar(
                     formattedTime: _controller.formattedTime,
-                    penaltyText: _controller.hintPenaltyLabel,
+                    penaltyText: _localizedHintPenalty(
+                      loc,
+                      _controller.hintPenaltySeconds,
+                    ),
                   ),
                   const SizedBox(height: _spacingMedium),
                   Padding(
@@ -241,7 +271,10 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                       horizontal: _horizontalPadding,
                     ),
                     child: InlineHintMessage(
-                      message: _controller.inlineHintMessage,
+                      message: _localizedHintMessage(
+                        loc,
+                        _controller.inlineHintMessage,
+                      ),
                     ),
                   ),
                   const SizedBox(height: _spacingMedium),

@@ -36,5 +36,61 @@
   "activeGameReset": "Reset",
   "sudokuActionHint": "Hint",
   "sudokuActionErase": "Erase",
-  "sudokuActionUndo": "Undo"
+  "sudokuActionUndo": "Undo",
+  "tryAgain": "Try Again",
+  "pausedLabel": "Paused",
+  "pause": "Pause",
+  "resume": "Resume",
+  "debugPuzzleId": "Puzzle ID: {id}",
+  "@debugPuzzleId": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+  "debugRowLabel": "Row 1: {row}",
+  "@debugRowLabel": {
+    "placeholders": {
+      "row": {}
+    }
+  },
+  "statsHintsUsed": "Hints used",
+  "statsMoves": "Moves",
+  "statsUndo": "Undo",
+  "timeResultGoldAchieved": "Gold achieved",
+  "timeResultToGold": "{delta} to Gold",
+  "@timeResultToGold": {
+    "placeholders": {
+      "delta": {}
+    }
+  },
+  "medalGold": "Gold",
+  "medalSilver": "Silver",
+  "medalBronze": "Bronze",
+  "timeWithMedalSemantics": "{medal} medal, time {minutes, plural, =1{1 minute} other{{minutes} minutes}} {seconds, plural, =1{1 second} other{{seconds} seconds}}",
+  "@timeWithMedalSemantics": {
+    "placeholders": {
+      "medal": {},
+      "minutes": {},
+      "seconds": {}
+    }
+  },
+  "successSolvedTitle": "Solved!",
+  "done": "Done",
+  "streakLabel": "{count, plural, =1{Streak started: 1 day} other{Streak: {count} days}}",
+  "@streakLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "hintSolutionUnavailable": "Solution unavailable",
+  "hintConflictsFound": "Conflicts found",
+  "hintSelectEmptyCell": "Select an empty cell",
+  "hintClearCellOrSelectEmpty": "Clear the cell or select an empty one.",
+  "hintNoEmptyCells": "No empty cells",
+  "hintPenaltyLabel": "+{seconds} sec",
+  "@hintPenaltyLabel": {
+    "placeholders": {
+      "seconds": {}
+    }
+  }
 }

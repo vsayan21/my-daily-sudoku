@@ -1,5 +1,6 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../shared/success_screen_args.dart';
@@ -78,9 +79,8 @@ class _SuccessScreenState extends State<SuccessScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final args = widget.args;
-    const heroTitle = 'Solved!';
-    const doneLabel = 'Done';
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
@@ -107,9 +107,9 @@ class _SuccessScreenState extends State<SuccessScreen>
                               child: FadeTransition(
                                 opacity: _heroOpacity,
                                 child: SuccessHero(
-                                  title: heroTitle,
+                                  title: loc.successSolvedTitle,
                                   subtitle:
-                                      '${_difficultyLabel(args.difficulty)} · ${args.dateKey}',
+                                      '${_difficultyLabel(loc, args.difficulty)} · ${args.dateKey}',
                                 ),
                               ),
                             ),
@@ -135,7 +135,7 @@ class _SuccessScreenState extends State<SuccessScreen>
                             FadeTransition(
                               opacity: _streakOpacity,
                               child: StreakPill(
-                                label: _streakLabel(args.streakCount),
+                                label: _streakLabel(loc, args.streakCount),
                               ),
                             ),
                           ],
@@ -152,7 +152,7 @@ class _SuccessScreenState extends State<SuccessScreen>
                       width: double.infinity,
                       child: FilledButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: Text(doneLabel),
+                        child: Text(loc.done),
                       ),
                     ),
                   ),
@@ -165,15 +165,19 @@ class _SuccessScreenState extends State<SuccessScreen>
     );
   }
 
-  String _difficultyLabel(SudokuDifficulty difficulty) {
-    return difficulty.label;
+  String _difficultyLabel(AppLocalizations loc, SudokuDifficulty difficulty) {
+    switch (difficulty) {
+      case SudokuDifficulty.easy:
+        return loc.difficultyEasy;
+      case SudokuDifficulty.medium:
+        return loc.difficultyMedium;
+      case SudokuDifficulty.hard:
+        return loc.difficultyHard;
+    }
   }
 
-  String _streakLabel(int count) {
-    if (count <= 1) {
-      return 'Streak started: 1 day';
-    }
-    return 'Streak: $count days';
+  String _streakLabel(AppLocalizations loc, int count) {
+    return loc.streakLabel(count);
   }
 
 }

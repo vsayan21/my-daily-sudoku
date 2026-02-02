@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 class StatTilesRow extends StatelessWidget {
   const StatTilesRow({
@@ -14,6 +15,7 @@ class StatTilesRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       children: [
         Row(
@@ -21,7 +23,7 @@ class StatTilesRow extends StatelessWidget {
             Expanded(
               child: _StatTile(
                 icon: Icons.lightbulb_outline_rounded,
-                label: 'Hints used',
+                label: loc.statsHintsUsed,
                 value: hintsUsed.toString(),
                 usePrimaryContainer: true,
               ),
@@ -30,7 +32,7 @@ class StatTilesRow extends StatelessWidget {
             Expanded(
               child: _StatTile(
                 icon: Icons.edit_note_rounded,
-                label: 'Moves',
+                label: loc.statsMoves,
                 value: movesCount.toString(),
                 usePrimaryContainer: false,
               ),
@@ -43,7 +45,7 @@ class StatTilesRow extends StatelessWidget {
             Expanded(
               child: _StatTile(
                 icon: Icons.undo_rounded,
-                label: 'Undo',
+                label: loc.statsUndo,
                 value: undoCount.toString(),
                 usePrimaryContainer: false,
               ),

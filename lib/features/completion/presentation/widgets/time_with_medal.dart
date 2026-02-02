@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../../../medals/domain/medal.dart';
 
@@ -15,6 +16,7 @@ class TimeWithMedal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final medalColor = _medalColor(colorScheme, medal);
     final timeStyle = theme.textTheme.displaySmall?.copyWith(
@@ -24,7 +26,7 @@ class TimeWithMedal extends StatelessWidget {
     );
 
     return Semantics(
-      label: _semanticLabel(),
+      label: _semanticLabel(loc),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -58,13 +60,26 @@ class TimeWithMedal extends StatelessWidget {
     }
   }
 
-  String _semanticLabel() {
-    final medalLabel = formatMedalLabel(medal);
+  String _semanticLabel(AppLocalizations loc) {
+    final medalLabel = _medalLabel(loc);
     final parts = timeLabel.split(':');
     final minutes = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 0 : 0;
     final seconds = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
-    final minuteLabel = minutes == 1 ? 'minute' : 'minutes';
-    final secondLabel = seconds == 1 ? 'second' : 'seconds';
-    return '$medalLabel medal, time $minutes $minuteLabel $seconds $secondLabel';
+    return loc.timeWithMedalSemantics(
+      medalLabel,
+      minutes,
+      seconds,
+    );
+  }
+
+  String _medalLabel(AppLocalizations loc) {
+    switch (medal) {
+      case Medal.gold:
+        return loc.medalGold;
+      case Medal.silver:
+        return loc.medalSilver;
+      case Medal.bronze:
+        return loc.medalBronze;
+    }
   }
 }

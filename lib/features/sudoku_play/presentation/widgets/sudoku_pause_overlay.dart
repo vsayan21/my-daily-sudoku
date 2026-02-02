@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 /// Overlay displayed when the game is paused.
 class SudokuPauseOverlay extends StatelessWidget {
@@ -13,6 +14,7 @@ class SudokuPauseOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final loc = AppLocalizations.of(context)!;
     return Container(
       color: Colors.black.withValues(alpha: _overlayOpacity),
       child: Center(
@@ -26,7 +28,7 @@ class SudokuPauseOverlay extends StatelessWidget {
             borderRadius: BorderRadius.circular(_labelRadius),
           ),
           child: Text(
-            'Paused',
+            loc.pausedLabel,
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
               color: colorScheme.onSurface,

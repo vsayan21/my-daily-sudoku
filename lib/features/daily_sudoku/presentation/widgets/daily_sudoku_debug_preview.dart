@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../../domain/entities/daily_sudoku.dart';
 
@@ -22,6 +23,7 @@ class DailySudokuDebugPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final loc = AppLocalizations.of(context)!;
     final monoStyle = textTheme.bodyMedium?.copyWith(
       fontFamily: 'RobotoMono',
       letterSpacing: 1.2,
@@ -29,9 +31,9 @@ class DailySudokuDebugPreview extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Puzzle ID: ${sudoku.id}', style: textTheme.bodyMedium),
+        Text(loc.debugPuzzleId(sudoku.id), style: textTheme.bodyMedium),
         const SizedBox(height: 4),
-        Text('Row 1: $_firstRow', style: monoStyle),
+        Text(loc.debugRowLabel(_firstRow), style: monoStyle),
       ],
     );
   }

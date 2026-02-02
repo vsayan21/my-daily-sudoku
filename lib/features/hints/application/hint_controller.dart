@@ -1,4 +1,5 @@
 import '../../sudoku_play/domain/entities/sudoku_board.dart';
+import '../domain/hint_message.dart';
 import '../domain/hint_result.dart';
 import '../domain/hint_service.dart';
 
@@ -27,7 +28,7 @@ class HintController {
     if (!_isValidSolution(solution)) {
       return const HintAction(
         result: HintResult.noOp,
-        message: 'Solution unavailable',
+        message: HintMessage.solutionUnavailable,
       );
     }
 

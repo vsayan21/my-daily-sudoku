@@ -293,6 +293,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Undo'**
   String get sudokuActionUndo;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// No description provided for @pausedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get pausedLabel;
+
+  /// No description provided for @pause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pause;
+
+  /// No description provided for @resume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get resume;
+
+  /// No description provided for @debugPuzzleId.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle ID: {id}'**
+  String debugPuzzleId(Object id);
+
+  /// No description provided for @debugRowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Row 1: {row}'**
+  String debugRowLabel(Object row);
+
+  /// No description provided for @statsHintsUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Hints used'**
+  String get statsHintsUsed;
+
+  /// No description provided for @statsMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Moves'**
+  String get statsMoves;
+
+  /// No description provided for @statsUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get statsUndo;
+
+  /// No description provided for @timeResultGoldAchieved.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold achieved'**
+  String get timeResultGoldAchieved;
+
+  /// No description provided for @timeResultToGold.
+  ///
+  /// In en, this message translates to:
+  /// **'{delta} to Gold'**
+  String timeResultToGold(Object delta);
+
+  /// No description provided for @medalGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold'**
+  String get medalGold;
+
+  /// No description provided for @medalSilver.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver'**
+  String get medalSilver;
+
+  /// No description provided for @medalBronze.
+  ///
+  /// In en, this message translates to:
+  /// **'Bronze'**
+  String get medalBronze;
+
+  /// No description provided for @timeWithMedalSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{medal} medal, time {minutes, plural, =1{1 minute} other{{minutes} minutes}} {seconds, plural, =1{1 second} other{{seconds} seconds}}'**
+  String timeWithMedalSemantics(Object medal, num minutes, num seconds);
+
+  /// No description provided for @successSolvedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Solved!'**
+  String get successSolvedTitle;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @streakLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Streak started: 1 day} other{Streak: {count} days}}'**
+  String streakLabel(num count);
+
+  /// No description provided for @hintSolutionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Solution unavailable'**
+  String get hintSolutionUnavailable;
+
+  /// No description provided for @hintConflictsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Conflicts found'**
+  String get hintConflictsFound;
+
+  /// No description provided for @hintSelectEmptyCell.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an empty cell'**
+  String get hintSelectEmptyCell;
+
+  /// No description provided for @hintClearCellOrSelectEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the cell or select an empty one.'**
+  String get hintClearCellOrSelectEmpty;
+
+  /// No description provided for @hintNoEmptyCells.
+  ///
+  /// In en, this message translates to:
+  /// **'No empty cells'**
+  String get hintNoEmptyCells;
+
+  /// No description provided for @hintPenaltyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'+{seconds} sec'**
+  String hintPenaltyLabel(Object seconds);
 }
 
 class _AppLocalizationsDelegate

@@ -10,6 +10,7 @@
   "streakSubtitleOpen": "Risolvi un Sudoku oggi per mantenere la serie",
   "dailySudokuTitle": "Il tuo Sudoku quotidiano",
   "dailySudokuSubtitle": "Scegli un livello e inizia subito",
+  "selectDifficultyTitle": "Seleziona difficoltà",
   "todaysEasy": "Il Sudoku facile di oggi",
   "todaysMedium": "Il Sudoku medio di oggi",
   "todaysHard": "Il Sudoku difficile di oggi",
@@ -35,5 +36,61 @@
   "activeGameReset": "Reimposta",
   "sudokuActionHint": "Suggerimento",
   "sudokuActionErase": "Cancella",
-  "sudokuActionUndo": "Annulla"
+  "sudokuActionUndo": "Annulla",
+  "tryAgain": "Riprova",
+  "pausedLabel": "In pausa",
+  "pause": "Pausa",
+  "resume": "Riprendi",
+  "debugPuzzleId": "ID puzzle: {id}",
+  "@debugPuzzleId": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+  "debugRowLabel": "Riga 1: {row}",
+  "@debugRowLabel": {
+    "placeholders": {
+      "row": {}
+    }
+  },
+  "statsHintsUsed": "Suggerimenti usati",
+  "statsMoves": "Mosse",
+  "statsUndo": "Annulla",
+  "timeResultGoldAchieved": "Oro raggiunto",
+  "timeResultToGold": "{delta} all'oro",
+  "@timeResultToGold": {
+    "placeholders": {
+      "delta": {}
+    }
+  },
+  "medalGold": "Oro",
+  "medalSilver": "Argento",
+  "medalBronze": "Bronzo",
+  "timeWithMedalSemantics": "Medaglia {medal}, tempo {minutes, plural, =1{1 minuto} other{{minutes} minuti}} {seconds, plural, =1{1 secondo} other{{seconds} secondi}}",
+  "@timeWithMedalSemantics": {
+    "placeholders": {
+      "medal": {},
+      "minutes": {},
+      "seconds": {}
+    }
+  },
+  "successSolvedTitle": "Risolto!",
+  "done": "Fatto",
+  "streakLabel": "{count, plural, =1{Serie iniziata: 1 giorno} other{Serie: {count} giorni}}",
+  "@streakLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "hintSolutionUnavailable": "Soluzione non disponibile",
+  "hintConflictsFound": "Conflitti trovati",
+  "hintSelectEmptyCell": "Seleziona una cella vuota",
+  "hintClearCellOrSelectEmpty": "Cancella la cella o selezionane una vuota.",
+  "hintNoEmptyCells": "Nessuna cella vuota",
+  "hintPenaltyLabel": "+{seconds} sec",
+  "@hintPenaltyLabel": {
+    "placeholders": {
+      "seconds": {}
+    }
+  }
 }

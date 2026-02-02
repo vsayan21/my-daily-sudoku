@@ -96,7 +96,7 @@ class SudokuTopBar extends StatelessWidget {
           IconButton(
             onPressed: onPauseToggle,
             icon: Icon(isPaused ? Icons.play_arrow : Icons.pause),
-            tooltip: isPaused ? 'Resume' : 'Pause',
+            tooltip: isPaused ? loc.resume : loc.pause,
           ),
         ],
       ),

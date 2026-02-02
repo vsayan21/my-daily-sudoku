@@ -36,5 +36,61 @@
   "activeGameReset": "Réinitialiser",
   "sudokuActionHint": "Indice",
   "sudokuActionErase": "Effacer",
-  "sudokuActionUndo": "Annuler"
+  "sudokuActionUndo": "Annuler",
+  "tryAgain": "Réessayer",
+  "pausedLabel": "En pause",
+  "pause": "Pause",
+  "resume": "Reprendre",
+  "debugPuzzleId": "ID du puzzle : {id}",
+  "@debugPuzzleId": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+  "debugRowLabel": "Ligne 1 : {row}",
+  "@debugRowLabel": {
+    "placeholders": {
+      "row": {}
+    }
+  },
+  "statsHintsUsed": "Astuces utilisées",
+  "statsMoves": "Coups",
+  "statsUndo": "Annuler",
+  "timeResultGoldAchieved": "Or obtenu",
+  "timeResultToGold": "{delta} jusqu'à l'or",
+  "@timeResultToGold": {
+    "placeholders": {
+      "delta": {}
+    }
+  },
+  "medalGold": "Or",
+  "medalSilver": "Argent",
+  "medalBronze": "Bronze",
+  "timeWithMedalSemantics": "Médaille {medal}, temps {minutes, plural, =1{1 minute} other{{minutes} minutes}} {seconds, plural, =1{1 seconde} other{{seconds} secondes}}",
+  "@timeWithMedalSemantics": {
+    "placeholders": {
+      "medal": {},
+      "minutes": {},
+      "seconds": {}
+    }
+  },
+  "successSolvedTitle": "Résolu !",
+  "done": "Terminé",
+  "streakLabel": "{count, plural, =1{Série commencée : 1 jour} other{Série : {count} jours}}",
+  "@streakLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "hintSolutionUnavailable": "Solution indisponible",
+  "hintConflictsFound": "Conflits trouvés",
+  "hintSelectEmptyCell": "Sélectionnez une cellule vide",
+  "hintClearCellOrSelectEmpty": "Effacez la cellule ou sélectionnez-en une vide.",
+  "hintNoEmptyCells": "Aucune cellule vide",
+  "hintPenaltyLabel": "+{seconds} s",
+  "@hintPenaltyLabel": {
+    "placeholders": {
+      "seconds": {}
+    }
+  }
 }
