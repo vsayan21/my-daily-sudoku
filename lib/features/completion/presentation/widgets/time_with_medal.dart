@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../medals/domain/medal.dart';
+import '../../../medals/presentation/medal_colors.dart';
 
 class TimeWithMedal extends StatelessWidget {
   const TimeWithMedal({
@@ -50,7 +51,7 @@ class TimeWithMedal extends StatelessWidget {
   Color _medalColor(ColorScheme scheme, Medal medal) {
     switch (medal) {
       case Medal.gold:
-        return scheme.tertiary;
+        return MedalColors.gold;
       case Medal.silver:
         return scheme.secondary;
       case Medal.bronze:

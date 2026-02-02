@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../medals/domain/medal.dart';
+import '../../../medals/presentation/medal_colors.dart';
 import '../../domain/models/difficulty_option.dart';
 import '../models/difficulty_tile_state.dart';
 
@@ -95,7 +96,7 @@ class DifficultyCard extends StatelessWidget {
   Color _medalColor(ColorScheme scheme, Medal medal) {
     switch (medal) {
       case Medal.gold:
-        return scheme.tertiary;
+        return MedalColors.gold;
       case Medal.silver:
         return scheme.secondary;
       case Medal.bronze:

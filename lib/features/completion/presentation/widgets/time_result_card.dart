@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../../medals/domain/medal.dart';
 import '../../../medals/domain/medal_rules.dart';
+import '../../../medals/presentation/medal_colors.dart';
 
 class TimeResultCard extends StatelessWidget {
   const TimeResultCard({
@@ -67,7 +68,7 @@ class TimeResultCard extends StatelessWidget {
               child: Text(
                 achievedGold ? 'Gold achieved' : '$deltaLabel to Gold',
                 style: theme.textTheme.labelMedium?.copyWith(
-                  color: achievedGold ? scheme.tertiary : scheme.onSurface,
+                  color: achievedGold ? MedalColors.gold : scheme.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -104,7 +105,7 @@ class TimeResultCard extends StatelessWidget {
   Color _medalColor(ColorScheme scheme, Medal medal) {
     switch (medal) {
       case Medal.gold:
-        return scheme.tertiary;
+        return MedalColors.gold;
       case Medal.silver:
         return scheme.secondary;
       case Medal.bronze:
