@@ -119,11 +119,14 @@ class _StatisticsBody extends StatelessWidget {
               title: 'Overview',
               child: Column(
                 children: [
-                  _OverviewStat(
-                    icon: Icons.local_fire_department_outlined,
-                    label: 'Current streak',
-                    value: currentStreak.toString(),
-                    isFullWidth: true,
+                  SizedBox(
+                    width: double.infinity,
+                    child: _OverviewStat(
+                      icon: Icons.local_fire_department_outlined,
+                      label: 'Current streak',
+                      value: currentStreak.toString(),
+                      isFullWidth: true,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -190,35 +193,38 @@ class _OverviewStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: isFullWidth ? 16 : 12,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: colorScheme.primary),
-          SizedBox(height: isFullWidth ? 16 : 12),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-          ),
-        ],
+    return SizedBox(
+      width: isFullWidth ? double.infinity : null,
+      child: Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: isFullWidth ? 16 : 12,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: colorScheme.primary),
+            SizedBox(height: isFullWidth ? 16 : 12),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
