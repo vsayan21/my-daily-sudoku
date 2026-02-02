@@ -25,13 +25,10 @@ class TimeResultCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final goldSeconds = _goldThresholdSeconds(difficulty);
     final timeLabel = _formatSeconds(elapsedSeconds);
-    final goldLabel = _formatSeconds(goldSeconds);
     final achievedGold = medal == Medal.gold;
     final deltaSeconds = math.max(0, elapsedSeconds - goldSeconds);
     final deltaLabel = _formatDelta(deltaSeconds);
 
-    final progressMax = math.max(goldSeconds * 2, 1);
-    final progressValue = math.min(elapsedSeconds, progressMax) / progressMax;
     final timeBackground = _timeBackground(scheme, medal);
 
     return Card(
@@ -72,41 +69,16 @@ class TimeResultCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            Row(
-              children: [
-                Text(
-                  'Gold: ≤ $goldLabel',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  achievedGold ? 'Gold achieved' : '$deltaLabel to Gold',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: achievedGold
-                        ? scheme.tertiary
-                        : scheme.onSurfaceVariant,
-                    fontWeight: achievedGold ? FontWeight.w600 : FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            if (!achievedGold) ...[
-              const SizedBox(height: 10),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(999),
-                child: LinearProgressIndicator(
-                  value: progressValue,
-                  minHeight: 6,
-                  backgroundColor:
-                      scheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    _medalColor(scheme, medal).withValues(alpha: 0.6),
-                  ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                achievedGold ? 'Gold achieved' : '$deltaLabel to Gold',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: achievedGold ? scheme.tertiary : scheme.onSurface,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),
