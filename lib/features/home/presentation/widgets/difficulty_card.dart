@@ -29,9 +29,7 @@ class DifficultyCard extends StatelessWidget {
     final solvedState = tileState;
     final isSolved = solvedState?.isSolvedToday ?? false;
     final medal = solvedState?.medal;
-    final detailStyle = Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: colorScheme.onSurfaceVariant,
-        );
+
     final timeStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
           color: colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w600,
@@ -71,29 +69,23 @@ class DifficultyCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    option.title,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                  if (isSolved && solvedState?.timeLabel != null) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      solvedState!.timeLabel ?? '--:--',
-                      textAlign: TextAlign.center,
-                      style: timeStyle,
-                    ),
-                  ],
-                ],
-              ),
+            Text(
+              option.title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
             ),
+            if (isSolved && solvedState?.timeLabel != null) ...[
+              Expanded(
+                child: Text(
+                  solvedState!.timeLabel ?? '--:--',
+                  textAlign: TextAlign.right,
+                  style: timeStyle,
+                ),
+              ),
+            ],
           ],
         ),
       ),

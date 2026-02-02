@@ -165,12 +165,6 @@ class _SuccessScreenState extends State<SuccessScreen>
     );
   }
 
-  String _formatDuration(int seconds) {
-    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
-    final remaining = (seconds % 60).toString().padLeft(2, '0');
-    return '$minutes:$remaining';
-  }
-
   String _difficultyLabel(SudokuDifficulty difficulty) {
     return difficulty.label;
   }

@@ -1,6 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
@@ -29,8 +27,6 @@ class TimeResultCard extends StatelessWidget {
     final deltaSeconds = math.max(0, elapsedSeconds - goldSeconds);
     final deltaLabel = _formatDelta(deltaSeconds);
 
-    final timeBackground = _timeBackground(scheme, medal);
-
     return Card(
       elevation: 1,
       color: scheme.surfaceContainerHighest,
@@ -45,7 +41,6 @@ class TimeResultCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: timeBackground,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -68,9 +63,7 @@ class TimeResultCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 14),
-            Align(
-              alignment: Alignment.centerRight,
+            Center(
               child: Text(
                 achievedGold ? 'Gold achieved' : '$deltaLabel to Gold',
                 style: theme.textTheme.labelMedium?.copyWith(
@@ -116,17 +109,6 @@ class TimeResultCard extends StatelessWidget {
         return scheme.secondary;
       case Medal.bronze:
         return scheme.primary;
-    }
-  }
-
-  Color _timeBackground(ColorScheme scheme, Medal medal) {
-    switch (medal) {
-      case Medal.gold:
-        return scheme.tertiaryContainer.withValues(alpha: 0.25);
-      case Medal.silver:
-        return scheme.secondaryContainer.withValues(alpha: 0.25);
-      case Medal.bronze:
-        return scheme.primaryContainer.withValues(alpha: 0.25);
     }
   }
 }
