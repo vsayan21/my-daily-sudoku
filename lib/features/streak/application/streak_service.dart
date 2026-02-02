@@ -8,7 +8,10 @@ class StreakService {
   final SharedPreferences _preferences;
 
   Future<int> updateOnCompletion(String dateKey) async {
-    final lastSolved = _preferences.getString(StreakKeys.lastSolvedDate);
+    final lastSolved = _preferences.getString(
+          StreakKeys.lastCompletedDateKey,
+        ) ??
+        _preferences.getString(StreakKeys.lastSolvedDate);
     final todayKey = dateKey;
     final yesterdayKey = _yesterdayKey(dateKey);
     var streakCount = _preferences.getInt(StreakKeys.streakCount) ?? 0;
@@ -24,8 +27,15 @@ class StreakService {
       streakCount = 1;
     }
 
+    final longestStreak =
+        _preferences.getInt(StreakKeys.streakLongest) ?? 0;
+    final updatedLongest =
+        streakCount > longestStreak ? streakCount : longestStreak;
+
     await _preferences.setInt(StreakKeys.streakCount, streakCount);
+    await _preferences.setInt(StreakKeys.streakLongest, updatedLongest);
     await _preferences.setString(StreakKeys.lastSolvedDate, todayKey);
+    await _preferences.setString(StreakKeys.lastCompletedDateKey, todayKey);
     await _preferences.setBool(StreakKeys.todaySolved, true);
 
     return streakCount;
