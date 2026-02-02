@@ -121,33 +121,33 @@ class _StatisticsBody extends StatelessWidget {
             const SizedBox(height: 20),
             StatKpiCard(
               title: 'Overview',
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 12,
+              child: Column(
                 children: [
-                  SizedBox(
-                    width: 160,
-                    child: _OverviewStat(
-                      icon: Icons.local_fire_department_outlined,
-                      label: 'Current streak',
-                      value: currentStreak.toString(),
-                    ),
+                  _OverviewStat(
+                    icon: Icons.local_fire_department_outlined,
+                    label: 'Current streak',
+                    value: currentStreak.toString(),
+                    isFullWidth: true,
                   ),
-                  SizedBox(
-                    width: 160,
-                    child: _OverviewStat(
-                      icon: Icons.emoji_events_outlined,
-                      label: 'Longest streak',
-                      value: longestStreak.toString(),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 160,
-                    child: _OverviewStat(
-                      icon: Icons.check_circle_outline,
-                      label: 'Completed',
-                      value: summary.completedCount.toString(),
-                    ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _OverviewStat(
+                          icon: Icons.emoji_events_outlined,
+                          label: 'Longest streak',
+                          value: longestStreak.toString(),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _OverviewStat(
+                          icon: Icons.check_circle_outline,
+                          label: 'Completed',
+                          value: summary.completedCount.toString(),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -191,11 +191,13 @@ class _OverviewStat extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
+    this.isFullWidth = false,
   });
 
   final IconData icon;
   final String label;
   final String value;
+  final bool isFullWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -205,12 +207,15 @@ class _OverviewStat extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
       ),
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: isFullWidth ? 16 : 12,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: colorScheme.primary),
-          const SizedBox(height: 12),
+          SizedBox(height: isFullWidth ? 16 : 12),
           Text(
             value,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
