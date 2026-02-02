@@ -36,6 +36,8 @@ class DifficultyCard extends StatelessWidget {
           color: colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w600,
         );
+    final leadingIconColor =
+        medal == null ? colorScheme.primary : _medalColor(colorScheme, medal);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -59,10 +61,14 @@ class DifficultyCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.12),
+                color: leadingIconColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(option.icon, color: colorScheme.primary, size: 24),
+              child: Icon(
+                medal == null ? option.icon : Icons.emoji_events_rounded,
+                color: leadingIconColor,
+                size: medal == null ? 24 : 30,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -79,32 +85,13 @@ class DifficultyCard extends StatelessWidget {
                   if (isSolved && solvedState?.timeLabel != null) ...[
                     const SizedBox(height: 6),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text('Solved', style: detailStyle),
                         const Spacer(),
-                        if (medal != null)
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Icon(
-                                Icons.emoji_events_rounded,
-                                size: 20,
-                                color: _medalColor(colorScheme, medal),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                solvedState!.timeLabel ?? '--:--',
-                                style: timeStyle,
-                              ),
-                            ],
-                          )
-                        else
-                          Text(
-                            solvedState!.timeLabel ?? '--:--',
-                            style: timeStyle,
-                          ),
+                        Text(
+                          solvedState!.timeLabel ?? '--:--',
+                          style: timeStyle,
+                        ),
                       ],
                     ),
                   ],
