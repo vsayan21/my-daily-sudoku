@@ -36,5 +36,61 @@
   "activeGameReset": "Zurücksetzen",
   "sudokuActionHint": "Tipp",
   "sudokuActionErase": "Löschen",
-  "sudokuActionUndo": "Zurück"
+  "sudokuActionUndo": "Zurück",
+  "tryAgain": "Erneut versuchen",
+  "pausedLabel": "Pausiert",
+  "pause": "Pause",
+  "resume": "Fortsetzen",
+  "debugPuzzleId": "Rätsel-ID: {id}",
+  "@debugPuzzleId": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+  "debugRowLabel": "Zeile 1: {row}",
+  "@debugRowLabel": {
+    "placeholders": {
+      "row": {}
+    }
+  },
+  "statsHintsUsed": "Hinweise verwendet",
+  "statsMoves": "Züge",
+  "statsUndo": "Rückgängig",
+  "timeResultGoldAchieved": "Gold erreicht",
+  "timeResultToGold": "{delta} bis Gold",
+  "@timeResultToGold": {
+    "placeholders": {
+      "delta": {}
+    }
+  },
+  "medalGold": "Gold",
+  "medalSilver": "Silber",
+  "medalBronze": "Bronze",
+  "timeWithMedalSemantics": "{medal}-Medaille, Zeit {minutes, plural, =1{1 Minute} other{{minutes} Minuten}} {seconds, plural, =1{1 Sekunde} other{{seconds} Sekunden}}",
+  "@timeWithMedalSemantics": {
+    "placeholders": {
+      "medal": {},
+      "minutes": {},
+      "seconds": {}
+    }
+  },
+  "successSolvedTitle": "Gelöst!",
+  "done": "Fertig",
+  "streakLabel": "{count, plural, =1{Serie gestartet: 1 Tag} other{Serie: {count} Tage}}",
+  "@streakLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "hintSolutionUnavailable": "Lösung nicht verfügbar",
+  "hintConflictsFound": "Konflikte gefunden",
+  "hintSelectEmptyCell": "Wähle eine leere Zelle",
+  "hintClearCellOrSelectEmpty": "Leere die Zelle oder wähle eine leere.",
+  "hintNoEmptyCells": "Keine leeren Zellen",
+  "hintPenaltyLabel": "+{seconds} Sek.",
+  "@hintPenaltyLabel": {
+    "placeholders": {
+      "seconds": {}
+    }
+  }
 }

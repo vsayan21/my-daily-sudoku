@@ -310,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const PageHeader(title: 'MyDailySudoku'),
+                        PageHeader(title: loc.appTitle),
                         const SizedBox(height: 16),
                         const StreakSection(),
                         if (activeSession != null) ...[
@@ -358,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             onPressed: _handleStart,
                             icon: const Icon(Icons.play_arrow_rounded),
                             label: Text(
-                              isSelectedSolved ? 'Try Again' : loc.start,
+                              isSelectedSolved ? loc.tryAgain : loc.start,
                             ),
                           ),
                           const SizedBox(height: 24),

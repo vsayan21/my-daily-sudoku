@@ -107,4 +107,104 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sudokuActionUndo => 'Zurück';
+
+  @override
+  String get tryAgain => 'Erneut versuchen';
+
+  @override
+  String get pausedLabel => 'Pausiert';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get resume => 'Fortsetzen';
+
+  @override
+  String debugPuzzleId(Object id) {
+    return 'Rätsel-ID: $id';
+  }
+
+  @override
+  String debugRowLabel(Object row) {
+    return 'Zeile 1: $row';
+  }
+
+  @override
+  String get statsHintsUsed => 'Hinweise verwendet';
+
+  @override
+  String get statsMoves => 'Züge';
+
+  @override
+  String get statsUndo => 'Rückgängig';
+
+  @override
+  String get timeResultGoldAchieved => 'Gold erreicht';
+
+  @override
+  String timeResultToGold(Object delta) {
+    return '$delta bis Gold';
+  }
+
+  @override
+  String get medalGold => 'Gold';
+
+  @override
+  String get medalSilver => 'Silber';
+
+  @override
+  String get medalBronze => 'Bronze';
+
+  @override
+  String timeWithMedalSemantics(Object medal, num minutes, num seconds) {
+    return '$medal-Medaille, Zeit ${intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      one: '1 Minute',
+      other: '$minutes Minuten',
+    )} ${intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      one: '1 Sekunde',
+      other: '$seconds Sekunden',
+    )}';
+  }
+
+  @override
+  String get successSolvedTitle => 'Gelöst!';
+
+  @override
+  String get done => 'Fertig';
+
+  @override
+  String streakLabel(num count) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      one: 'Serie gestartet: 1 Tag',
+      other: 'Serie: $count Tage',
+    );
+  }
+
+  @override
+  String get hintSolutionUnavailable => 'Lösung nicht verfügbar';
+
+  @override
+  String get hintConflictsFound => 'Konflikte gefunden';
+
+  @override
+  String get hintSelectEmptyCell => 'Wähle eine leere Zelle';
+
+  @override
+  String get hintClearCellOrSelectEmpty =>
+      'Leere die Zelle oder wähle eine leere.';
+
+  @override
+  String get hintNoEmptyCells => 'Keine leeren Zellen';
+
+  @override
+  String hintPenaltyLabel(Object seconds) {
+    return '+$seconds Sek.';
+  }
 }

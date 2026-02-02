@@ -1,6 +1,7 @@
 import '../../sudoku_play/domain/entities/sudoku_board.dart';
 import '../logic/sudoku_conflict_finder.dart';
 import '../logic/sudoku_hint_picker.dart';
+import 'hint_message.dart';
 import 'hint_result.dart';
 
 /// A domain-level action that describes a hint response.
@@ -31,7 +32,7 @@ class HintAction {
   final SudokuPosition? selectedPosition;
 
   /// Optional message to display to the user.
-  final String? message;
+  final HintMessage? message;
 }
 
 /// Details about a selected cell for hint targeting.
@@ -92,7 +93,7 @@ class DefaultHintService implements HintService {
         result: HintResult.revealedConflicts,
         conflicts: focusedConflicts,
         selectedPosition: selectedConflict,
-        message: 'Conflicts found',
+        message: HintMessage.conflictsFound,
       );
     }
 
@@ -100,13 +101,13 @@ class DefaultHintService implements HintService {
       if (!selected.isEditable) {
         return const HintAction(
           result: HintResult.noOp,
-          message: 'Select an empty cell',
+          message: HintMessage.selectEmptyCell,
         );
       }
       if (!selected.isEmpty) {
         return const HintAction(
           result: HintResult.noOp,
-          message: 'Clear the cell or select an empty one.',
+          message: HintMessage.clearCellOrSelectEmpty,
         );
       }
     }
@@ -119,7 +120,7 @@ class DefaultHintService implements HintService {
     if (pick == null) {
       return const HintAction(
         result: HintResult.noOp,
-        message: 'No empty cells',
+        message: HintMessage.noEmptyCells,
       );
     }
 

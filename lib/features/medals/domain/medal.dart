@@ -4,17 +4,6 @@ enum Medal {
   bronze,
 }
 
-String formatMedalLabel(Medal medal) {
-  switch (medal) {
-    case Medal.gold:
-      return 'Gold';
-    case Medal.silver:
-      return 'Silver';
-    case Medal.bronze:
-      return 'Bronze';
-  }
-}
-
 Medal parseMedal(String? raw) {
   switch (raw) {
     case 'gold':

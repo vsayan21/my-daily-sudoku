@@ -19,7 +19,7 @@ class GetTodaySudoku {
   Future<DailySudoku> execute(SudokuDifficulty difficulty) async {
     final puzzles = await repository.fetchPuzzles(difficulty);
     if (puzzles.isEmpty) {
-      throw StateError('No ${difficulty.label} puzzles available.');
+      throw StateError('No ${difficulty.name} puzzles available.');
     }
     final now = nowProvider();
     final dailyKey = buildDailyKey(now: now);

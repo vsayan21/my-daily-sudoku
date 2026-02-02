@@ -14,7 +14,7 @@ class SudokuAssetsDataSource {
     final jsonString = await rootBundle.loadString(path);
     final decoded = json.decode(jsonString);
     if (decoded is! List) {
-      throw FormatException('${difficulty.label} puzzles JSON must be a list.');
+      throw FormatException('${difficulty.name} puzzles JSON must be a list.');
     }
     return decoded
         .map((entry) => DailySudokuModel.fromJson(entry as Map<String, dynamic>))

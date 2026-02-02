@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../../medals/domain/medal.dart';
@@ -20,6 +21,7 @@ class TimeResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final scheme = theme.colorScheme;
     final goldSeconds = _goldThresholdSeconds(difficulty);
     final timeLabel = _formatSeconds(elapsedSeconds);
@@ -65,7 +67,9 @@ class TimeResultCard extends StatelessWidget {
             ),
             Center(
               child: Text(
-                achievedGold ? 'Gold achieved' : '$deltaLabel to Gold',
+                achievedGold
+                    ? loc.timeResultGoldAchieved
+                    : loc.timeResultToGold(deltaLabel),
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: achievedGold ? scheme.tertiary : scheme.onSurface,
                   fontWeight: FontWeight.w600,

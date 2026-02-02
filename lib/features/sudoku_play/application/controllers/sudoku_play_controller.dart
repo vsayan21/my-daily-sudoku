@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../../hints/application/hint_controller.dart';
+import '../../../hints/domain/hint_message.dart';
 import '../../../hints/domain/hint_result.dart';
 import '../../../hints/domain/hint_service.dart';
 import '../../domain/entities/sudoku_board.dart';
@@ -56,7 +57,7 @@ class SudokuPlayController extends ChangeNotifier {
   bool _isHintBusy = false;
   int _hintPenaltySeconds = 0;
   int _penaltyToken = 0;
-  String? _inlineHintMessage;
+  HintMessage? _inlineHintMessage;
   int _inlineHintToken = 0;
   bool _isDisposed = false;
   Timer? _hintPenaltyTimer;
@@ -81,12 +82,12 @@ class SudokuPlayController extends ChangeNotifier {
   /// Cells filled by hints.
   Set<SudokuPosition> get hintedCells => _hintedCells;
 
-  /// Latest hint penalty label to display.
-  String? get hintPenaltyLabel =>
-      _hintPenaltySeconds > 0 ? '+$_hintPenaltySeconds sec' : null;
+  /// Latest hint penalty seconds to display.
+  int? get hintPenaltySeconds =>
+      _hintPenaltySeconds > 0 ? _hintPenaltySeconds : null;
 
   /// Inline hint message shown below the action bar.
-  String? get inlineHintMessage => _inlineHintMessage;
+  HintMessage? get inlineHintMessage => _inlineHintMessage;
 
   /// Whether there is a move available to undo.
   bool get canUndo => _history.isNotEmpty;
@@ -478,7 +479,7 @@ class SudokuPlayController extends ChangeNotifier {
   }
 
   /// Shows an inline hint message for a short duration.
-  void showInlineHint(String message) {
+  void showInlineHint(HintMessage message) {
     _inlineHintMessage = message;
     _inlineHintToken += 1;
     final token = _inlineHintToken;
