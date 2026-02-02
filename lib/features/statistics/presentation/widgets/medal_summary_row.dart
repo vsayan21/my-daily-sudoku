@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../medals/presentation/medal_colors.dart';
+
 class MedalSummaryRow extends StatelessWidget {
   const MedalSummaryRow({
     super.key,
@@ -14,14 +16,13 @@ class MedalSummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         Expanded(
           child: _MedalTile(
             label: 'Gold',
             count: goldCount,
-            color: colorScheme.primary,
+            color: MedalColors.gold,
           ),
         ),
         const SizedBox(width: 12),
@@ -29,7 +30,7 @@ class MedalSummaryRow extends StatelessWidget {
           child: _MedalTile(
             label: 'Silver',
             count: silverCount,
-            color: colorScheme.secondary,
+            color: MedalColors.silver,
           ),
         ),
         const SizedBox(width: 12),
@@ -37,7 +38,7 @@ class MedalSummaryRow extends StatelessWidget {
           child: _MedalTile(
             label: 'Bronze',
             count: bronzeCount,
-            color: colorScheme.tertiary,
+            color: MedalColors.bronze,
           ),
         ),
       ],
@@ -59,37 +60,43 @@ class _MedalTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        child: Row(
-          children: [
-            Icon(Icons.emoji_events_outlined, color: color),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'x$count',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-              ],
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              shape: BoxShape.circle,
             ),
-          ],
-        ),
+            padding: const EdgeInsets.all(8),
+            child: Icon(Icons.emoji_events, color: color, size: 18),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                count.toString(),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

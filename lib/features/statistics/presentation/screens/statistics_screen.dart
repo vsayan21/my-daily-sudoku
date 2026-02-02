@@ -128,102 +128,95 @@ class _StatisticsBody extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 20),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                SizedBox(
-                  width: 320,
-                  child: StatKpiCard(
-                    title: 'Streak',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _KpiLine(
-                          label: 'Current',
-                          value: currentStreak.toString(),
-                        ),
-                        const SizedBox(height: 8),
-                        _KpiLine(
-                          label: 'Longest',
-                          value: longestStreak.toString(),
-                        ),
-                      ],
+            StatKpiCard(
+              title: 'Overview',
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  SizedBox(
+                    width: 160,
+                    child: _OverviewStat(
+                      icon: Icons.local_fire_department_outlined,
+                      label: 'Current streak',
+                      value: currentStreak.toString(),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: 320,
-                  child: StatKpiCard(
-                    title: 'Completed puzzles',
-                    child: Text(
-                      summary.completedCount.toString(),
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            fontFeatures: const [
-                              FontFeature.tabularFigures(),
-                            ],
-                          ),
+                  SizedBox(
+                    width: 160,
+                    child: _OverviewStat(
+                      icon: Icons.emoji_events_outlined,
+                      label: 'Longest streak',
+                      value: longestStreak.toString(),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Best times',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+                  SizedBox(
+                    width: 160,
+                    child: _OverviewStat(
+                      icon: Icons.check_circle_outline,
+                      label: 'Completed',
+                      value: summary.completedCount.toString(),
+                    ),
                   ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            BestTimesRow(bestTimes: summary.bestTimesSeconds),
-            const SizedBox(height: 24),
-            Text(
-              'Activity',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+            const SizedBox(height: 16),
+            StatKpiCard(
+              title: 'Best times',
+              child: Column(
+                children: [
+                  BestTimesRow(bestTimes: summary.bestTimesSeconds),
+                  if (summary.averageTimeSeconds != null) ...[
+                    const SizedBox(height: 12),
+                    _InlineStat(
+                      label: 'Average time',
+                      value: StatisticsViewModel.formatDuration(
+                        summary.averageTimeSeconds!.round(),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _ActivityTile(
-                    label: hintsLabel,
-                    value: summary.totalHints,
+            const SizedBox(height: 16),
+            StatKpiCard(
+              title: 'Activity',
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _ActivityTile(
+                      label: hintsLabel,
+                      value: summary.totalHints,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ActivityTile(
-                    label: movesLabel,
-                    value: summary.totalMoves,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _ActivityTile(
+                      label: movesLabel,
+                      value: summary.totalMoves,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ActivityTile(
-                    label: undoLabel,
-                    value: summary.totalUndo,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _ActivityTile(
+                      label: undoLabel,
+                      value: summary.totalUndo,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              'Medals',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+            const SizedBox(height: 16),
+            StatKpiCard(
+              title: 'Medals',
+              child: MedalSummaryRow(
+                goldCount: summary.goldMedals,
+                silverCount: summary.silverMedals,
+                bronzeCount: summary.bronzeMedals,
+              ),
             ),
-            const SizedBox(height: 12),
-            MedalSummaryRow(
-              goldCount: summary.goldMedals,
-              silverCount: summary.silverMedals,
-              bronzeCount: summary.bronzeMedals,
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               'History',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -235,39 +228,6 @@ class _StatisticsBody extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _KpiLine extends StatelessWidget {
-  const _KpiLine({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-        ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-        ),
-      ],
     );
   }
 }
@@ -310,6 +270,91 @@ class _ActivityTile extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _OverviewStat extends StatelessWidget {
+  const _OverviewStat({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: colorScheme.primary),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InlineStat extends StatelessWidget {
+  const _InlineStat({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+          ),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+          ),
+        ],
       ),
     );
   }
