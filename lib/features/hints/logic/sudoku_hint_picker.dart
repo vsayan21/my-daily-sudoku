@@ -28,7 +28,7 @@ class SudokuHintPicker {
     SudokuPosition? selected,
   }) {
     if (selected != null) {
-      if (board.currentValues[selected.row][selected.col] == 0 &&
+      if (board.currentValues[selected.row][selected.col] == null &&
           board.initialValues[selected.row][selected.col] == 0) {
         final index = selected.row * 9 + selected.col;
         final value = int.tryParse(solution[index]) ?? 0;
@@ -43,7 +43,7 @@ class SudokuHintPicker {
     }
     for (var row = 0; row < 9; row++) {
       for (var col = 0; col < 9; col++) {
-        if (board.currentValues[row][col] != 0) {
+        if (board.currentValues[row][col] != null) {
           continue;
         }
         if (board.initialValues[row][col] != 0) {

@@ -35,6 +35,7 @@
   "activeGameContinue": "Continuer",
   "activeGameReset": "Réinitialiser",
   "sudokuActionHint": "Indice",
+  "sudokuActionNotes": "Notes",
   "sudokuActionErase": "Effacer",
   "sudokuActionUndo": "Annuler",
   "tryAgain": "Réessayer",

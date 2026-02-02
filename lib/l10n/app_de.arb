@@ -35,6 +35,7 @@
   "activeGameContinue": "Weiter",
   "activeGameReset": "Zurücksetzen",
   "sudokuActionHint": "Tipp",
+  "sudokuActionNotes": "Notizen",
   "sudokuActionErase": "Löschen",
   "sudokuActionUndo": "Zurück",
   "tryAgain": "Erneut versuchen",

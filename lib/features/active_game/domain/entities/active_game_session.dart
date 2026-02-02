@@ -7,6 +7,7 @@ class ActiveGameSession {
     required this.puzzleId,
     required this.puzzle,
     required this.current,
+    required this.notes,
     required this.givens,
     required this.hinted,
     required this.elapsedSeconds,
@@ -19,6 +20,7 @@ class ActiveGameSession {
   final String? puzzleId;
   final String puzzle;
   final String current;
+  final String notes;
   final String givens;
   final String hinted;
   final int elapsedSeconds;
@@ -31,6 +33,7 @@ class ActiveGameSession {
     String? puzzleId,
     String? puzzle,
     String? current,
+    String? notes,
     String? givens,
     String? hinted,
     int? elapsedSeconds,
@@ -43,6 +46,7 @@ class ActiveGameSession {
       puzzleId: puzzleId ?? this.puzzleId,
       puzzle: puzzle ?? this.puzzle,
       current: current ?? this.current,
+      notes: notes ?? this.notes,
       givens: givens ?? this.givens,
       hinted: hinted ?? this.hinted,
       elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,

@@ -229,8 +229,10 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
               final selectedCell = _controller.selectedCell;
               final selectedValue = selectedCell == null
                   ? null
-                  : _controller.board.currentValues[selectedCell.row]
-                      [selectedCell.col];
+                  : _controller
+                      .board
+                      .cellAt(selectedCell.row, selectedCell.col)
+                      .value;
               return Column(
                 children: [
                   SudokuTopBar(
@@ -257,12 +259,16 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                           _controller.isPaused || _controller.isHintBusy
                               ? null
                               : _controller.onHintPressed,
+                      onNotesPressed: _controller.isPaused
+                          ? null
+                          : _controller.toggleNotesMode,
                       onErasePressed:
                           _controller.isPaused ? null : _controller.erase,
                       onUndoPressed:
                           _controller.isPaused || !_controller.canUndo
                               ? null
                               : _controller.undo,
+                      isNotesMode: _controller.notesMode,
                     ),
                   ),
                   const SizedBox(height: 8),
