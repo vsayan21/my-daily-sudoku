@@ -74,7 +74,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navigationStatistics => 'Statistiques';
 
   @override
-  String get navigationProfile => 'Profil';
+  String get navigationProfile => 'Classement';
 
   @override
   String get comingSoon => 'Bientôt disponible';
