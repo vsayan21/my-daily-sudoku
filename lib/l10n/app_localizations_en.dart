@@ -98,6 +98,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activeGameReset => 'Reset';
 
   @override
+  String get restartGameTitle => 'Restart game?';
+
+  @override
+  String get restartGameMessage =>
+      'This will clear your current progress and restart the timer.';
+
+  @override
+  String get restartGameConfirm => 'Restart';
+
+  @override
   String get sudokuActionHint => 'Hint';
 
   @override

@@ -276,6 +276,24 @@ abstract class AppLocalizations {
   /// **'Reset'**
   String get activeGameReset;
 
+  /// No description provided for @restartGameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart game?'**
+  String get restartGameTitle;
+
+  /// No description provided for @restartGameMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will clear your current progress and restart the timer.'**
+  String get restartGameMessage;
+
+  /// No description provided for @restartGameConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get restartGameConfirm;
+
   /// No description provided for @sudokuActionHint.
   ///
   /// In en, this message translates to:

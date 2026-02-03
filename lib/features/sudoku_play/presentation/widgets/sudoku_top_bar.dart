@@ -102,7 +102,6 @@ class SudokuTopBar extends StatelessWidget {
             icon: const Icon(Icons.restart_alt_rounded),
             tooltip: loc.activeGameReset,
           ),
-          const SizedBox(width: _iconSpacing),
           IconButton(
             onPressed: onPauseToggle,
             icon: Icon(isPaused ? Icons.play_arrow : Icons.pause),

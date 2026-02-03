@@ -184,21 +184,20 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     if (_isCompleting) {
       return;
     }
+    final loc = AppLocalizations.of(context)!;
     final shouldReset = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Restart game?'),
-        content: const Text(
-          'This will clear your current progress and restart the timer.',
-        ),
+        title: Text(loc.restartGameTitle),
+        content: Text(loc.restartGameMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(loc.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Restart'),
+            child: Text(loc.restartGameConfirm),
           ),
         ],
       ),
