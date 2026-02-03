@@ -14,6 +14,7 @@ class SudokuTopBar extends StatelessWidget {
     required this.onBack,
     required this.isPaused,
     required this.onPauseToggle,
+    required this.onReset,
   });
 
   /// Selected difficulty.
@@ -30,6 +31,9 @@ class SudokuTopBar extends StatelessWidget {
 
   /// Callback for pause/resume toggle.
   final VoidCallback onPauseToggle;
+
+  /// Callback for reset action.
+  final VoidCallback onReset;
 
   static const double _horizontalPadding = 16;
   static const double _verticalPadding = 12;
@@ -92,6 +96,11 @@ class SudokuTopBar extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            onPressed: onReset,
+            icon: const Icon(Icons.restart_alt_rounded),
+            tooltip: loc.activeGameReset,
           ),
           IconButton(
             onPressed: onPauseToggle,
