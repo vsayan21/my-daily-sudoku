@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../../domain/entities/user_profile.dart';
 
@@ -19,6 +20,7 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final loc = AppLocalizations.of(context)!;
     final avatarFile = profile.avatarPath == null
         ? null
         : File(profile.avatarPath!);
@@ -73,7 +75,7 @@ class ProfileCard extends StatelessWidget {
                       IconButton(
                         onPressed: onEditName,
                         icon: const Icon(Icons.edit_rounded),
-                        tooltip: 'Edit name',
+                        tooltip: loc.profileEditNameTooltip,
                       ),
                     ],
                   ),

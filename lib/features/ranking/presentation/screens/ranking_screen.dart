@@ -57,6 +57,7 @@ class _RankingScreenState extends State<RankingScreen> {
     if (profile == null) {
       return;
     }
+    final loc = AppLocalizations.of(context)!;
     final textController = TextEditingController(text: profile.displayName);
     await showModalBottomSheet<void>(
       context: context,
@@ -75,7 +76,7 @@ class _RankingScreenState extends State<RankingScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Edit display name',
+                loc.profileEditDisplayNameTitle,
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
@@ -86,9 +87,9 @@ class _RankingScreenState extends State<RankingScreen> {
                 controller: textController,
                 textInputAction: TextInputAction.done,
                 maxLength: 24,
-                decoration: const InputDecoration(
-                  labelText: 'Display name',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: loc.profileDisplayNameLabel,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 12),
@@ -99,7 +100,7 @@ class _RankingScreenState extends State<RankingScreen> {
                     Navigator.of(context).pop();
                   }
                 },
-                child: const Text('Save'),
+                child: Text(loc.save),
               ),
             ],
           ),
@@ -131,7 +132,7 @@ class _RankingScreenState extends State<RankingScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('Choose from gallery'),
+                title: Text(loc.profileAvatarGallery),
                 onTap: () {
                   Navigator.of(context).pop();
                   _pickAvatarImage(ImageSource.gallery);
@@ -139,7 +140,7 @@ class _RankingScreenState extends State<RankingScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.photo_camera_outlined),
-                title: const Text('Take a photo'),
+                title: Text(loc.profileAvatarCamera),
                 onTap: () {
                   Navigator.of(context).pop();
                   _pickAvatarImage(ImageSource.camera);
@@ -187,7 +188,7 @@ class _RankingScreenState extends State<RankingScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Ranking coming soon',
+                        loc.rankingComingSoon,
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium

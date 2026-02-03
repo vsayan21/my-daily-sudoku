@@ -132,6 +132,12 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancel;
 
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
   /// No description provided for @streakTitle.
   ///
   /// In en, this message translates to:
@@ -234,11 +240,47 @@ abstract class AppLocalizations {
   /// **'Ranking'**
   String get navigationProfile;
 
+  /// No description provided for @rankingComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranking coming soon'**
+  String get rankingComingSoon;
+
   /// No description provided for @comingSoon.
   ///
   /// In en, this message translates to:
   /// **'Coming soon'**
   String get comingSoon;
+
+  /// No description provided for @profileEditDisplayNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit display name'**
+  String get profileEditDisplayNameTitle;
+
+  /// No description provided for @profileDisplayNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get profileDisplayNameLabel;
+
+  /// No description provided for @profileEditNameTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit name'**
+  String get profileEditNameTooltip;
+
+  /// No description provided for @profileAvatarGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get profileAvatarGallery;
+
+  /// No description provided for @profileAvatarCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get profileAvatarCamera;
 
   /// No description provided for @sudoku.
   ///

@@ -24,6 +24,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cancel => 'Abbrechen';
 
   @override
+  String get save => 'Speichern';
+
+  @override
   String get streakTitle => 'Tage in Folge';
 
   @override
@@ -77,7 +80,25 @@ class AppLocalizationsDe extends AppLocalizations {
   String get navigationProfile => 'Ranking';
 
   @override
+  String get rankingComingSoon => 'Ranking kommt bald';
+
+  @override
   String get comingSoon => 'Bald verfügbar';
+
+  @override
+  String get profileEditDisplayNameTitle => 'Anzeigenamen bearbeiten';
+
+  @override
+  String get profileDisplayNameLabel => 'Anzeigename';
+
+  @override
+  String get profileEditNameTooltip => 'Namen bearbeiten';
+
+  @override
+  String get profileAvatarGallery => 'Aus Galerie auswählen';
+
+  @override
+  String get profileAvatarCamera => 'Foto aufnehmen';
 
   @override
   String get sudoku => 'Sudoku';

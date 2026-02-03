@@ -24,6 +24,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancel => 'Cancel';
 
   @override
+  String get save => 'Save';
+
+  @override
   String get streakTitle => 'Day Streak';
 
   @override
@@ -75,7 +78,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navigationProfile => 'Ranking';
 
   @override
+  String get rankingComingSoon => 'Ranking coming soon';
+
+  @override
   String get comingSoon => 'Coming soon';
+
+  @override
+  String get profileEditDisplayNameTitle => 'Edit display name';
+
+  @override
+  String get profileDisplayNameLabel => 'Display name';
+
+  @override
+  String get profileEditNameTooltip => 'Edit name';
+
+  @override
+  String get profileAvatarGallery => 'Choose from gallery';
+
+  @override
+  String get profileAvatarCamera => 'Take a photo';
 
   @override
   String get sudoku => 'Sudoku';
