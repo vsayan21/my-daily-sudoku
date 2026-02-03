@@ -374,6 +374,36 @@ class SudokuPlayController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Resets the game state back to the original puzzle.
+  Future<void> resetGame() async {
+    _board = SudokuBoard(
+      initialValues: _stringToFixedGrid(_puzzleString),
+    );
+    _selectedCell = null;
+    _history.clear();
+    _hintedCells.clear();
+    _transientHighlightedCells = {};
+    _notesMode = false;
+    _isHintBusy = false;
+    _hintPenaltySeconds = 0;
+    _penaltyToken += 1;
+    _inlineHintMessage = null;
+    _inlineHintToken += 1;
+    _hintPenaltyTimer?.cancel();
+    _inlineHintTimer?.cancel();
+    _hintPenaltyTimer = null;
+    _inlineHintTimer = null;
+    _hintsUsed = 0;
+    _movesCount = 0;
+    _undoCount = 0;
+    _isCompleted = false;
+    _hasNotifiedSolved = false;
+    _isPaused = false;
+    _isManuallyPaused = false;
+    _gameTimer.startFrom(0);
+    _notifySafely();
+  }
+
   /// Handles app lifecycle changes to pause/resume automatically.
   void handleAppLifecycleState(AppLifecycleState state) {
     switch (state) {

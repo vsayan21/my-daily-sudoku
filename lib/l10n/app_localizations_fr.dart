@@ -125,6 +125,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get activeGameReset => 'Réinitialiser';
 
   @override
+  String get restartGameTitle => 'Recommencer la partie ?';
+
+  @override
+  String get restartGameMessage =>
+      'Cela effacera votre progression actuelle et redémarrera le minuteur.';
+
+  @override
+  String get restartGameConfirm => 'Redémarrer';
+
+  @override
   String get sudokuActionHint => 'Indice';
 
   @override

@@ -125,6 +125,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activeGameReset => 'Zurücksetzen';
 
   @override
+  String get restartGameTitle => 'Spiel neu starten?';
+
+  @override
+  String get restartGameMessage =>
+      'Dies löscht deinen aktuellen Fortschritt und startet den Timer neu.';
+
+  @override
+  String get restartGameConfirm => 'Neu starten';
+
+  @override
   String get sudokuActionHint => 'Tipp';
 
   @override
