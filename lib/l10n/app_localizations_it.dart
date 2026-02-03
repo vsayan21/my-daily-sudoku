@@ -100,6 +100,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get profileAvatarCamera => 'Scatta una foto';
 
   @override
+  String get profileAvatarPickError =>
+      'Impossibile aprire il selettore di immagini.';
+
+  @override
   String get sudoku => 'Sudoku';
 
   @override

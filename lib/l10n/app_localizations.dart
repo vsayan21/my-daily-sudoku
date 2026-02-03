@@ -282,6 +282,12 @@ abstract class AppLocalizations {
   /// **'Take a photo'**
   String get profileAvatarCamera;
 
+  /// No description provided for @profileAvatarPickError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open the image picker.'**
+  String get profileAvatarPickError;
+
   /// No description provided for @sudoku.
   ///
   /// In en, this message translates to:

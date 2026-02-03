@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
@@ -115,11 +116,29 @@ class _RankingScreenState extends State<RankingScreen> {
       return;
     }
     final picker = ImagePicker();
-    final file = await picker.pickImage(source: source);
-    if (file == null) {
-      return;
+    try {
+      final file = await picker.pickImage(source: source);
+      if (file == null) {
+        return;
+      }
+      await controller.updateAvatarPath(file.path);
+    } on PlatformException {
+      if (!mounted) {
+        return;
+      }
+      final loc = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.profileAvatarPickError)),
+      );
+    } on MissingPluginException {
+      if (!mounted) {
+        return;
+      }
+      final loc = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.profileAvatarPickError)),
+      );
     }
-    await controller.updateAvatarPath(file.path);
   }
 
   Future<void> _showAvatarPicker() async {

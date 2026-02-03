@@ -29,6 +29,7 @@
   "profileEditNameTooltip": "Namen bearbeiten",
   "profileAvatarGallery": "Aus Galerie auswählen",
   "profileAvatarCamera": "Foto aufnehmen",
+  "profileAvatarPickError": "Der Bildauswahldialog konnte nicht geöffnet werden.",
   "comingSoon": "Bald verfügbar",
   "sudoku": "Sudoku",
   "activeGameContinueTitle": "Sudoku fortsetzen",

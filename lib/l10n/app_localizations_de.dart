@@ -101,6 +101,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get profileAvatarCamera => 'Foto aufnehmen';
 
   @override
+  String get profileAvatarPickError =>
+      'Der Bildauswahldialog konnte nicht geöffnet werden.';
+
+  @override
   String get sudoku => 'Sudoku';
 
   @override

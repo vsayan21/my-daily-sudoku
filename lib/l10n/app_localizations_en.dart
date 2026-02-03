@@ -99,6 +99,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileAvatarCamera => 'Take a photo';
 
   @override
+  String get profileAvatarPickError => 'Unable to open the image picker.';
+
+  @override
   String get sudoku => 'Sudoku';
 
   @override

@@ -29,6 +29,7 @@
   "profileEditNameTooltip": "Modifier le nom",
   "profileAvatarGallery": "Choisir dans la galerie",
   "profileAvatarCamera": "Prendre une photo",
+  "profileAvatarPickError": "Impossible d'ouvrir le sélecteur d'images.",
   "comingSoon": "Bientôt disponible",
   "sudoku": "Sudoku",
   "activeGameContinueTitle": "Reprendre votre Sudoku",
