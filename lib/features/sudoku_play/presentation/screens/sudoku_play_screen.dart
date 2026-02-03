@@ -180,6 +180,37 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     Navigator.of(context).pop();
   }
 
+  Future<void> _handleReset() async {
+    if (_isCompleting) {
+      return;
+    }
+    final shouldReset = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Restart game?'),
+        content: const Text(
+          'This will clear your current progress and restart the timer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Restart'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || shouldReset != true) {
+      return;
+    }
+    await _controller.resetGame();
+    final saver = await _saveActiveGame;
+    await saver.execute(_controller.exportSession());
+  }
+
   String? _localizedHintMessage(AppLocalizations loc, HintMessage? message) {
     switch (message) {
       case HintMessage.solutionUnavailable:
@@ -241,6 +272,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
                     onBack: _handleBack,
                     isPaused: _controller.isPaused,
                     onPauseToggle: _controller.togglePause,
+                    onReset: _handleReset,
                   ),
                   SudokuTimerBar(
                     formattedTime: _controller.formattedTime,
