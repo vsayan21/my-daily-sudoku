@@ -1,37 +1,25 @@
 import 'package:flutter/material.dart';
 
-import '../data/streak_repository_impl.dart';
-import '../domain/streak_repository.dart';
+import '../application/usecases/get_streak_summary.dart';
 import '../domain/streak_state.dart';
 import 'widgets/streak_card.dart';
 
 class StreakSection extends StatelessWidget {
   const StreakSection({
     super.key,
-    StreakRepository? repository,
-  }) : _repository = repository;
+    required this.summary,
+  });
 
-  final StreakRepository? _repository;
-
-  Future<StreakState> _loadState() async {
-    final repo = _repository ?? await StreakRepositoryImpl.create();
-    return repo.fetchStreakState();
-  }
+  final StreakSummary summary;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<StreakState>(
-      future: _loadState(),
-      builder: (context, snapshot) {
-        final state = snapshot.data ??
-            const StreakState(
-              streakCount: 0,
-              todaySolved: false,
-            );
-        return StreakCard(
-          state: state,
-        );
-      },
+    return StreakCard(
+      state: StreakState(
+        streakCount: summary.currentStreak,
+        todaySolved: summary.todaySolved,
+        lastSolvedDate: summary.lastCompletedDateKey,
+      ),
     );
   }
 }

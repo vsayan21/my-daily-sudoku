@@ -12,6 +12,7 @@ import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../../daily_sudoku/domain/entities/daily_sudoku.dart';
 import '../../../daily_sudoku/shared/daily_key.dart';
 import '../../../streak/presentation/streak_section.dart';
+import '../../../streak/application/usecases/get_streak_summary.dart';
 import '../../../sudoku_play/presentation/screens/sudoku_play_screen.dart';
 import '../../../sudoku_play/shared/sudoku_play_args.dart';
 import '../../../statistics/application/usecases/get_game_result_for_day.dart';
@@ -43,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late final Future<StatisticsRepositoryImpl> _statisticsRepository;
   ActiveGameSession? _activeSession;
   Map<SudokuDifficulty, GameResult?> _todayResults = {};
+  StreakSummary _streakSummary = StreakSummary.empty;
 
   @override
   void initState() {
@@ -51,8 +53,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _pageController = PageController(initialPage: _currentTab);
     _activeGameRepository = widget.dependencies.activeGameRepository;
     _statisticsRepository = _buildStatisticsRepository();
-    _refreshActiveSession();
-    _refreshTodayResults();
+    _refreshHomeData();
   }
 
   @override
@@ -65,8 +66,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _clearStaleSessionIfNeeded();
-      _refreshTodayResults();
+      _refreshHomeData();
     }
   }
 
@@ -122,17 +122,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  Future<void> _refreshActiveSession() async {
+  Future<ActiveGameSession?> _loadActiveSession() async {
     final repository = await _activeGameRepository;
     final loader = LoadActiveGame(repository: repository);
-    final session = await loader.execute();
-    if (!mounted) {
-      return;
-    }
-    setState(() => _activeSession = session);
+    return loader.execute();
   }
 
-  Future<void> _refreshTodayResults() async {
+  Future<Map<SudokuDifficulty, GameResult?>> _loadTodayResults() async {
     final repository = await _statisticsRepository;
     final useCase = GetGameResultForDay(repository: repository);
     final dateKey = _todayKey();
@@ -143,10 +139,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         difficultyKey: difficulty.name,
       );
     }
-    if (!mounted) {
-      return;
-    }
-    setState(() => _todayResults = results);
+    return results;
   }
 
   String _todayKey() => buildDailyKey();
@@ -182,6 +175,33 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     setState(() => _activeSession = null);
   }
 
+  Future<StreakSummary> _loadStreakSummary() async {
+    final preferences = await widget.dependencies.sharedPreferences;
+    final useCase = GetStreakSummary(preferences: preferences);
+    return useCase.execute();
+  }
+
+  Future<void> _refreshHomeData() async {
+    final session = await _loadActiveSession();
+    ActiveGameSession? updatedSession = session;
+    if (session != null && !_isSessionForToday(session)) {
+      final repository = await _activeGameRepository;
+      final clearUseCase = ClearActiveGame(repository: repository);
+      await clearUseCase.execute();
+      updatedSession = null;
+    }
+    final todayResults = await _loadTodayResults();
+    final streakSummary = await _loadStreakSummary();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _activeSession = updatedSession;
+      _todayResults = todayResults;
+      _streakSummary = streakSummary;
+    });
+  }
+
   String _difficultyLabel(AppLocalizations loc, SudokuDifficulty difficulty) {
     switch (difficulty) {
       case SudokuDifficulty.easy:
@@ -208,8 +228,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (!mounted) {
       return;
     }
-    await _refreshActiveSession();
-    await _refreshTodayResults();
+    await _refreshHomeData();
   }
 
   Future<void> _handleStart() async {
@@ -312,7 +331,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       children: [
                         PageHeader(title: loc.appTitle),
                         const SizedBox(height: 16),
-                        const StreakSection(),
+                        StreakSection(summary: _streakSummary),
                         if (activeSession != null) ...[
                           const SizedBox(height: 12),
                           ActiveGameCard(
