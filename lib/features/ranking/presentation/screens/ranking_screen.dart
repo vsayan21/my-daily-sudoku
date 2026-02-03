@@ -23,11 +23,22 @@ class RankingScreen extends StatefulWidget {
 
 class _RankingScreenState extends State<RankingScreen> {
   ProfileController? _controller;
+  Locale? _locale;
+  bool _isLoadingController = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _locale ??= Localizations.localeOf(context);
+    if (_controller == null && !_isLoadingController) {
+      _isLoadingController = true;
+      _initializeController();
+    }
   }
 
   @override
@@ -37,10 +48,14 @@ class _RankingScreenState extends State<RankingScreen> {
   }
 
   Future<void> _initializeController() async {
+    final locale = _locale;
+    if (locale == null) {
+      _isLoadingController = false;
+      return;
+    }
     final preferences = await widget.dependencies.sharedPreferences;
     final profileService = widget.dependencies.firebaseProfileService;
     final syncService = await widget.dependencies.firebaseSyncService;
-    final locale = Localizations.localeOf(context);
     await syncService.ensureUserProfileExistsAndSynced(
       locale: locale.toLanguageTag(),
     );
@@ -60,9 +75,13 @@ class _RankingScreenState extends State<RankingScreen> {
     );
     await controller.loadProfile();
     if (!mounted) {
+      _isLoadingController = false;
       return;
     }
-    setState(() => _controller = controller);
+    setState(() {
+      _controller = controller;
+      _isLoadingController = false;
+    });
   }
 
   Future<void> _showEditNameSheet(ProfileController controller) async {
