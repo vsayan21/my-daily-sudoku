@@ -56,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _activeGameRepository = widget.dependencies.activeGameRepository;
     _statisticsRepository = _buildStatisticsRepository();
     _firebaseSyncService = widget.dependencies.firebaseSyncService;
-    _syncFirebase();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncFirebase());
     _refreshHomeData();
   }
 
@@ -186,8 +186,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _syncFirebase() async {
+    final locale = Localizations.localeOf(context);
     final service = await _firebaseSyncService;
-    final profile = await service.ensureUserProfileExistsAndSynced();
+    final profile = await service.ensureUserProfileExistsAndSynced(
+      locale: locale.toLanguageTag(),
+    );
     await service.uploadAllLocalResults(profile: profile);
   }
 

@@ -40,7 +40,10 @@ class _RankingScreenState extends State<RankingScreen> {
     final preferences = await widget.dependencies.sharedPreferences;
     final profileService = widget.dependencies.firebaseProfileService;
     final syncService = await widget.dependencies.firebaseSyncService;
-    await syncService.ensureUserProfileExistsAndSynced();
+    final locale = Localizations.localeOf(context);
+    await syncService.ensureUserProfileExistsAndSynced(
+      locale: locale.toLanguageTag(),
+    );
     await syncService.uploadAllLocalResults();
     final repository = UserProfileRepositoryImpl(
       dataSource: UserProfileLocalDataSource(preferences),
