@@ -29,8 +29,8 @@ class BottomNavigation extends StatelessWidget {
           label: loc.navigationStatistics,
         ),
         NavigationDestination(
-          icon: const Icon(Icons.person_outline),
-          selectedIcon: const Icon(Icons.person),
+          icon: const Icon(Icons.leaderboard_outlined),
+          selectedIcon: const Icon(Icons.leaderboard_rounded),
           label: loc.navigationProfile,
         ),
       ],

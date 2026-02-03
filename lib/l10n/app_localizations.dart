@@ -231,7 +231,7 @@ abstract class AppLocalizations {
   /// No description provided for @navigationProfile.
   ///
   /// In en, this message translates to:
-  /// **'Profile'**
+  /// **'Ranking'**
   String get navigationProfile;
 
   /// No description provided for @comingSoon.

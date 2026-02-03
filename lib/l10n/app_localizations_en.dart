@@ -72,7 +72,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navigationStatistics => 'Statistics';
 
   @override
-  String get navigationProfile => 'Profile';
+  String get navigationProfile => 'Ranking';
 
   @override
   String get comingSoon => 'Coming soon';
