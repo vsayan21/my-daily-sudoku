@@ -246,6 +246,54 @@ abstract class AppLocalizations {
   /// **'Ranking coming soon'**
   String get rankingComingSoon;
 
+  /// No description provided for @rankingGlobalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Global · {dateLabel}'**
+  String rankingGlobalSubtitle(String dateLabel);
+
+  /// No description provided for @rankingRefreshTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get rankingRefreshTooltip;
+
+  /// No description provided for @rankingEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No results for this day yet'**
+  String get rankingEmptyTitle;
+
+  /// No description provided for @rankingEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Solve today’s Sudoku to appear here'**
+  String get rankingEmptySubtitle;
+
+  /// No description provided for @rankingHintsMovesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hints: {hints} · Moves: {moves}'**
+  String rankingHintsMovesLabel(int hints, int moves);
+
+  /// No description provided for @rankingYouLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get rankingYouLabel;
+
+  /// No description provided for @rankingErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load rankings'**
+  String get rankingErrorTitle;
+
+  /// No description provided for @rankingRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get rankingRetry;
+
   /// No description provided for @profileEditDisplayNameTitle.
   ///
   /// In en, this message translates to:

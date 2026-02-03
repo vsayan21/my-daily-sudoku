@@ -112,9 +112,15 @@ class FirebaseSyncService {
           _firestore.collection('results').doc(uid).collection('daily').doc(
                 docId,
               );
+      final leaderboardRef = _firestore
+          .collection('leaderboards')
+          .doc(docId)
+          .collection('scores')
+          .doc(uid);
       final data = <String, dynamic>{
         'uid': uid,
         'displayName': displayName,
+        'displayNameLower': displayName.toLowerCase(),
         'shortId': shortId,
         'dateKey': result.dateKey,
         'difficulty': result.difficulty.name,
@@ -133,6 +139,7 @@ class FirebaseSyncService {
         data['deviceLocale'] = result.deviceLocale;
       }
       batch.set(ref, data, SetOptions(merge: true));
+      batch.set(leaderboardRef, data, SetOptions(merge: true));
     }
     await batch.commit();
   }

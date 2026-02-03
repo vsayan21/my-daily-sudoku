@@ -83,6 +83,35 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rankingComingSoon => 'Classement bientôt disponible';
 
   @override
+  String rankingGlobalSubtitle(String dateLabel) {
+    return 'Global · ${dateLabel}';
+  }
+
+  @override
+  String get rankingRefreshTooltip => 'Actualiser';
+
+  @override
+  String get rankingEmptyTitle => 'Aucun résultat pour cette journée';
+
+  @override
+  String get rankingEmptySubtitle =>
+      'Résous le Sudoku du jour pour apparaître ici';
+
+  @override
+  String rankingHintsMovesLabel(int hints, int moves) {
+    return 'Indices : ${hints} · Coups : ${moves}';
+  }
+
+  @override
+  String get rankingYouLabel => 'Vous';
+
+  @override
+  String get rankingErrorTitle => 'Impossible de charger le classement';
+
+  @override
+  String get rankingRetry => 'Réessayer';
+
+  @override
   String get profileEditDisplayNameTitle => 'Modifier le nom d\'affichage';
 
   @override

@@ -24,6 +24,25 @@
   "navigationStatistics": "Statistics",
   "navigationProfile": "Ranking",
   "rankingComingSoon": "Ranking coming soon",
+  "rankingGlobalSubtitle": "Global · {dateLabel}",
+  "@rankingGlobalSubtitle": {
+    "placeholders": {
+      "dateLabel": {}
+    }
+  },
+  "rankingRefreshTooltip": "Refresh",
+  "rankingEmptyTitle": "No results for this day yet",
+  "rankingEmptySubtitle": "Solve today’s Sudoku to appear here",
+  "rankingHintsMovesLabel": "Hints: {hints} · Moves: {moves}",
+  "@rankingHintsMovesLabel": {
+    "placeholders": {
+      "hints": {},
+      "moves": {}
+    }
+  },
+  "rankingYouLabel": "You",
+  "rankingErrorTitle": "Could not load rankings",
+  "rankingRetry": "Retry",
   "profileEditDisplayNameTitle": "Edit display name",
   "profileDisplayNameLabel": "Display name",
   "profileEditNameTooltip": "Edit name",
