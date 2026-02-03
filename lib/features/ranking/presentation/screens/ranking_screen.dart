@@ -145,6 +145,7 @@ class _RankingScreenState extends State<RankingScreen> {
     await showModalBottomSheet<void>(
       context: context,
       builder: (context) {
+        final loc = AppLocalizations.of(context)!;
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
