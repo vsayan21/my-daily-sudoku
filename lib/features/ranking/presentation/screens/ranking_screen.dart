@@ -38,12 +38,24 @@ class _RankingScreenState extends State<RankingScreen> {
 
   Future<void> _initializeController() async {
     final preferences = await widget.dependencies.sharedPreferences;
+    final profileService = widget.dependencies.firebaseProfileService;
+    final syncService = await widget.dependencies.firebaseSyncService;
+    final locale = Localizations.localeOf(context);
+    await syncService.ensureUserProfileExistsAndSynced(
+      locale: locale.toLanguageTag(),
+    );
+    await syncService.uploadAllLocalResults();
     final repository = UserProfileRepositoryImpl(
       dataSource: UserProfileLocalDataSource(preferences),
+      userIdProvider: profileService.ensureSignedIn,
+      defaultNameBuilder: profileService.defaultDisplayNameForUid,
     );
     final controller = ProfileController(
       loadUserProfile: LoadUserProfile(repository: repository),
-      updateDisplayName: UpdateDisplayName(repository: repository),
+      updateDisplayName: UpdateDisplayName(
+        repository: repository,
+        firebaseProfileService: profileService,
+      ),
       updateAvatarPath: UpdateAvatarPath(repository: repository),
     );
     await controller.loadProfile();
@@ -60,52 +72,71 @@ class _RankingScreenState extends State<RankingScreen> {
     }
     final loc = AppLocalizations.of(context)!;
     final textController = TextEditingController(text: profile.displayName);
+    String? errorText;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (context) {
         final viewInsets = MediaQuery.of(context).viewInsets;
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: viewInsets.bottom + 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                loc.profileEditDisplayNameTitle,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: viewInsets.bottom + 24,
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: textController,
-                textInputAction: TextInputAction.done,
-                maxLength: 24,
-                decoration: InputDecoration(
-                  labelText: loc.profileDisplayNameLabel,
-                  border: const OutlineInputBorder(),
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    loc.profileEditDisplayNameTitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: textController,
+                    textInputAction: TextInputAction.done,
+                    maxLength: 24,
+                    decoration: InputDecoration(
+                      labelText: loc.profileDisplayNameLabel,
+                      border: const OutlineInputBorder(),
+                      errorText: errorText,
+                    ),
+                    onChanged: (_) {
+                      if (errorText != null) {
+                        setState(() => errorText = null);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton(
+                    onPressed: () async {
+                      await controller.updateDisplayName(
+                        textController.text,
+                      );
+                      if (!context.mounted) {
+                        return;
+                      }
+                      if (controller.isDisplayNameTaken) {
+                        setState(
+                          () => errorText = loc.profileDisplayNameTakenError,
+                        );
+                        return;
+                      }
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(loc.save),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: () async {
-                  await controller.updateDisplayName(textController.text);
-                  if (!context.mounted) {
-                    return;
-                  }
-                  Navigator.of(context).pop();
-                },
-                child: Text(loc.save),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

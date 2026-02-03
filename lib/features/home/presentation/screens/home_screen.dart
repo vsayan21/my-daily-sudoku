@@ -26,6 +26,7 @@ import '../widgets/difficulty_card.dart';
 import '../widgets/page_header.dart';
 import '../../../ranking/presentation/screens/ranking_screen.dart';
 import '../../../statistics/presentation/screens/statistics_screen.dart';
+import '../../../firebase/firebase_sync_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.dependencies});
@@ -42,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late final PageController _pageController;
   late final Future<ActiveGameRepository> _activeGameRepository;
   late final Future<StatisticsRepositoryImpl> _statisticsRepository;
+  late final Future<FirebaseSyncService> _firebaseSyncService;
   ActiveGameSession? _activeSession;
   Map<SudokuDifficulty, GameResult?> _todayResults = {};
   StreakSummary _streakSummary = StreakSummary.empty;
@@ -53,6 +55,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _pageController = PageController(initialPage: _currentTab);
     _activeGameRepository = widget.dependencies.activeGameRepository;
     _statisticsRepository = _buildStatisticsRepository();
+    _firebaseSyncService = widget.dependencies.firebaseSyncService;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncFirebase());
     _refreshHomeData();
   }
 
@@ -179,6 +183,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final preferences = await widget.dependencies.sharedPreferences;
     final useCase = GetStreakSummary(preferences: preferences);
     return useCase.execute();
+  }
+
+  Future<void> _syncFirebase() async {
+    final locale = Localizations.localeOf(context);
+    final service = await _firebaseSyncService;
+    final profile = await service.ensureUserProfileExistsAndSynced(
+      locale: locale.toLanguageTag(),
+    );
+    await service.uploadAllLocalResults(profile: profile);
   }
 
   Future<void> _refreshHomeData() async {

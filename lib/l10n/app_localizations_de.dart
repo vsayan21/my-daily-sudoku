@@ -92,6 +92,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get profileEditNameTooltip => 'Namen bearbeiten';
 
   @override
+  String get profileDisplayNameTakenError =>
+      'Name bereits vergeben. Bitte anderen wählen.';
+
+  @override
   String get profileAvatarGallery => 'Aus Galerie auswählen';
 
   @override

@@ -27,6 +27,7 @@
   "profileEditDisplayNameTitle": "Edit display name",
   "profileDisplayNameLabel": "Display name",
   "profileEditNameTooltip": "Edit name",
+  "profileDisplayNameTakenError": "Name already taken. Try another.",
   "profileAvatarGallery": "Choose from gallery",
   "profileAvatarCamera": "Take a photo",
   "profileAvatarPickError": "Unable to open the image picker.",

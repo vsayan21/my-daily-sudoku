@@ -24,9 +24,10 @@ class UserProfile {
   }
 
   String get shortId {
-    final sanitized = userId.replaceAll('-', '');
-    final padded = sanitized.padRight(8, '0');
-    final short = padded.substring(0, 8).toUpperCase();
-    return '${short.substring(0, 4)}-${short.substring(4, 8)}';
+    if (userId.isEmpty) {
+      return '0000';
+    }
+    final start = userId.length >= 4 ? userId.length - 4 : 0;
+    return userId.substring(start).toUpperCase();
   }
 }

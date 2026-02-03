@@ -264,6 +264,12 @@ abstract class AppLocalizations {
   /// **'Edit name'**
   String get profileEditNameTooltip;
 
+  /// No description provided for @profileDisplayNameTakenError.
+  ///
+  /// In en, this message translates to:
+  /// **'Name already taken. Try another.'**
+  String get profileDisplayNameTakenError;
+
   /// No description provided for @profileAvatarGallery.
   ///
   /// In en, this message translates to:
