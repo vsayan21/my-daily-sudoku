@@ -82,9 +82,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get rankingComingSoon => 'Classifica in arrivo';
 
   @override
-  String get comingSoon => 'In arrivo';
-
-  @override
   String get profileEditDisplayNameTitle => 'Modifica nome visualizzato';
 
   @override
@@ -102,6 +99,9 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get profileAvatarPickError =>
       'Impossibile aprire il selettore di immagini.';
+
+  @override
+  String get comingSoon => 'In arrivo';
 
   @override
   String get sudoku => 'Sudoku';

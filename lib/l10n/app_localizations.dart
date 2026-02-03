@@ -246,12 +246,6 @@ abstract class AppLocalizations {
   /// **'Ranking coming soon'**
   String get rankingComingSoon;
 
-  /// No description provided for @comingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming soon'**
-  String get comingSoon;
-
   /// No description provided for @profileEditDisplayNameTitle.
   ///
   /// In en, this message translates to:
@@ -287,6 +281,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to open the image picker.'**
   String get profileAvatarPickError;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get comingSoon;
 
   /// No description provided for @sudoku.
   ///

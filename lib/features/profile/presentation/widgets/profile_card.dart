@@ -43,7 +43,7 @@ class ProfileCard extends StatelessWidget {
               child: CircleAvatar(
                 radius: 32,
                 backgroundColor: colorScheme.primaryContainer,
-                backgroundImage: avatarExists ? FileImage(avatarFile!) : null,
+                backgroundImage: avatarExists ? FileImage(avatarFile) : null,
                 child: avatarExists
                     ? null
                     : Icon(
