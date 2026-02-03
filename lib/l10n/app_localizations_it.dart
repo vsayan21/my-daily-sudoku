@@ -91,6 +91,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get profileEditNameTooltip => 'Modifica nome';
 
   @override
+  String get profileDisplayNameTakenError =>
+      'Nome già utilizzato. Prova un altro.';
+
+  @override
   String get profileAvatarGallery => 'Scegli dalla galleria';
 
   @override

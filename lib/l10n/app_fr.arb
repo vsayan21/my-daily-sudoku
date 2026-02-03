@@ -27,6 +27,7 @@
   "profileEditDisplayNameTitle": "Modifier le nom d'affichage",
   "profileDisplayNameLabel": "Nom d'affichage",
   "profileEditNameTooltip": "Modifier le nom",
+  "profileDisplayNameTakenError": "Nom déjà pris. Essayez-en un autre.",
   "profileAvatarGallery": "Choisir dans la galerie",
   "profileAvatarCamera": "Prendre une photo",
   "profileAvatarPickError": "Impossible d'ouvrir le sélecteur d'images.",

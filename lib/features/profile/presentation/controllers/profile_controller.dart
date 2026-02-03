@@ -4,6 +4,7 @@ import '../../application/usecases/load_user_profile.dart';
 import '../../application/usecases/update_avatar_path.dart';
 import '../../application/usecases/update_display_name.dart';
 import '../../domain/entities/user_profile.dart';
+import '../../domain/exceptions/username_taken_exception.dart';
 
 class ProfileController extends ChangeNotifier {
   ProfileController({
@@ -20,15 +21,18 @@ class ProfileController extends ChangeNotifier {
 
   UserProfile? _profile;
   bool _isLoading = false;
+  bool _isDisplayNameTaken = false;
 
   UserProfile? get profile => _profile;
   bool get isLoading => _isLoading;
+  bool get isDisplayNameTaken => _isDisplayNameTaken;
 
   Future<void> loadProfile() async {
     _isLoading = true;
     notifyListeners();
     final loaded = await _loadUserProfile.execute();
     _profile = loaded;
+    _isDisplayNameTaken = false;
     _isLoading = false;
     notifyListeners();
   }
@@ -38,12 +42,18 @@ class ProfileController extends ChangeNotifier {
     if (current == null) {
       return;
     }
-    final updated = await _updateDisplayName.execute(
-      profile: current,
-      displayName: displayName,
-    );
-    _profile = updated;
-    notifyListeners();
+    _isDisplayNameTaken = false;
+    try {
+      final updated = await _updateDisplayName.execute(
+        profile: current,
+        displayName: displayName,
+      );
+      _profile = updated;
+      notifyListeners();
+    } on UsernameTakenException {
+      _isDisplayNameTaken = true;
+      notifyListeners();
+    }
   }
 
   Future<void> updateAvatarPath(String? avatarPath) async {

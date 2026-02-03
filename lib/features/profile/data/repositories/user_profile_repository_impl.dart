@@ -1,5 +1,3 @@
-import 'package:uuid/uuid.dart';
-
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import '../datasources/user_profile_local_datasource.dart';
@@ -8,23 +6,33 @@ import '../models/user_profile_model.dart';
 class UserProfileRepositoryImpl implements UserProfileRepository {
   UserProfileRepositoryImpl({
     required UserProfileLocalDataSource dataSource,
-    Uuid? uuidGenerator,
+    required Future<String> Function() userIdProvider,
+    required String Function(String uid) defaultNameBuilder,
   })  : _dataSource = dataSource,
-        _uuidGenerator = uuidGenerator ?? const Uuid();
+        _userIdProvider = userIdProvider,
+        _defaultNameBuilder = defaultNameBuilder;
 
   final UserProfileLocalDataSource _dataSource;
-  final Uuid _uuidGenerator;
+  final Future<String> Function() _userIdProvider;
+  final String Function(String uid) _defaultNameBuilder;
 
   @override
   Future<UserProfile> loadUserProfile() async {
     final stored = _dataSource.loadProfile();
-    if (stored != null && stored.userId.isNotEmpty) {
+    final uid = await _userIdProvider();
+    if (stored != null &&
+        stored.userId == uid &&
+        stored.displayName.trim().isNotEmpty) {
       return stored;
     }
+    final fallbackName = _defaultNameBuilder(uid);
+    final displayName = stored == null || stored.displayName.trim().isEmpty
+        ? fallbackName
+        : stored.displayName;
     final profile = UserProfileModel(
-      userId: _uuidGenerator.v4(),
-      displayName: UserProfile.defaultDisplayName,
-      avatarPath: null,
+      userId: uid,
+      displayName: displayName,
+      avatarPath: stored?.avatarPath,
     );
     await _dataSource.saveProfile(profile);
     return profile;
