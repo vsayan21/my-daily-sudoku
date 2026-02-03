@@ -17,6 +17,9 @@ class UpdateDisplayName {
     required UserProfile profile,
     required String displayName,
   }) async {
+    if (profile.userId.isEmpty) {
+      return profile;
+    }
     final normalized = _firebaseProfileService.normalizeDisplayName(displayName);
     final bounded = normalized.length > 24
         ? normalized.substring(0, 24)

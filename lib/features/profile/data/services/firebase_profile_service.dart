@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/exceptions/username_taken_exception.dart';
 
@@ -17,9 +18,15 @@ class FirebaseProfileService {
 
   Future<String> ensureSignedIn() async {
     if (_auth.currentUser == null) {
-      await _auth.signInAnonymously();
+      try {
+        await _auth.signInAnonymously();
+      } on FirebaseAuthException catch (error) {
+        debugPrint('Anonymous sign-in failed: ${error.code}');
+      } on FirebaseException catch (error) {
+        debugPrint('Firebase sign-in failed: ${error.code}');
+      }
     }
-    return _auth.currentUser!.uid;
+    return _auth.currentUser?.uid ?? '';
   }
 
   String shortIdFromUid(String uid) {

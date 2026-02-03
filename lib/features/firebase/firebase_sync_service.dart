@@ -36,6 +36,18 @@ class FirebaseSyncService {
   }) async {
     final uid = await ensureSignedIn();
     final stored = _profileLocalDataSource.loadProfile();
+    if (uid.isEmpty) {
+      if (stored != null) {
+        return stored;
+      }
+      final fallback = UserProfileModel(
+        userId: '',
+        displayName: UserProfile.defaultDisplayName,
+        avatarPath: null,
+      );
+      await _profileLocalDataSource.saveProfile(fallback);
+      return fallback;
+    }
     final normalizedStored =
         _profileService.normalizeDisplayName(stored?.displayName ?? '');
     final isDefaultName = normalizedStored.isEmpty ||
@@ -80,6 +92,9 @@ class FirebaseSyncService {
 
   Future<void> uploadAllLocalResults({UserProfile? profile}) async {
     final uid = await ensureSignedIn();
+    if (uid.isEmpty) {
+      return;
+    }
     final storedProfile = profile ?? _profileLocalDataSource.loadProfile();
     final displayName = storedProfile?.displayName ??
         _profileService.defaultDisplayNameForUid(uid);
