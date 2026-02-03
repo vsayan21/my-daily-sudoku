@@ -68,6 +68,17 @@ class FirebaseProfileService {
 
     await _firestore.runTransaction((transaction) async {
       final usernameSnap = await transaction.get(usernamesRef);
+      final userSnap = await transaction.get(userRef);
+      DocumentSnapshot<Map<String, dynamic>>? previousSnap;
+      DocumentReference<Map<String, dynamic>>? previousRef;
+      if (previousDisplayNameLower != null &&
+          previousDisplayNameLower.isNotEmpty &&
+          previousDisplayNameLower != lower) {
+        previousRef =
+            _firestore.collection('usernames').doc(previousDisplayNameLower);
+        previousSnap = await transaction.get(previousRef);
+      }
+
       if (usernameSnap.exists) {
         final data = usernameSnap.data();
         final existingUid = data?['uid'] as String?;
@@ -76,7 +87,6 @@ class FirebaseProfileService {
         }
       }
 
-      final userSnap = await transaction.get(userRef);
       final now = FieldValue.serverTimestamp();
       final userData = <String, dynamic>{
         'uid': uid,
@@ -107,12 +117,7 @@ class FirebaseProfileService {
         );
       }
 
-      if (previousDisplayNameLower != null &&
-          previousDisplayNameLower.isNotEmpty &&
-          previousDisplayNameLower != lower) {
-        final previousRef =
-            _firestore.collection('usernames').doc(previousDisplayNameLower);
-        final previousSnap = await transaction.get(previousRef);
+      if (previousRef != null && previousSnap != null) {
         final previousUid = previousSnap.data()?['uid'] as String?;
         if (previousSnap.exists && previousUid == uid) {
           transaction.delete(previousRef);
