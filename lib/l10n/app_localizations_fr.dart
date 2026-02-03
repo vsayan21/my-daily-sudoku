@@ -24,6 +24,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cancel => 'Annuler';
 
   @override
+  String get save => 'Enregistrer';
+
+  @override
   String get streakTitle => 'Jours d’affilée';
 
   @override
@@ -75,6 +78,28 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get navigationProfile => 'Classement';
+
+  @override
+  String get rankingComingSoon => 'Classement bientôt disponible';
+
+  @override
+  String get profileEditDisplayNameTitle => 'Modifier le nom d\'affichage';
+
+  @override
+  String get profileDisplayNameLabel => 'Nom d\'affichage';
+
+  @override
+  String get profileEditNameTooltip => 'Modifier le nom';
+
+  @override
+  String get profileAvatarGallery => 'Choisir dans la galerie';
+
+  @override
+  String get profileAvatarCamera => 'Prendre une photo';
+
+  @override
+  String get profileAvatarPickError =>
+      'Impossible d\'ouvrir le sélecteur d\'images.';
 
   @override
   String get comingSoon => 'Bientôt disponible';

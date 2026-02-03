@@ -24,7 +24,7 @@ import '../models/difficulty_tile_state.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/difficulty_card.dart';
 import '../widgets/page_header.dart';
-import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../ranking/presentation/screens/ranking_screen.dart';
 import '../../../statistics/presentation/screens/statistics_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -386,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   ),
                   const StatisticsScreen(),
-                  const ProfileScreen(),
+                  RankingScreen(dependencies: widget.dependencies),
                 ],
               ),
             ),
