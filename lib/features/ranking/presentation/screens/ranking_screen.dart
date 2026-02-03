@@ -97,9 +97,10 @@ class _RankingScreenState extends State<RankingScreen> {
               FilledButton(
                 onPressed: () async {
                   await controller.updateDisplayName(textController.text);
-                  if (mounted) {
-                    Navigator.of(context).pop();
+                  if (!context.mounted) {
+                    return;
                   }
+                  Navigator.of(context).pop();
                 },
                 child: Text(loc.save),
               ),
