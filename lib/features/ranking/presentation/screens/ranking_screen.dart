@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../app/di/app_dependencies.dart';
-import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../../daily_sudoku/shared/daily_key.dart';
+import '../../../profile/application/usecases/load_user_profile.dart';
+import '../../../profile/application/usecases/update_avatar_path.dart';
+import '../../../profile/application/usecases/update_display_name.dart';
+import '../../../profile/data/datasources/user_profile_local_datasource.dart';
+import '../../../profile/data/repositories/user_profile_repository_impl.dart';
+import '../../../profile/presentation/controllers/profile_controller.dart';
+import '../../../profile/presentation/widgets/profile_card.dart';
 import '../../application/ranking_controller.dart';
 import '../../data/ranking_remote_datasource.dart';
 import '../../data/ranking_repository_impl.dart';
 import '../../domain/entities/ranking_entry.dart';
-import '../../domain/ranking_repository.dart';
 import '../widgets/difficulty_segment.dart';
 import '../widgets/ranking_date_picker.dart';
 import '../widgets/ranking_empty_state.dart';
@@ -28,6 +35,7 @@ class RankingScreen extends StatefulWidget {
 
 class _RankingScreenState extends State<RankingScreen> {
   RankingController? _controller;
+  ProfileController? _profileController;
 
   @override
   void initState() {
@@ -38,10 +46,34 @@ class _RankingScreenState extends State<RankingScreen> {
   @override
   void dispose() {
     _controller?.dispose();
+    _profileController?.dispose();
     super.dispose();
   }
 
   Future<void> _initializeController() async {
+    final preferences = await widget.dependencies.sharedPreferences;
+    final profileService = widget.dependencies.firebaseProfileService;
+    final syncService = await widget.dependencies.firebaseSyncService;
+    final locale = Localizations.localeOf(context);
+    await syncService.ensureUserProfileExistsAndSynced(
+      locale: locale.toLanguageTag(),
+    );
+    await syncService.uploadAllLocalResults();
+    final profileRepository = UserProfileRepositoryImpl(
+      dataSource: UserProfileLocalDataSource(preferences),
+      userIdProvider: profileService.ensureSignedIn,
+      defaultNameBuilder: profileService.defaultDisplayNameForUid,
+    );
+    final profileController = ProfileController(
+      loadUserProfile: LoadUserProfile(repository: profileRepository),
+      updateDisplayName: UpdateDisplayName(
+        repository: profileRepository,
+        firebaseProfileService: profileService,
+      ),
+      updateAvatarPath: UpdateAvatarPath(repository: profileRepository),
+    );
+    await profileController.loadProfile();
+
     final repository = RankingRepositoryImpl(
       dataSource: RankingRemoteDataSource(),
     );
@@ -53,7 +85,150 @@ class _RankingScreenState extends State<RankingScreen> {
     if (!mounted) {
       return;
     }
-    setState(() => _controller = controller);
+    setState(() {
+      _controller = controller;
+      _profileController = profileController;
+    });
+  }
+
+  Future<void> _showEditNameSheet(ProfileController controller) async {
+    final profile = controller.profile;
+    if (profile == null) {
+      return;
+    }
+    final loc = AppLocalizations.of(context)!;
+    final textController = TextEditingController(text: profile.displayName);
+    String? errorText;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        final viewInsets = MediaQuery.of(context).viewInsets;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: viewInsets.bottom + 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    loc.profileEditDisplayNameTitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: textController,
+                    textInputAction: TextInputAction.done,
+                    maxLength: 24,
+                    decoration: InputDecoration(
+                      labelText: loc.profileDisplayNameLabel,
+                      border: const OutlineInputBorder(),
+                      errorText: errorText,
+                    ),
+                    onChanged: (_) {
+                      if (errorText != null) {
+                        setState(() => errorText = null);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton(
+                    onPressed: () async {
+                      await controller.updateDisplayName(
+                        textController.text,
+                      );
+                      if (!context.mounted) {
+                        return;
+                      }
+                      if (controller.isDisplayNameTaken) {
+                        setState(
+                          () => errorText = loc.profileDisplayNameTakenError,
+                        );
+                        return;
+                      }
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(loc.save),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _pickAvatarImage(ImageSource source) async {
+    final controller = _profileController;
+    if (controller == null) {
+      return;
+    }
+    final picker = ImagePicker();
+    try {
+      final file = await picker.pickImage(source: source);
+      if (file == null) {
+        return;
+      }
+      await controller.updateAvatarPath(file.path);
+    } on PlatformException {
+      if (!mounted) {
+        return;
+      }
+      final loc = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.profileAvatarPickError)),
+      );
+    } on MissingPluginException {
+      if (!mounted) {
+        return;
+      }
+      final loc = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.profileAvatarPickError)),
+      );
+    }
+  }
+
+  Future<void> _showAvatarPicker() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (context) {
+        final loc = AppLocalizations.of(context)!;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: Text(loc.profileAvatarGallery),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickAvatarImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: Text(loc.profileAvatarCamera),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickAvatarImage(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -81,6 +256,29 @@ class _RankingScreenState extends State<RankingScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (_profileController != null)
+                  AnimatedBuilder(
+                    animation: _profileController!,
+                    builder: (context, _) {
+                      final profile = _profileController!.profile;
+                      if (profile == null) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: ProfileCard(
+                          profile: profile,
+                          onEditName: () => _showEditNameSheet(
+                            _profileController!,
+                          ),
+                          onPickAvatar: _showAvatarPicker,
+                        ),
+                      );
+                    },
+                  ),
                 RankingHeader(
                   title: loc.navigationProfile,
                   subtitle: loc.rankingGlobalSubtitle(dateLabel),
@@ -89,23 +287,45 @@ class _RankingScreenState extends State<RankingScreen> {
                   isRefreshing: controller.isLoading,
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    RankingDatePicker(
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isCompact = constraints.maxWidth < 420;
+                    final datePicker = RankingDatePicker(
                       selectedDateKey: controller.selectedDateKey,
                       availableDateKeys: dateKeys,
                       labelBuilder: (key) => _labelForDateKey(context, key),
                       onChanged: controller.setDateKey,
-                    ),
-                    const Spacer(),
-                    DifficultySegment(
+                    );
+                    final difficultySegment = DifficultySegment(
                       selected: controller.selectedDifficulty,
                       easyLabel: loc.difficultyEasy,
                       mediumLabel: loc.difficultyMedium,
                       hardLabel: loc.difficultyHard,
                       onSelectionChanged: controller.setDifficulty,
-                    ),
-                  ],
+                    );
+
+                    if (isCompact) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          datePicker,
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: difficultySegment,
+                          ),
+                        ],
+                      );
+                    }
+
+                    return Row(
+                      children: [
+                        datePicker,
+                        const Spacer(),
+                        Flexible(child: difficultySegment),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
                 Expanded(
