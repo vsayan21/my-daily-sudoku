@@ -81,6 +81,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rankingComingSoon => 'Ranking coming soon';
 
   @override
+  String get rankingScopeGlobal => 'Global';
+
+  @override
+  String get rankingScopeLocal => 'Local';
+
+  @override
+  String get rankingDayToday => 'Today';
+
+  @override
+  String get rankingDayYesterday => 'Yesterday';
+
+  @override
+  String get rankingEmpty => 'No results yet.';
+
+  @override
+  String get rankingLocalRequiresCountry =>
+      'Set a country to see the local leaderboard.';
+
+  @override
+  String get rankingAuthRequired => 'Sign in to see the leaderboard.';
+
+  @override
   String get profileEditDisplayNameTitle => 'Edit display name';
 
   @override

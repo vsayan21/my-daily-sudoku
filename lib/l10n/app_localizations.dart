@@ -246,6 +246,48 @@ abstract class AppLocalizations {
   /// **'Ranking coming soon'**
   String get rankingComingSoon;
 
+  /// No description provided for @rankingScopeGlobal.
+  ///
+  /// In en, this message translates to:
+  /// **'Global'**
+  String get rankingScopeGlobal;
+
+  /// No description provided for @rankingScopeLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get rankingScopeLocal;
+
+  /// No description provided for @rankingDayToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get rankingDayToday;
+
+  /// No description provided for @rankingDayYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get rankingDayYesterday;
+
+  /// No description provided for @rankingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No results yet.'**
+  String get rankingEmpty;
+
+  /// No description provided for @rankingLocalRequiresCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a country to see the local leaderboard.'**
+  String get rankingLocalRequiresCountry;
+
+  /// No description provided for @rankingAuthRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see the leaderboard.'**
+  String get rankingAuthRequired;
+
   /// No description provided for @profileEditDisplayNameTitle.
   ///
   /// In en, this message translates to:

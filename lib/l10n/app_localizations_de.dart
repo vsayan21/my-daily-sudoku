@@ -83,6 +83,28 @@ class AppLocalizationsDe extends AppLocalizations {
   String get rankingComingSoon => 'Ranking kommt bald';
 
   @override
+  String get rankingScopeGlobal => 'Global';
+
+  @override
+  String get rankingScopeLocal => 'Lokal';
+
+  @override
+  String get rankingDayToday => 'Heute';
+
+  @override
+  String get rankingDayYesterday => 'Gestern';
+
+  @override
+  String get rankingEmpty => 'Noch keine Ergebnisse.';
+
+  @override
+  String get rankingLocalRequiresCountry =>
+      'Land einstellen, um die lokale Rangliste zu sehen.';
+
+  @override
+  String get rankingAuthRequired => 'Zum Anzeigen der Rangliste anmelden.';
+
+  @override
   String get profileEditDisplayNameTitle => 'Anzeigenamen bearbeiten';
 
   @override
