@@ -30,7 +30,7 @@ class GetStreakSummary {
   final SharedPreferences _preferences;
 
   Future<StreakSummary> execute() async {
-    final todayKey = buildDailyKey();
+    final todayKey = buildDailyKeyUtc();
     final lastCompleted = _preferences.getString(
           StreakKeys.lastCompletedDateKey,
         ) ??

@@ -91,6 +91,25 @@ class AppLocalizationsIt extends AppLocalizations {
   String get profileEditNameTooltip => 'Modifica nome';
 
   @override
+  String get profileEditCountryTitle => 'Modifica paese';
+
+  @override
+  String get profileCountryLabel => 'Paese';
+
+  @override
+  String get profileCountryHelper => 'Usa un codice di 2 lettere (es. US)';
+
+  @override
+  String get profileCountryInvalidError =>
+      'Inserisci un codice di 2 lettere valido.';
+
+  @override
+  String get profileEditCountryTooltip => 'Modifica paese';
+
+  @override
+  String get profileCountryUnset => 'Non impostato';
+
+  @override
   String get profileDisplayNameTakenError =>
       'Nome già utilizzato. Prova un altro.';
 

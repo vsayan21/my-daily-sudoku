@@ -22,8 +22,8 @@ class GetTodaySudoku {
       throw StateError('No ${difficulty.name} puzzles available.');
     }
     final now = nowProvider();
-    final dailyKey = buildDailyKey(now: now);
-    final index = selectDailyIndex(date: now, length: puzzles.length);
+    final dailyKey = buildDailyKeyUtc(now: now);
+    final index = selectDailyIndexUtc(date: now, length: puzzles.length);
     return puzzles[index].copyWith(
       dateKey: dailyKey,
       difficulty: difficulty,

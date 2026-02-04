@@ -17,7 +17,7 @@ class StreakRepositoryImpl implements StreakRepository {
 
   @override
   Future<StreakState> fetchStreakState() async {
-    final todayKey = buildDailyKey();
+    final todayKey = buildDailyKeyUtc();
     final lastSolved = _localDataSource.readLastSolvedDate();
     var todaySolved = _localDataSource.readTodaySolved();
     if (todaySolved && lastSolved != todayKey) {

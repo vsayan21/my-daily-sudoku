@@ -264,6 +264,42 @@ abstract class AppLocalizations {
   /// **'Edit name'**
   String get profileEditNameTooltip;
 
+  /// No description provided for @profileEditCountryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit country'**
+  String get profileEditCountryTitle;
+
+  /// No description provided for @profileCountryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get profileCountryLabel;
+
+  /// No description provided for @profileCountryHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 2-letter code (e.g., US)'**
+  String get profileCountryHelper;
+
+  /// No description provided for @profileCountryInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid 2-letter code.'**
+  String get profileCountryInvalidError;
+
+  /// No description provided for @profileEditCountryTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit country'**
+  String get profileEditCountryTooltip;
+
+  /// No description provided for @profileCountryUnset.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get profileCountryUnset;
+
   /// No description provided for @profileDisplayNameTakenError.
   ///
   /// In en, this message translates to:

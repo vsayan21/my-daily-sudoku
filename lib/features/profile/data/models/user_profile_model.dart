@@ -5,13 +5,16 @@ class UserProfileModel extends UserProfile {
     required super.userId,
     required super.displayName,
     super.avatarPath,
+    super.countryCode,
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     return UserProfileModel(
       userId: json['userId'] as String? ?? '',
-      displayName: json['displayName'] as String? ?? UserProfile.defaultDisplayName,
+      displayName:
+          json['displayName'] as String? ?? UserProfile.defaultDisplayName,
       avatarPath: json['avatarPath'] as String?,
+      countryCode: json['countryCode'] as String?,
     );
   }
 
@@ -20,6 +23,7 @@ class UserProfileModel extends UserProfile {
       userId: profile.userId,
       displayName: profile.displayName,
       avatarPath: profile.avatarPath,
+      countryCode: profile.countryCode,
     );
   }
 
@@ -28,6 +32,7 @@ class UserProfileModel extends UserProfile {
       'userId': userId,
       'displayName': displayName,
       'avatarPath': avatarPath,
+      'countryCode': countryCode,
     };
   }
 }

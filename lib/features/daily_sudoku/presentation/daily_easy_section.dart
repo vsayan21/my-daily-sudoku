@@ -33,7 +33,7 @@ class _DailyEasySectionState extends State<DailyEasySection> {
     final debugDate = kDebugMode && debugForceDailyKey
         ? DateTime(2026, 1, 28)
         : null;
-    _dailyKey = buildDailyKey(now: debugDate);
+    _dailyKey = buildDailyKeyUtc(now: debugDate);
     final repository = DailySudokuRepositoryImpl(
       dataSource: SudokuAssetsDataSource(),
     );

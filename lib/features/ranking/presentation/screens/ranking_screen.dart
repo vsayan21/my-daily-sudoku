@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:country_picker/country_picker.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../../../../app/di/app_dependencies.dart';
 import '../../../profile/application/usecases/load_user_profile.dart';
 import '../../../profile/application/usecases/update_avatar_path.dart';
+import '../../../profile/application/usecases/update_country_code.dart';
 import '../../../profile/application/usecases/update_display_name.dart';
 import '../../../profile/data/datasources/user_profile_local_datasource.dart';
 import '../../../profile/data/repositories/user_profile_repository_impl.dart';
@@ -56,8 +58,10 @@ class _RankingScreenState extends State<RankingScreen> {
     final preferences = await widget.dependencies.sharedPreferences;
     final profileService = widget.dependencies.firebaseProfileService;
     final syncService = await widget.dependencies.firebaseSyncService;
+    final countryCode = _resolveCountryCode(locale);
     await syncService.ensureUserProfileExistsAndSynced(
       locale: locale.toLanguageTag(),
+      countryCode: countryCode,
     );
     await syncService.uploadAllLocalResults();
     final repository = UserProfileRepositoryImpl(
@@ -72,8 +76,10 @@ class _RankingScreenState extends State<RankingScreen> {
         firebaseProfileService: profileService,
       ),
       updateAvatarPath: UpdateAvatarPath(repository: repository),
+      updateCountryCode: UpdateCountryCode(repository: repository),
     );
     await controller.loadProfile();
+    await _ensureCountryCode(controller);
     if (!mounted) {
       _isLoadingController = false;
       return;
@@ -82,6 +88,52 @@ class _RankingScreenState extends State<RankingScreen> {
       _controller = controller;
       _isLoadingController = false;
     });
+  }
+
+  Future<void> _ensureCountryCode(ProfileController controller) async {
+    final profile = controller.profile;
+    final locale = _locale;
+    if (profile == null || locale == null) {
+      return;
+    }
+    if (profile.countryCode != null && profile.countryCode!.isNotEmpty) {
+      return;
+    }
+    final resolved = _resolveCountryCode(locale);
+    if (resolved == null) {
+      return;
+    }
+    await controller.updateCountryCode(resolved);
+  }
+
+  String? _resolveCountryCode(Locale locale) {
+    final primary = _normalizeCountryCode(locale.countryCode);
+    if (primary != null) {
+      return primary;
+    }
+    final platformLocales =
+        WidgetsBinding.instance.platformDispatcher.locales;
+    for (final candidate in platformLocales) {
+      final normalized = _normalizeCountryCode(candidate.countryCode);
+      if (normalized != null) {
+        return normalized;
+      }
+    }
+    return 'US';
+  }
+
+  String? _normalizeCountryCode(String? code) {
+    if (code == null) {
+      return null;
+    }
+    final trimmed = code.trim().toUpperCase();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+    if (RegExp(r'^[A-Z]{2}$').hasMatch(trimmed)) {
+      return trimmed;
+    }
+    return null;
   }
 
   Future<void> _showEditNameSheet(ProfileController controller) async {
@@ -157,6 +209,23 @@ class _RankingScreenState extends State<RankingScreen> {
             );
           },
         );
+      },
+    );
+  }
+
+  Future<void> _showEditCountrySheet(ProfileController controller) async {
+    final profile = controller.profile;
+    if (profile == null) {
+      return;
+    }
+    showCountryPicker(
+      context: context,
+      showPhoneCode: false,
+      countryListTheme: CountryListThemeData(
+        bottomSheetHeight: 520,
+      ),
+      onSelect: (Country country) {
+        controller.updateCountryCode(country.countryCode);
       },
     );
   }
@@ -255,6 +324,8 @@ class _RankingScreenState extends State<RankingScreen> {
                       ProfileCard(
                         profile: profile,
                         onEditName: () => _showEditNameSheet(controller),
+                        onEditCountry: () =>
+                            _showEditCountrySheet(controller),
                         onPickAvatar: _showAvatarPicker,
                       ),
                       const SizedBox(height: 24),

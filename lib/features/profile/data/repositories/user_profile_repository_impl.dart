@@ -33,6 +33,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       userId: uid,
       displayName: displayName,
       avatarPath: stored?.avatarPath,
+      countryCode: stored?.countryCode,
     );
     await _dataSource.saveProfile(profile);
     return profile;

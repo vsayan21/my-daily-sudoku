@@ -90,6 +90,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileEditNameTooltip => 'Edit name';
 
   @override
+  String get profileEditCountryTitle => 'Edit country';
+
+  @override
+  String get profileCountryLabel => 'Country';
+
+  @override
+  String get profileCountryHelper => 'Use 2-letter code (e.g., US)';
+
+  @override
+  String get profileCountryInvalidError => 'Enter a valid 2-letter code.';
+
+  @override
+  String get profileEditCountryTooltip => 'Edit country';
+
+  @override
+  String get profileCountryUnset => 'Not set';
+
+  @override
   String get profileDisplayNameTakenError => 'Name already taken. Try another.';
 
   @override

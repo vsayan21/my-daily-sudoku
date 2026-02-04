@@ -92,6 +92,25 @@ class AppLocalizationsDe extends AppLocalizations {
   String get profileEditNameTooltip => 'Namen bearbeiten';
 
   @override
+  String get profileEditCountryTitle => 'Land bearbeiten';
+
+  @override
+  String get profileCountryLabel => 'Land';
+
+  @override
+  String get profileCountryHelper => '2-Buchstaben-Code verwenden (z. B. US)';
+
+  @override
+  String get profileCountryInvalidError =>
+      'Bitte einen gültigen 2-Buchstaben-Code eingeben.';
+
+  @override
+  String get profileEditCountryTooltip => 'Land bearbeiten';
+
+  @override
+  String get profileCountryUnset => 'Nicht festgelegt';
+
+  @override
   String get profileDisplayNameTakenError =>
       'Name bereits vergeben. Bitte anderen wählen.';
 

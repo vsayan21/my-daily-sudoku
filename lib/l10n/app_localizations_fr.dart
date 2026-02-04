@@ -92,6 +92,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileEditNameTooltip => 'Modifier le nom';
 
   @override
+  String get profileEditCountryTitle => 'Modifier le pays';
+
+  @override
+  String get profileCountryLabel => 'Pays';
+
+  @override
+  String get profileCountryHelper => 'Utilisez un code à 2 lettres (ex. US)';
+
+  @override
+  String get profileCountryInvalidError => 'Entrez un code à 2 lettres valide.';
+
+  @override
+  String get profileEditCountryTooltip => 'Modifier le pays';
+
+  @override
+  String get profileCountryUnset => 'Non défini';
+
+  @override
   String get profileDisplayNameTakenError =>
       'Nom déjà pris. Essayez-en un autre.';
 
