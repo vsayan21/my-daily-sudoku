@@ -17,7 +17,7 @@ class LoadActiveGame {
     if (session == null) {
       return null;
     }
-    final todayKey = buildDailyKey(now: _nowProvider());
+    final todayKey = buildDailyKeyUtc(now: _nowProvider());
     if (session.dateKey != todayKey) {
       await _repository.clear();
       return null;

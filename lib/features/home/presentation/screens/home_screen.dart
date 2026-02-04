@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return results;
   }
 
-  String _todayKey() => buildDailyKey();
+  String _todayKey() => buildDailyKeyUtc();
 
   bool _isSessionForToday(ActiveGameSession? session) {
     if (session == null) {
@@ -188,10 +188,42 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Future<void> _syncFirebase() async {
     final locale = Localizations.localeOf(context);
     final service = await _firebaseSyncService;
+    final countryCode = _resolveCountryCode(locale);
     final profile = await service.ensureUserProfileExistsAndSynced(
       locale: locale.toLanguageTag(),
+      countryCode: countryCode,
     );
     await service.uploadAllLocalResults(profile: profile);
+  }
+
+  String? _resolveCountryCode(Locale locale) {
+    final primary = _normalizeCountryCode(locale.countryCode);
+    if (primary != null) {
+      return primary;
+    }
+    final platformLocales =
+        WidgetsBinding.instance.platformDispatcher.locales;
+    for (final candidate in platformLocales) {
+      final normalized = _normalizeCountryCode(candidate.countryCode);
+      if (normalized != null) {
+        return normalized;
+      }
+    }
+    return 'US';
+  }
+
+  String? _normalizeCountryCode(String? code) {
+    if (code == null) {
+      return null;
+    }
+    final trimmed = code.trim().toUpperCase();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+    if (RegExp(r'^[A-Z]{2}$').hasMatch(trimmed)) {
+      return trimmed;
+    }
+    return null;
   }
 
   Future<void> _refreshHomeData() async {
@@ -234,6 +266,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       MaterialPageRoute(
         builder: (_) => SudokuPlayScreen(
           args: args,
+          dependencies: widget.dependencies,
           initialSession: session,
         ),
       ),

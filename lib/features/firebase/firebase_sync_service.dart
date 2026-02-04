@@ -9,6 +9,7 @@ import '../profile/domain/entities/user_profile.dart';
 import '../profile/domain/exceptions/username_taken_exception.dart';
 import '../statistics/data/datasources/statistics_local_datasource.dart';
 import '../statistics/shared/statistics_keys.dart';
+import '../daily_sudoku/shared/daily_key.dart';
 
 class FirebaseSyncService {
   FirebaseSyncService({
@@ -33,6 +34,7 @@ class FirebaseSyncService {
 
   Future<UserProfile> ensureUserProfileExistsAndSynced({
     String? locale,
+    String? countryCode,
   }) async {
     final uid = await ensureSignedIn();
     final stored = _profileLocalDataSource.loadProfile();
@@ -85,6 +87,11 @@ class FirebaseSyncService {
       userId: uid,
       displayName: reservedName,
       avatarPath: stored?.avatarPath,
+      countryCode: _resolveCountryCode(
+        existing: stored?.countryCode,
+        localeTag: locale,
+        countryCode: countryCode,
+      ),
     );
     await _profileLocalDataSource.saveProfile(updated);
     return updated;
@@ -99,6 +106,7 @@ class FirebaseSyncService {
     final displayName = storedProfile?.displayName ??
         _profileService.defaultDisplayNameForUid(uid);
     final shortId = _profileService.shortIdFromUid(uid);
+    final countryCode = storedProfile?.countryCode;
     final records = _statisticsLocalDataSource.fetchAll(
       recordsKey: StatisticsKeys.recordsV2,
     );
@@ -107,7 +115,11 @@ class FirebaseSyncService {
     }
     final batch = _firestore.batch();
     for (final result in records.values) {
-      final docId = '${result.dateKey}_${result.difficulty.name}';
+      final completedAt =
+          DateTime.fromMillisecondsSinceEpoch(result.completedAtEpochMs);
+      final dateKeyUtc = buildDailyKeyUtc(now: completedAt);
+      final dateKeyLocal = buildDailyKeyLocal(now: completedAt);
+      final docId = '${dateKeyUtc}_${result.difficulty.name}';
       final ref =
           _firestore.collection('results').doc(uid).collection('daily').doc(
                 docId,
@@ -116,7 +128,9 @@ class FirebaseSyncService {
         'uid': uid,
         'displayName': displayName,
         'shortId': shortId,
-        'dateKey': result.dateKey,
+        'dateKey': dateKeyUtc,
+        'dateKeyUtc': dateKeyUtc,
+        'dateKeyLocal': dateKeyLocal,
         'difficulty': result.difficulty.name,
         'elapsedSeconds': result.elapsedSeconds,
         'hintsUsed': result.hintsUsed,
@@ -126,6 +140,9 @@ class FirebaseSyncService {
         'resetsCount': result.resetsCount,
         'completedAt': FieldValue.serverTimestamp(),
       };
+      if (countryCode != null && countryCode.trim().isNotEmpty) {
+        data['countryCode'] = countryCode.trim().toUpperCase();
+      }
       if (result.appVersion != null) {
         data['appVersion'] = result.appVersion;
       }
@@ -164,5 +181,31 @@ class FirebaseSyncService {
       previousDisplayNameLower: previousDisplayNameLower,
       locale: locale,
     );
+  }
+
+  String? _resolveCountryCode({
+    required String? existing,
+    required String? localeTag,
+    required String? countryCode,
+  }) {
+    if (existing != null && existing.trim().isNotEmpty) {
+      return existing.trim().toUpperCase();
+    }
+    if (countryCode != null && countryCode.trim().isNotEmpty) {
+      return countryCode.trim().toUpperCase();
+    }
+    if (localeTag == null || localeTag.trim().isEmpty) {
+      return null;
+    }
+    final normalized = localeTag.replaceAll('_', '-');
+    final parts = normalized.split('-');
+    if (parts.length < 2) {
+      return null;
+    }
+    final candidate = parts[1].trim().toUpperCase();
+    if (!RegExp(r'^[A-Z]{2}$').hasMatch(candidate)) {
+      return null;
+    }
+    return candidate;
   }
 }

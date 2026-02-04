@@ -10,21 +10,27 @@ class ProfileCard extends StatelessWidget {
     super.key,
     required this.profile,
     required this.onEditName,
+    required this.onEditCountry,
     required this.onPickAvatar,
   });
 
   final UserProfile profile;
   final VoidCallback onEditName;
+  final VoidCallback onEditCountry;
   final VoidCallback onPickAvatar;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final loc = AppLocalizations.of(context)!;
     final avatarFile = profile.avatarPath == null
         ? null
         : File(profile.avatarPath!);
     final avatarExists = avatarFile != null && avatarFile.existsSync();
+    final flag = _flagEmoji(profile.countryCode);
+    final countryLabel =
+        profile.countryCode == null ? loc.profileCountryUnset : profile.countryCode!;
 
     return Card(
       color: colorScheme.surfaceContainer,
@@ -33,65 +39,114 @@ class ProfileCard extends StatelessWidget {
       ),
       elevation: 0,
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            InkWell(
-              onTap: onPickAvatar,
-              borderRadius: BorderRadius.circular(32),
-              child: CircleAvatar(
-                radius: 32,
-                backgroundColor: colorScheme.primaryContainer,
-                backgroundImage: avatarExists ? FileImage(avatarFile) : null,
-                child: avatarExists
-                    ? null
-                    : Icon(
-                        Icons.person_rounded,
-                        size: 32,
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: onPickAvatar,
+                  borderRadius: BorderRadius.circular(40),
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundColor: colorScheme.primaryContainer,
+                    backgroundImage: avatarExists ? FileImage(avatarFile) : null,
+                    child: avatarExists
+                        ? null
+                        : Icon(
+                            Icons.person_rounded,
+                            size: 36,
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          profile.displayName,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              profile.displayName,
+                              style: textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: onEditName,
+                            icon: const Icon(Icons.edit_rounded, size: 18),
+                            tooltip: loc.profileEditNameTooltip,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          IconButton(
+                            onPressed: onEditCountry,
+                            icon: const Icon(Icons.public_rounded, size: 18),
+                            tooltip: loc.profileEditCountryTooltip,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        onPressed: onEditName,
-                        icon: const Icon(Icons.edit_rounded),
-                        tooltip: loc.profileEditNameTooltip,
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: colorScheme.outlineVariant,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (flag != null) ...[
+                              Text(flag, style: textTheme.bodyMedium),
+                              const SizedBox(width: 6),
+                            ],
+                                Text(
+                                  countryLabel,
+                                  style: textTheme.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  Text(
-                    'ID: ${profile.shortId}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  String? _flagEmoji(String? code) {
+    if (code == null) {
+      return null;
+    }
+    final trimmed = code.trim().toUpperCase();
+    if (!RegExp(r'^[A-Z]{2}$').hasMatch(trimmed)) {
+      return null;
+    }
+    final base = 0x1F1E6;
+    final chars = trimmed.codeUnits
+        .map((unit) => base + (unit - 65))
+        .toList(growable: false);
+    return String.fromCharCodes(chars);
   }
 }

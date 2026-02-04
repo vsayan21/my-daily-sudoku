@@ -3,6 +3,7 @@ class UserProfile {
     required this.userId,
     required this.displayName,
     this.avatarPath,
+    this.countryCode,
   });
 
   static const defaultDisplayName = 'Player';
@@ -10,16 +11,19 @@ class UserProfile {
   final String userId;
   final String displayName;
   final String? avatarPath;
+  final String? countryCode;
 
   UserProfile copyWith({
     String? userId,
     String? displayName,
     String? avatarPath,
+    String? countryCode,
   }) {
     return UserProfile(
       userId: userId ?? this.userId,
       displayName: displayName ?? this.displayName,
       avatarPath: avatarPath ?? this.avatarPath,
+      countryCode: countryCode ?? this.countryCode,
     );
   }
 

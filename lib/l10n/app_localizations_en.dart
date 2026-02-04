@@ -81,6 +81,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rankingComingSoon => 'Ranking coming soon';
 
   @override
+  String get rankingScopeGlobal => 'Global';
+
+  @override
+  String get rankingScopeLocal => 'Local';
+
+  @override
+  String get rankingDayToday => 'Today';
+
+  @override
+  String get rankingDayYesterday => 'Yesterday';
+
+  @override
+  String get rankingEmpty => 'No results yet.';
+
+  @override
+  String get rankingLocalRequiresCountry =>
+      'Set a country to see the local leaderboard.';
+
+  @override
+  String get rankingAuthRequired => 'Sign in to see the leaderboard.';
+
+  @override
   String get profileEditDisplayNameTitle => 'Edit display name';
 
   @override
@@ -88,6 +110,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileEditNameTooltip => 'Edit name';
+
+  @override
+  String get profileEditCountryTitle => 'Edit country';
+
+  @override
+  String get profileCountryLabel => 'Country';
+
+  @override
+  String get profileCountryHelper => 'Use 2-letter code (e.g., US)';
+
+  @override
+  String get profileCountryInvalidError => 'Enter a valid 2-letter code.';
+
+  @override
+  String get profileEditCountryTooltip => 'Edit country';
+
+  @override
+  String get profileCountryUnset => 'Not set';
 
   @override
   String get profileDisplayNameTakenError => 'Name already taken. Try another.';

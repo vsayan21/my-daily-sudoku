@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../app/di/app_dependencies.dart';
 import '../../../active_game/application/usecases/clear_active_game.dart';
 import '../../../active_game/application/usecases/save_active_game.dart';
 import '../../../active_game/data/datasources/active_game_local_datasource.dart';
@@ -9,6 +12,7 @@ import '../../../active_game/data/repositories/active_game_repository_impl.dart'
 import '../../../active_game/domain/entities/active_game_session.dart';
 import '../../../completion/presentation/screens/success_screen.dart';
 import '../../../completion/shared/success_screen_args.dart';
+import '../../../firebase/firebase_sync_service.dart';
 import '../../../medals/domain/medal_calculator.dart';
 import '../../../statistics/application/usecases/save_game_result.dart';
 import '../../../statistics/data/datasources/statistics_local_datasource.dart';
@@ -34,11 +38,13 @@ class SudokuPlayScreen extends StatefulWidget {
   const SudokuPlayScreen({
     super.key,
     required this.args,
+    required this.dependencies,
     this.initialSession,
   });
 
   /// Navigation arguments.
   final SudokuPlayArgs args;
+  final AppDependencies dependencies;
   final ActiveGameSession? initialSession;
 
   @override
@@ -128,6 +134,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
       return;
     }
     _isCompleting = true;
+    final syncService = await widget.dependencies.firebaseSyncService;
     final services = await _completionServices;
     final completedAtEpochMs = DateTime.now().millisecondsSinceEpoch;
     final locale =
@@ -147,6 +154,16 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
       deviceLocale: locale,
     );
     await services.saveGameResult.execute(result);
+    try {
+      await syncService.ensureUserProfileExistsAndSynced(
+        locale: locale,
+      );
+      await syncService.uploadAllLocalResults();
+    } catch (error, stackTrace) {
+      debugPrint('Firebase upload failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      _scheduleUploadRetry(syncService, locale);
+    }
     final streakCount = await services.streakService
         .updateOnCompletion(details.dateKey);
     await services.clearActiveGame.execute();
@@ -178,6 +195,34 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
       return;
     }
     Navigator.of(context).pop();
+  }
+
+  void _scheduleUploadRetry(
+    FirebaseSyncService syncService,
+    String? locale,
+  ) {
+    unawaited(_retryUpload(syncService, locale));
+  }
+
+  Future<void> _retryUpload(
+    FirebaseSyncService syncService,
+    String? locale, {
+    int attempts = 2,
+  }) async {
+    const delay = Duration(seconds: 30);
+    for (var attempt = 1; attempt <= attempts; attempt += 1) {
+      await Future.delayed(delay * attempt);
+      try {
+        await syncService.ensureUserProfileExistsAndSynced(
+          locale: locale,
+        );
+        await syncService.uploadAllLocalResults();
+        return;
+      } catch (error, stackTrace) {
+        debugPrint('Firebase retry $attempt failed: $error');
+        debugPrintStack(stackTrace: stackTrace);
+      }
+    }
   }
 
   Future<void> _handleReset() async {

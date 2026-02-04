@@ -246,6 +246,48 @@ abstract class AppLocalizations {
   /// **'Ranking coming soon'**
   String get rankingComingSoon;
 
+  /// No description provided for @rankingScopeGlobal.
+  ///
+  /// In en, this message translates to:
+  /// **'Global'**
+  String get rankingScopeGlobal;
+
+  /// No description provided for @rankingScopeLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get rankingScopeLocal;
+
+  /// No description provided for @rankingDayToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get rankingDayToday;
+
+  /// No description provided for @rankingDayYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get rankingDayYesterday;
+
+  /// No description provided for @rankingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No results yet.'**
+  String get rankingEmpty;
+
+  /// No description provided for @rankingLocalRequiresCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a country to see the local leaderboard.'**
+  String get rankingLocalRequiresCountry;
+
+  /// No description provided for @rankingAuthRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see the leaderboard.'**
+  String get rankingAuthRequired;
+
   /// No description provided for @profileEditDisplayNameTitle.
   ///
   /// In en, this message translates to:
@@ -263,6 +305,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit name'**
   String get profileEditNameTooltip;
+
+  /// No description provided for @profileEditCountryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit country'**
+  String get profileEditCountryTitle;
+
+  /// No description provided for @profileCountryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get profileCountryLabel;
+
+  /// No description provided for @profileCountryHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 2-letter code (e.g., US)'**
+  String get profileCountryHelper;
+
+  /// No description provided for @profileCountryInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid 2-letter code.'**
+  String get profileCountryInvalidError;
+
+  /// No description provided for @profileEditCountryTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit country'**
+  String get profileEditCountryTooltip;
+
+  /// No description provided for @profileCountryUnset.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get profileCountryUnset;
 
   /// No description provided for @profileDisplayNameTakenError.
   ///
