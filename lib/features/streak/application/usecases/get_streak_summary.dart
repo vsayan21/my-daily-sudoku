@@ -31,12 +31,15 @@ class GetStreakSummary {
 
   Future<StreakSummary> execute() async {
     final todayKey = buildDailyKeyUtc();
+    final localTodayKey = buildDailyKeyLocal();
     final lastCompleted = _preferences.getString(
           StreakKeys.lastCompletedDateKey,
         ) ??
         _preferences.getString(StreakKeys.lastSolvedDate);
     var todaySolved = _preferences.getBool(StreakKeys.todaySolved) ?? false;
-    if (todaySolved && lastCompleted != todayKey) {
+    if (todaySolved &&
+        lastCompleted != todayKey &&
+        lastCompleted != localTodayKey) {
       await _preferences.setBool(StreakKeys.todaySolved, false);
       todaySolved = false;
     }

@@ -96,7 +96,7 @@ class _RankingScreenState extends State<RankingScreen> {
     );
     await controller.loadProfile();
     await _ensureCountryCode(controller);
-    final key = _cacheKey();
+    final key = _cacheKey(controller.profile);
     _leaderboardFuture =
         _cache[key] ?? (_cache[key] = _loadLeaderboard(profile: controller.profile));
     if (!mounted) {
@@ -293,7 +293,7 @@ class _RankingScreenState extends State<RankingScreen> {
   }
 
   void _refreshLeaderboards(ProfileController controller, {bool force = false}) {
-    final key = _cacheKey();
+    final key = _cacheKey(controller.profile);
     if (force) {
       _cache.remove(key);
     }
@@ -312,8 +312,11 @@ class _RankingScreenState extends State<RankingScreen> {
     return buildDailyKeyUtc(now: now.subtract(const Duration(days: 1)));
   }
 
-  String _cacheKey() {
-    return '${_selectedDateKey()}|${_difficulty.name}|${_scope.name}';
+  String _cacheKey(UserProfile? profile) {
+    final countryCode = _scope == RankingScope.local
+        ? (profile?.countryCode ?? '')
+        : '';
+    return '${_selectedDateKey()}|${_difficulty.name}|${_scope.name}|$countryCode';
   }
 
   Future<void> _pickAvatarImage(ImageSource source) async {

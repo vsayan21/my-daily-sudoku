@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../streak_keys.dart';
+import '../../daily_sudoku/shared/daily_key.dart';
 
 class StreakService {
   const StreakService(this._preferences);
@@ -13,15 +14,19 @@ class StreakService {
         ) ??
         _preferences.getString(StreakKeys.lastSolvedDate);
     final todayKey = dateKey;
+    final localTodayKey = buildDailyKeyLocal();
     final yesterdayKey = _yesterdayKey(dateKey);
+    final localYesterdayKey = _formatDateKey(
+      DateTime.now().subtract(const Duration(days: 1)),
+    );
     var streakCount = _preferences.getInt(StreakKeys.streakCount) ?? 0;
 
-    if (lastSolved == todayKey) {
+    if (lastSolved == todayKey || lastSolved == localTodayKey) {
       await _preferences.setBool(StreakKeys.todaySolved, true);
       return streakCount;
     }
 
-    if (lastSolved == yesterdayKey) {
+    if (lastSolved == yesterdayKey || lastSolved == localYesterdayKey) {
       streakCount += 1;
     } else {
       streakCount = 1;
