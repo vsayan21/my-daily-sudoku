@@ -20,6 +20,9 @@ import '../../../profile/domain/entities/user_profile.dart';
 import '../../../ranking/data/models/leaderboard_entry.dart';
 import '../../../ranking/data/services/leaderboard_service.dart';
 import '../../../statistics/application/statistics_view_model.dart';
+import '../widgets/ranking_difficulty_segment.dart';
+import '../widgets/ranking_header.dart';
+import '../widgets/ranking_types.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({super.key, required this.dependencies});
@@ -35,9 +38,11 @@ class _RankingScreenState extends State<RankingScreen> {
   Locale? _locale;
   bool _isLoadingController = false;
   final LeaderboardService _leaderboardService = LeaderboardService();
-  LeaderboardScope _scope = LeaderboardScope.global;
-  LeaderboardDay _day = LeaderboardDay.today;
-  Future<LeaderboardResult>? _leaderboardFuture;
+  RankingScope _scope = RankingScope.global;
+  DateFilter _dateFilter = DateFilter.today;
+  SudokuDifficulty _difficulty = SudokuDifficulty.easy;
+  Future<LeaderboardFetchResult>? _leaderboardFuture;
+  final Map<String, Future<LeaderboardFetchResult>> _cache = {};
 
   @override
   void initState() {
@@ -91,7 +96,9 @@ class _RankingScreenState extends State<RankingScreen> {
     );
     await controller.loadProfile();
     await _ensureCountryCode(controller);
-    _leaderboardFuture = _loadLeaderboards(profile: controller.profile);
+    final key = _cacheKey(controller.profile);
+    _leaderboardFuture =
+        _cache[key] ?? (_cache[key] = _loadLeaderboard(profile: controller.profile));
     if (!mounted) {
       _isLoadingController = false;
       return;
@@ -247,86 +254,69 @@ class _RankingScreenState extends State<RankingScreen> {
     );
   }
 
-  Future<LeaderboardResult> _loadLeaderboards({
+  Future<LeaderboardFetchResult> _loadLeaderboard({
     required UserProfile? profile,
   }) async {
     final dateKey = _selectedDateKey();
     final countryCode = profile?.countryCode;
-    if (_scope == LeaderboardScope.local &&
+    if (_scope == RankingScope.local &&
         (countryCode == null || countryCode.isEmpty)) {
-      return const LeaderboardResult(
+      return const LeaderboardFetchResult(
         status: LeaderboardStatus.missingCountry,
-        entries: {
-          SudokuDifficulty.easy: [],
-          SudokuDifficulty.medium: [],
-          SudokuDifficulty.hard: [],
-        },
+        entries: [],
       );
     }
     final uid = await widget.dependencies.firebaseProfileService.ensureSignedIn();
     if (uid.isEmpty) {
-      return const LeaderboardResult(
+      return const LeaderboardFetchResult(
         status: LeaderboardStatus.authRequired,
-        entries: {
-          SudokuDifficulty.easy: [],
-          SudokuDifficulty.medium: [],
-          SudokuDifficulty.hard: [],
-        },
+        entries: [],
       );
     }
     try {
-      final localCode =
-          _scope == LeaderboardScope.local ? countryCode : null;
-      final futures = <Future<List<LeaderboardEntry>>>[
-        _leaderboardService.fetchTopEntries(
-          dateKey: dateKey,
-          difficulty: SudokuDifficulty.easy,
-          countryCode: localCode,
-        ),
-        _leaderboardService.fetchTopEntries(
-          dateKey: dateKey,
-          difficulty: SudokuDifficulty.medium,
-          countryCode: localCode,
-        ),
-        _leaderboardService.fetchTopEntries(
-          dateKey: dateKey,
-          difficulty: SudokuDifficulty.hard,
-          countryCode: localCode,
-        ),
-      ];
-      final results = await Future.wait(futures);
-      return LeaderboardResult(
+      final localCode = _scope == RankingScope.local ? countryCode : null;
+      final entries = await _leaderboardService.fetchTopEntries(
+        dateKey: dateKey,
+        difficulty: _difficulty,
+        countryCode: localCode,
+      );
+      return LeaderboardFetchResult(
         status: LeaderboardStatus.ok,
-        entries: {
-          SudokuDifficulty.easy: results[0],
-          SudokuDifficulty.medium: results[1],
-          SudokuDifficulty.hard: results[2],
-        },
+        entries: entries,
       );
     } catch (error) {
-      return const LeaderboardResult(
+      return const LeaderboardFetchResult(
         status: LeaderboardStatus.error,
-        entries: {
-          SudokuDifficulty.easy: [],
-          SudokuDifficulty.medium: [],
-          SudokuDifficulty.hard: [],
-        },
+        entries: [],
       );
     }
   }
 
-  void _refreshLeaderboards(ProfileController controller) {
+  void _refreshLeaderboards(ProfileController controller, {bool force = false}) {
+    final key = _cacheKey(controller.profile);
+    if (force) {
+      _cache.remove(key);
+    }
+    final cached = _cache[key];
     setState(() {
-      _leaderboardFuture = _loadLeaderboards(profile: controller.profile);
+      _leaderboardFuture =
+          cached ?? (_cache[key] = _loadLeaderboard(profile: controller.profile));
     });
   }
 
   String _selectedDateKey() {
     final now = DateTime.now();
-    if (_day == LeaderboardDay.today) {
+    if (_dateFilter == DateFilter.today) {
       return buildDailyKeyUtc(now: now);
     }
     return buildDailyKeyUtc(now: now.subtract(const Duration(days: 1)));
+  }
+
+  String _cacheKey(UserProfile? profile) {
+    final countryCode = _scope == RankingScope.local
+        ? (profile?.countryCode ?? '')
+        : '';
+    return '${_selectedDateKey()}|${_difficulty.name}|${_scope.name}|$countryCode';
   }
 
   Future<void> _pickAvatarImage(ImageSource source) async {
@@ -429,20 +419,28 @@ class _RankingScreenState extends State<RankingScreen> {
                       const SizedBox(height: 24),
                       _LeaderboardControls(
                         scope: _scope,
-                        day: _day,
+                        dateFilter: _dateFilter,
+                        difficulty: _difficulty,
                         onScopeChanged: (value) {
                           _scope = value;
                           _refreshLeaderboards(controller);
                         },
-                        onDayChanged: (value) {
-                          _day = value;
+                        onDateFilterChanged: (value) {
+                          _dateFilter = value;
                           _refreshLeaderboards(controller);
                         },
+                        onDifficultyChanged: (value) {
+                          _difficulty = value;
+                          _refreshLeaderboards(controller);
+                        },
+                        onRefresh: () => _refreshLeaderboards(
+                          controller,
+                          force: true,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       _LeaderboardSections(
-                        future: _leaderboardFuture ??
-                            _loadLeaderboards(profile: profile),
+                        future: _leaderboardFuture,
                       ),
                     ],
                   );
@@ -453,57 +451,66 @@ class _RankingScreenState extends State<RankingScreen> {
   }
 }
 
-enum LeaderboardScope { global, local }
-
-enum LeaderboardDay { today, yesterday }
 
 class _LeaderboardControls extends StatelessWidget {
   const _LeaderboardControls({
     required this.scope,
-    required this.day,
+    required this.dateFilter,
+    required this.difficulty,
     required this.onScopeChanged,
-    required this.onDayChanged,
+    required this.onDateFilterChanged,
+    required this.onDifficultyChanged,
+    required this.onRefresh,
   });
 
-  final LeaderboardScope scope;
-  final LeaderboardDay day;
-  final ValueChanged<LeaderboardScope> onScopeChanged;
-  final ValueChanged<LeaderboardDay> onDayChanged;
+  final RankingScope scope;
+  final DateFilter dateFilter;
+  final SudokuDifficulty difficulty;
+  final ValueChanged<RankingScope> onScopeChanged;
+  final ValueChanged<DateFilter> onDateFilterChanged;
+  final ValueChanged<SudokuDifficulty> onDifficultyChanged;
+  final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SegmentedButton<LeaderboardScope>(
-          segments: [
-            ButtonSegment(
-              value: LeaderboardScope.global,
-              label: Text(loc.rankingScopeGlobal),
-            ),
-            ButtonSegment(
-              value: LeaderboardScope.local,
-              label: Text(loc.rankingScopeLocal),
-            ),
-          ],
-          selected: {scope},
-          onSelectionChanged: (value) => onScopeChanged(value.first),
+        RankingHeader(
+          title: 'Ranking',
+          dateFilter: dateFilter,
+          scope: scope,
+          onDateFilterChanged: onDateFilterChanged,
+          onScopeChanged: onScopeChanged,
         ),
         const SizedBox(height: 12),
-        SegmentedButton<LeaderboardDay>(
-          segments: [
-            ButtonSegment(
-              value: LeaderboardDay.today,
-              label: Text(loc.rankingDayToday),
+        Row(
+          children: [
+            Expanded(
+              child: RankingDifficultySegment(
+                value: difficulty,
+                onChanged: onDifficultyChanged,
+              ),
             ),
-            ButtonSegment(
-              value: LeaderboardDay.yesterday,
-              label: Text(loc.rankingDayYesterday),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 96,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: IconButton.filledTonal(
+                  tooltip: 'Refresh',
+                  onPressed: onRefresh,
+                  icon: const Icon(Icons.refresh_rounded),
+                ),
+              ),
             ),
           ],
-          selected: {day},
-          onSelectionChanged: (value) => onDayChanged(value.first),
+        ),
+        const SizedBox(height: 8),
+        Divider(
+          height: 16,
+          color: colorScheme.outlineVariant.withValues(alpha: 120),
         ),
       ],
     );
@@ -515,12 +522,16 @@ class _LeaderboardSections extends StatelessWidget {
     required this.future,
   });
 
-  final Future<LeaderboardResult> future;
+  final Future<LeaderboardFetchResult>? future;
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    return FutureBuilder<LeaderboardResult>(
+    final future = this.future;
+    if (future == null) {
+      return const SizedBox.shrink();
+    }
+    return FutureBuilder<LeaderboardFetchResult>(
       future: future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -536,13 +547,9 @@ class _LeaderboardSections extends StatelessWidget {
           );
         }
         final result = snapshot.data ??
-            const LeaderboardResult(
+            const LeaderboardFetchResult(
               status: LeaderboardStatus.error,
-              entries: {
-                SudokuDifficulty.easy: [],
-                SudokuDifficulty.medium: [],
-                SudokuDifficulty.hard: [],
-              },
+              entries: [],
             );
         if (result.status == LeaderboardStatus.authRequired) {
           return Padding(
@@ -562,25 +569,10 @@ class _LeaderboardSections extends StatelessWidget {
             child: Text(loc.errorGeneric),
           );
         }
-        final data = result.entries;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _LeaderboardSection(
-              title: loc.difficultyEasy,
-              entries: data[SudokuDifficulty.easy] ?? const [],
-            ),
-            const SizedBox(height: 16),
-            _LeaderboardSection(
-              title: loc.difficultyMedium,
-              entries: data[SudokuDifficulty.medium] ?? const [],
-            ),
-            const SizedBox(height: 16),
-            _LeaderboardSection(
-              title: loc.difficultyHard,
-              entries: data[SudokuDifficulty.hard] ?? const [],
-            ),
-          ],
+        return _LeaderboardSection(
+          title: '',
+          entries: result.entries,
+          showHeader: false,
         );
       },
     );
@@ -589,46 +581,66 @@ class _LeaderboardSections extends StatelessWidget {
 
 enum LeaderboardStatus { ok, authRequired, missingCountry, error }
 
-class LeaderboardResult {
-  const LeaderboardResult({
+class LeaderboardFetchResult {
+  const LeaderboardFetchResult({
     required this.status,
     required this.entries,
   });
 
   final LeaderboardStatus status;
-  final Map<SudokuDifficulty, List<LeaderboardEntry>> entries;
+  final List<LeaderboardEntry> entries;
 }
 
 class _LeaderboardSection extends StatelessWidget {
   const _LeaderboardSection({
     required this.title,
     required this.entries,
+    this.showHeader = true,
   });
 
   final String title;
   final List<LeaderboardEntry> entries;
+  final bool showHeader;
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(20),
+        color: colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 128),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            title,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 12),
+          if (showHeader) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Text(
+                  entries.isEmpty ? '—' : '${entries.length}',
+                  style: textTheme.labelLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
           if (entries.isEmpty)
             Text(
               loc.rankingEmpty,
@@ -640,11 +652,17 @@ class _LeaderboardSection extends StatelessWidget {
           else
             Column(
               children: [
-                for (var index = 0; index < entries.length; index += 1)
+                for (var index = 0; index < entries.length; index += 1) ...[
                   _LeaderboardRow(
                     rank: index + 1,
                     entry: entries[index],
                   ),
+                  if (index != entries.length - 1)
+                    Divider(
+                      height: 16,
+                      color: colorScheme.outlineVariant.withValues(alpha: 153),
+                    ),
+                ],
               ],
             ),
         ],
@@ -666,39 +684,123 @@ class _LeaderboardRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final Color badgeColor;
+    final Color badgeTextColor;
+    switch (rank) {
+      case 1:
+        badgeColor = colorScheme.primary;
+        badgeTextColor = colorScheme.onPrimary;
+        break;
+      case 2:
+        badgeColor = colorScheme.tertiary;
+        badgeTextColor = colorScheme.onTertiary;
+        break;
+      case 3:
+        badgeColor = colorScheme.secondary;
+        badgeTextColor = colorScheme.onSecondary;
+        break;
+      default:
+        badgeColor = colorScheme.outlineVariant;
+        badgeTextColor = colorScheme.onSurfaceVariant;
+    }
+    final medalColor = _medalColorForEntry(entry.medal);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          SizedBox(
+          Container(
             width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: badgeColor.withValues(alpha: rank <= 3 ? 230 : 64),
+              shape: BoxShape.circle,
+            ),
             child: Text(
               '$rank',
-              style: textTheme.bodySmall?.copyWith(
+              style: textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: colorScheme.onSurfaceVariant,
+                color: badgeTextColor,
               ),
             ),
           ),
+          const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              entry.displayName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  entry.displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _flagForCountry(entry.countryCode),
+                  style: textTheme.labelSmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
           ),
-          Text(
-            StatisticsViewModel.formatDuration(entry.elapsedSeconds),
-            style: textTheme.bodySmall?.copyWith(
-              fontFeatures: [StatisticsViewModel.tabularFigures()],
-              color: colorScheme.onSurfaceVariant,
-            ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                StatisticsViewModel.formatDuration(entry.elapsedSeconds),
+                style: textTheme.bodySmall?.copyWith(
+                  fontFeatures: [StatisticsViewModel.tabularFigures()],
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              if (medalColor != null)
+                Container(
+                  width: 28,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: medalColor,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Color? _medalColorForEntry(String medal) {
+    switch (medal) {
+      case 'gold':
+        return const Color(0xFFF6C453);
+      case 'silver':
+        return const Color(0xFFC0C7D1);
+      case 'bronze':
+        return const Color(0xFFD09B6A);
+      default:
+        return null;
+    }
+  }
+
+  String _flagForCountry(String code) {
+    final trimmed = code.trim().toUpperCase();
+    if (trimmed.length != 2) {
+      return '—';
+    }
+    final first = trimmed.codeUnitAt(0);
+    final second = trimmed.codeUnitAt(1);
+    if (first < 65 || first > 90 || second < 65 || second > 90) {
+      return '—';
+    }
+    return String.fromCharCodes(
+      [0x1F1E6 + (first - 65), 0x1F1E6 + (second - 65)],
     );
   }
 }
