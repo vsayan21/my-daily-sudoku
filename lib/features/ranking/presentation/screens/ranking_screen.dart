@@ -21,7 +21,6 @@ import '../widgets/ranking_difficulty_segment.dart';
 import '../widgets/ranking_header.dart';
 import '../widgets/ranking_types.dart';
 import '../widgets/ranking_loading_widget.dart';
-import '../../../shared/presentation/widgets/system_avatar.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({super.key, required this.dependencies});
@@ -817,31 +816,15 @@ class _LeaderboardRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SystemAvatar(
-                userId: entry.userId,
-                displayName: entry.displayName,
-                size: 32,
+          SizedBox(
+            width: 24,
+            child: Text(
+              '$rank',
+              style: textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: colorScheme.onSurfaceVariant,
               ),
-              Container(
-                width: 20,
-                height: 20,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: badgeColor.withValues(alpha: rank <= 3 ? 230 : 180),
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  '$rank',
-                  style: textTheme.labelSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: badgeTextColor,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(

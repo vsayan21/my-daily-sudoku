@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../../domain/entities/user_profile.dart';
-import '../../../../shared/presentation/widgets/system_avatar.dart';
 
 class ProfileCard extends StatelessWidget {
   const ProfileCard({
@@ -39,12 +38,6 @@ class ProfileCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SystemAvatar(
-                  userId: profile.userId,
-                  displayName: profile.displayName,
-                  size: 80,
-                ),
-                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,11 +89,11 @@ class ProfileCard extends StatelessWidget {
                               Text(flag, style: textTheme.bodyMedium),
                               const SizedBox(width: 6),
                             ],
-                                Text(
-                                  countryLabel,
-                                  style: textTheme.bodySmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: colorScheme.onSurfaceVariant,
+                            Text(
+                              countryLabel,
+                              style: textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],

@@ -145,7 +145,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get profileDisplayNameCheckUnavailable =>
       'Controllo nome non disponibile. Riprova.';
 
-
   @override
   String get comingSoon => 'In arrivo';
 
