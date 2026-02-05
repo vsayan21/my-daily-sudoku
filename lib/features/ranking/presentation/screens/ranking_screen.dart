@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
@@ -166,6 +167,7 @@ class _RankingScreenState extends State<RankingScreen>
     final loc = AppLocalizations.of(context)!;
     final textController = TextEditingController(text: profile.displayName);
     String? errorText;
+    bool isSaving = false;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -195,7 +197,8 @@ class _RankingScreenState extends State<RankingScreen>
                   TextField(
                     controller: textController,
                     textInputAction: TextInputAction.done,
-                    maxLength: 24,
+                    maxLength: 16,
+                    enabled: !isSaving,
                     decoration: InputDecoration(
                       labelText: loc.profileDisplayNameLabel,
                       border: const OutlineInputBorder(),
@@ -209,10 +212,35 @@ class _RankingScreenState extends State<RankingScreen>
                   ),
                   const SizedBox(height: 12),
                   FilledButton(
-                    onPressed: () async {
-                      await controller.updateDisplayName(
-                        textController.text,
-                      );
+                    onPressed: isSaving
+                        ? null
+                        : () async {
+                            setState(() => isSaving = true);
+                            try {
+                      final trimmed = textController.text.trim();
+                      if (trimmed.isEmpty) {
+                        setState(
+                          () => errorText = loc.profileDisplayNameInvalid,
+                        );
+                        return;
+                      }
+                      final check = await _checkDisplayName(trimmed);
+                      if (!check.allowed) {
+                        final reason = check.reason;
+                        setState(
+                          () => errorText = switch (reason) {
+                            _NameCheckReason.unavailable =>
+                              loc.profileDisplayNameCheckUnavailable,
+                            _NameCheckReason.taken =>
+                              loc.profileDisplayNameTakenError,
+                            _NameCheckReason.notAllowed =>
+                              loc.profileDisplayNameNotAllowed,
+                            _ => loc.profileDisplayNameNotAllowed,
+                          },
+                        );
+                        return;
+                      }
+                      await controller.updateDisplayName(trimmed);
                       if (!context.mounted) {
                         return;
                       }
@@ -223,8 +251,19 @@ class _RankingScreenState extends State<RankingScreen>
                         return;
                       }
                       Navigator.of(context).pop();
+                            } finally {
+                              if (context.mounted) {
+                                setState(() => isSaving = false);
+                              }
+                            }
                     },
-                    child: Text(loc.save),
+                    child: isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(loc.save),
                   ),
                 ],
               ),
@@ -234,6 +273,37 @@ class _RankingScreenState extends State<RankingScreen>
       },
     );
   }
+
+  Future<_NameCheckResult> _checkDisplayName(String name) async {
+    try {
+      final callable =
+          FirebaseFunctions.instance.httpsCallable('validateDisplayName');
+      final result = await callable.call({'displayName': name});
+      final data = result.data;
+      if (data is Map) {
+        final allowed = data['allowed'] == true;
+        final reason = data['reason'] as String?;
+        return _NameCheckResult(
+          allowed: allowed,
+          reason: _NameCheckReasonParser.fromString(reason),
+        );
+      }
+      return const _NameCheckResult(
+        allowed: false,
+        reason: _NameCheckReason.unavailable,
+      );
+    } on FirebaseFunctionsException {
+      return const _NameCheckResult(
+        allowed: false,
+        reason: _NameCheckReason.unavailable,
+      );
+    } catch (_) {
+      return const _NameCheckResult(
+        allowed: false,
+        reason: _NameCheckReason.unavailable,
+      );
+    }
+}
 
   Future<void> _showEditCountrySheet(ProfileController controller) async {
     final profile = controller.profile;
@@ -361,6 +431,9 @@ class _RankingScreenState extends State<RankingScreen>
     );
     _cache[key] = entry;
     future.then((result) {
+      if (!identical(_cache[key], entry)) {
+        return;
+      }
       _cache[key] = _LeaderboardCacheEntry(
         future: Future.value(result),
         fetchedAt: DateTime.now(),
@@ -897,5 +970,39 @@ class _LeaderboardRow extends StatelessWidget {
     return String.fromCharCodes(
       [0x1F1E6 + (first - 65), 0x1F1E6 + (second - 65)],
     );
+  }
+}
+
+class _NameCheckResult {
+  const _NameCheckResult({
+    required this.allowed,
+    this.reason,
+  });
+
+  final bool allowed;
+  final _NameCheckReason? reason;
+}
+
+enum _NameCheckReason { notAllowed, unavailable, taken }
+
+class _NameCheckReasonParser {
+  static _NameCheckReason? fromString(String? value) {
+    switch (value) {
+      case 'blocked':
+        return _NameCheckReason.notAllowed;
+      case 'rate_limited':
+        return _NameCheckReason.unavailable;
+      case 'service_unavailable':
+        return _NameCheckReason.unavailable;
+      case 'taken':
+        return _NameCheckReason.taken;
+      case 'invalid_chars':
+      case 'too_long':
+      case 'flagged':
+      case 'blocked':
+        return _NameCheckReason.notAllowed;
+      default:
+        return null;
+    }
   }
 }

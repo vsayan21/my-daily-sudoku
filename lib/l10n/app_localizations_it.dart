@@ -136,6 +136,16 @@ class AppLocalizationsIt extends AppLocalizations {
       'Nome già utilizzato. Prova un altro.';
 
   @override
+  String get profileDisplayNameNotAllowed => 'Nome non consentito.';
+
+  @override
+  String get profileDisplayNameInvalid => 'Inserisci un nome valido.';
+
+  @override
+  String get profileDisplayNameCheckUnavailable =>
+      'Controllo nome non disponibile. Riprova.';
+
+  @override
   String get profileAvatarGallery => 'Scegli dalla galleria';
 
   @override
