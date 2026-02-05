@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,6 +22,7 @@ import '../../../statistics/application/statistics_view_model.dart';
 import '../widgets/ranking_difficulty_segment.dart';
 import '../widgets/ranking_header.dart';
 import '../widgets/ranking_types.dart';
+import '../widgets/ranking_loading_widget.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({super.key, required this.dependencies});
@@ -33,7 +33,12 @@ class RankingScreen extends StatefulWidget {
   State<RankingScreen> createState() => _RankingScreenState();
 }
 
-class _RankingScreenState extends State<RankingScreen> {
+class _RankingScreenState extends State<RankingScreen>
+    with AutomaticKeepAliveClientMixin {
+  static const Duration _cacheTtl = Duration(minutes: 10);
+  static const Duration _refreshCooldown = Duration(seconds: 10);
+  static final Map<String, _LeaderboardCacheEntry> _cache = {};
+
   ProfileController? _controller;
   Locale? _locale;
   bool _isLoadingController = false;
@@ -42,7 +47,7 @@ class _RankingScreenState extends State<RankingScreen> {
   DateFilter _dateFilter = DateFilter.today;
   SudokuDifficulty _difficulty = SudokuDifficulty.easy;
   Future<LeaderboardFetchResult>? _leaderboardFuture;
-  final Map<String, Future<LeaderboardFetchResult>> _cache = {};
+  DateTime? _lastRefreshAt;
 
   @override
   void initState() {
@@ -96,9 +101,7 @@ class _RankingScreenState extends State<RankingScreen> {
     );
     await controller.loadProfile();
     await _ensureCountryCode(controller);
-    final key = _cacheKey(controller.profile);
-    _leaderboardFuture =
-        _cache[key] ?? (_cache[key] = _loadLeaderboard(profile: controller.profile));
+    _leaderboardFuture = _resolveLeaderboardFuture(controller);
     if (!mounted) {
       _isLoadingController = false;
       return;
@@ -293,14 +296,20 @@ class _RankingScreenState extends State<RankingScreen> {
   }
 
   void _refreshLeaderboards(ProfileController controller, {bool force = false}) {
-    final key = _cacheKey(controller.profile);
-    if (force) {
-      _cache.remove(key);
+    if (force && !_canRefresh()) {
+      setState(() {
+        _leaderboardFuture = _resolveLeaderboardFuture(controller, force: false);
+      });
+      return;
     }
-    final cached = _cache[key];
+    if (force) {
+      _lastRefreshAt = DateTime.now();
+    }
     setState(() {
-      _leaderboardFuture =
-          cached ?? (_cache[key] = _loadLeaderboard(profile: controller.profile));
+      _leaderboardFuture = _resolveLeaderboardFuture(
+        controller,
+        force: force,
+      );
     });
   }
 
@@ -317,6 +326,48 @@ class _RankingScreenState extends State<RankingScreen> {
         ? (profile?.countryCode ?? '')
         : '';
     return '${_selectedDateKey()}|${_difficulty.name}|${_scope.name}|$countryCode';
+  }
+
+  bool _canRefresh() {
+    final last = _lastRefreshAt;
+    if (last == null) {
+      return true;
+    }
+    return DateTime.now().difference(last) >= _refreshCooldown;
+  }
+
+  Future<LeaderboardFetchResult> _resolveLeaderboardFuture(
+    ProfileController controller, {
+    bool force = false,
+  }) {
+    final key = _cacheKey(controller.profile);
+    if (force) {
+      _cache.remove(key);
+    }
+    final cached = _cache[key];
+    if (cached != null) {
+      if (cached.result != null &&
+          DateTime.now().difference(cached.fetchedAt) < _cacheTtl) {
+        return Future.value(cached.result);
+      }
+      if (DateTime.now().difference(cached.fetchedAt) < _cacheTtl) {
+        return cached.future;
+      }
+    }
+    final future = _loadLeaderboard(profile: controller.profile);
+    final entry = _LeaderboardCacheEntry(
+      future: future,
+      fetchedAt: DateTime.now(),
+    );
+    _cache[key] = entry;
+    future.then((result) {
+      _cache[key] = _LeaderboardCacheEntry(
+        future: Future.value(result),
+        fetchedAt: DateTime.now(),
+        result: result,
+      );
+    });
+    return future;
   }
 
   Future<void> _pickAvatarImage(ImageSource source) async {
@@ -384,6 +435,7 @@ class _RankingScreenState extends State<RankingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final loc = AppLocalizations.of(context)!;
     final controller = _controller;
 
@@ -391,7 +443,10 @@ class _RankingScreenState extends State<RankingScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: controller == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: RankingLoadingWidget(),
+              )
             : AnimatedBuilder(
                 animation: controller,
                 builder: (context, _) {
@@ -449,6 +504,9 @@ class _RankingScreenState extends State<RankingScreen> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 
@@ -483,26 +541,15 @@ class _LeaderboardControls extends StatelessWidget {
           scope: scope,
           onDateFilterChanged: onDateFilterChanged,
           onScopeChanged: onScopeChanged,
+          onRefresh: onRefresh,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: RankingDifficultySegment(
                 value: difficulty,
                 onChanged: onDifficultyChanged,
-              ),
-            ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 96,
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: IconButton.filledTonal(
-                  tooltip: 'Refresh',
-                  onPressed: onRefresh,
-                  icon: const Icon(Icons.refresh_rounded),
-                ),
               ),
             ),
           ],
@@ -537,7 +584,7 @@ class _LeaderboardSections extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Padding(
             padding: EdgeInsets.only(top: 16),
-            child: Center(child: CircularProgressIndicator()),
+            child: RankingLoadingWidget(),
           );
         }
         if (snapshot.hasError) {
@@ -579,6 +626,18 @@ class _LeaderboardSections extends StatelessWidget {
   }
 }
 
+class _LeaderboardCacheEntry {
+  _LeaderboardCacheEntry({
+    required this.future,
+    required this.fetchedAt,
+    this.result,
+  });
+
+  final Future<LeaderboardFetchResult> future;
+  DateTime fetchedAt;
+  final LeaderboardFetchResult? result;
+}
+
 enum LeaderboardStatus { ok, authRequired, missingCountry, error }
 
 class LeaderboardFetchResult {
@@ -607,6 +666,67 @@ class _LeaderboardSection extends StatelessWidget {
     final loc = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (showHeader) ...[
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                entries.isEmpty ? '—' : '${entries.length}',
+                style: textTheme.labelLarge?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+        ],
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (child, animation) {
+            final slide = Tween<Offset>(
+              begin: const Offset(0, 0.05),
+              end: Offset.zero,
+            ).animate(animation);
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(position: slide, child: child),
+            );
+          },
+          child: entries.isEmpty
+              ? _EmptyPlaceholder(text: loc.rankingEmpty)
+              : Column(
+                  key: const ValueKey('rows'),
+                  children: [
+                    for (var index = 0; index < entries.length; index += 1) ...[
+                      _LeaderboardRow(
+                        rank: index + 1,
+                        entry: entries[index],
+                      ),
+                      if (index != entries.length - 1)
+                        Divider(
+                          height: 16,
+                          color:
+                              colorScheme.outlineVariant.withValues(alpha: 153),
+                        ),
+                    ],
+                  ],
+                ),
+        ),
+      ],
+    );
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -616,56 +736,31 @@ class _LeaderboardSection extends StatelessWidget {
           color: colorScheme.outlineVariant.withValues(alpha: 128),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (showHeader) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                Text(
-                  entries.isEmpty ? '—' : '${entries.length}',
-                  style: textTheme.labelLarge?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-          ],
-          if (entries.isEmpty)
-            Text(
-              loc.rankingEmpty,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: colorScheme.onSurfaceVariant),
-            )
-          else
-            Column(
-              children: [
-                for (var index = 0; index < entries.length; index += 1) ...[
-                  _LeaderboardRow(
-                    rank: index + 1,
-                    entry: entries[index],
-                  ),
-                  if (index != entries.length - 1)
-                    Divider(
-                      height: 16,
-                      color: colorScheme.outlineVariant.withValues(alpha: 153),
-                    ),
-                ],
-              ],
-            ),
-        ],
+      child: content,
+    );
+  }
+}
+
+class _EmptyPlaceholder extends StatelessWidget {
+  const _EmptyPlaceholder({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      key: const ValueKey('empty'),
+      height: 120,
+      child: Center(
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
+        ),
       ),
     );
   }
