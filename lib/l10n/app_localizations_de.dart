@@ -147,15 +147,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get profileDisplayNameCheckUnavailable =>
       'Namensprüfung nicht verfügbar. Bitte erneut versuchen.';
 
-  @override
-  String get profileAvatarGallery => 'Aus Galerie auswählen';
-
-  @override
-  String get profileAvatarCamera => 'Foto aufnehmen';
-
-  @override
-  String get profileAvatarPickError =>
-      'Der Bildauswahldialog konnte nicht geöffnet werden.';
 
   @override
   String get comingSoon => 'Bald verfügbar';
