@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -34,6 +33,9 @@ class RankingScreen extends StatefulWidget {
 }
 
 class _RankingScreenState extends State<RankingScreen> {
+  static const Duration _cacheTtl = Duration(minutes: 10);
+  static final Map<String, _LeaderboardCacheEntry> _cache = {};
+
   ProfileController? _controller;
   Locale? _locale;
   bool _isLoadingController = false;
@@ -42,7 +44,6 @@ class _RankingScreenState extends State<RankingScreen> {
   DateFilter _dateFilter = DateFilter.today;
   SudokuDifficulty _difficulty = SudokuDifficulty.easy;
   Future<LeaderboardFetchResult>? _leaderboardFuture;
-  final Map<String, Future<LeaderboardFetchResult>> _cache = {};
 
   @override
   void initState() {
@@ -96,9 +97,7 @@ class _RankingScreenState extends State<RankingScreen> {
     );
     await controller.loadProfile();
     await _ensureCountryCode(controller);
-    final key = _cacheKey(controller.profile);
-    _leaderboardFuture =
-        _cache[key] ?? (_cache[key] = _loadLeaderboard(profile: controller.profile));
+    _leaderboardFuture = _resolveLeaderboardFuture(controller);
     if (!mounted) {
       _isLoadingController = false;
       return;
@@ -293,14 +292,9 @@ class _RankingScreenState extends State<RankingScreen> {
   }
 
   void _refreshLeaderboards(ProfileController controller, {bool force = false}) {
-    final key = _cacheKey(controller.profile);
-    if (force) {
-      _cache.remove(key);
-    }
-    final cached = _cache[key];
     setState(() {
       _leaderboardFuture =
-          cached ?? (_cache[key] = _loadLeaderboard(profile: controller.profile));
+          _resolveLeaderboardFuture(controller, force: force);
     });
   }
 
@@ -317,6 +311,40 @@ class _RankingScreenState extends State<RankingScreen> {
         ? (profile?.countryCode ?? '')
         : '';
     return '${_selectedDateKey()}|${_difficulty.name}|${_scope.name}|$countryCode';
+  }
+
+  Future<LeaderboardFetchResult> _resolveLeaderboardFuture(
+    ProfileController controller, {
+    bool force = false,
+  }) {
+    final key = _cacheKey(controller.profile);
+    if (force) {
+      _cache.remove(key);
+    }
+    final cached = _cache[key];
+    if (cached != null) {
+      if (cached.result != null &&
+          DateTime.now().difference(cached.fetchedAt) < _cacheTtl) {
+        return Future.value(cached.result);
+      }
+      if (DateTime.now().difference(cached.fetchedAt) < _cacheTtl) {
+        return cached.future;
+      }
+    }
+    final future = _loadLeaderboard(profile: controller.profile);
+    final entry = _LeaderboardCacheEntry(
+      future: future,
+      fetchedAt: DateTime.now(),
+    );
+    _cache[key] = entry;
+    future.then((result) {
+      _cache[key] = _LeaderboardCacheEntry(
+        future: Future.value(result),
+        fetchedAt: DateTime.now(),
+        result: result,
+      );
+    });
+    return future;
   }
 
   Future<void> _pickAvatarImage(ImageSource source) async {
@@ -483,26 +511,15 @@ class _LeaderboardControls extends StatelessWidget {
           scope: scope,
           onDateFilterChanged: onDateFilterChanged,
           onScopeChanged: onScopeChanged,
+          onRefresh: onRefresh,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: RankingDifficultySegment(
                 value: difficulty,
                 onChanged: onDifficultyChanged,
-              ),
-            ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 96,
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: IconButton.filledTonal(
-                  tooltip: 'Refresh',
-                  onPressed: onRefresh,
-                  icon: const Icon(Icons.refresh_rounded),
-                ),
               ),
             ),
           ],
@@ -537,7 +554,7 @@ class _LeaderboardSections extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Padding(
             padding: EdgeInsets.only(top: 16),
-            child: Center(child: CircularProgressIndicator()),
+            child: _RankingShimmer(),
           );
         }
         if (snapshot.hasError) {
@@ -577,6 +594,18 @@ class _LeaderboardSections extends StatelessWidget {
       },
     );
   }
+}
+
+class _LeaderboardCacheEntry {
+  _LeaderboardCacheEntry({
+    required this.future,
+    required this.fetchedAt,
+    this.result,
+  });
+
+  final Future<LeaderboardFetchResult> future;
+  DateTime fetchedAt;
+  final LeaderboardFetchResult? result;
 }
 
 enum LeaderboardStatus { ok, authRequired, missingCountry, error }
@@ -801,6 +830,173 @@ class _LeaderboardRow extends StatelessWidget {
     }
     return String.fromCharCodes(
       [0x1F1E6 + (first - 65), 0x1F1E6 + (second - 65)],
+    );
+  }
+}
+
+class _RankingShimmer extends StatelessWidget {
+  const _RankingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final base = colorScheme.surfaceContainerHighest;
+    final highlight = colorScheme.surfaceContainerLow;
+    return _Shimmer(
+      baseColor: base,
+      highlightColor: highlight,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 128),
+          ),
+        ),
+        child: Column(
+          children: const [
+            _ShimmerRow(),
+            SizedBox(height: 12),
+            Divider(height: 16),
+            _ShimmerRow(),
+            SizedBox(height: 12),
+            Divider(height: 16),
+            _ShimmerRow(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ShimmerRow extends StatelessWidget {
+  const _ShimmerRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final base = Theme.of(context).colorScheme.surfaceContainerHighest;
+    return Row(
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: base,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 12,
+                width: 120,
+                decoration: BoxDecoration(
+                  color: base,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Container(
+                height: 10,
+                width: 28,
+                decoration: BoxDecoration(
+                  color: base,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Container(
+              height: 10,
+              width: 48,
+              decoration: BoxDecoration(
+                color: base,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Container(
+              height: 6,
+              width: 28,
+              decoration: BoxDecoration(
+                color: base,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _Shimmer extends StatefulWidget {
+  const _Shimmer({
+    required this.child,
+    required this.baseColor,
+    required this.highlightColor,
+  });
+
+  final Widget child;
+  final Color baseColor;
+  final Color highlightColor;
+
+  @override
+  State<_Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<_Shimmer>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return ShaderMask(
+          shaderCallback: (rect) {
+            final slide = _controller.value * 2 - 1;
+            return LinearGradient(
+              begin: Alignment(-1.0 + slide, 0),
+              end: Alignment(1.0 + slide, 0),
+              colors: [
+                widget.baseColor,
+                widget.highlightColor,
+                widget.baseColor,
+              ],
+              stops: const [0.2, 0.5, 0.8],
+            ).createShader(rect);
+          },
+          blendMode: BlendMode.srcATop,
+          child: child,
+        );
+      },
+      child: widget.child,
     );
   }
 }

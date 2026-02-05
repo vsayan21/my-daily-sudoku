@@ -12,6 +12,7 @@ class RankingScopeSegment extends StatelessWidget {
 
   final RankingScope value;
   final ValueChanged<RankingScope> onChanged;
+  static const double _segmentHeight = 40;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +29,34 @@ class RankingScopeSegment extends StatelessWidget {
           icon: const Icon(Icons.place_rounded),
           label: Text(loc.rankingScopeLocal),
         ),
+        const ButtonSegment(
+          value: RankingScope.friends,
+          icon: Icon(Icons.group_rounded),
+          label: Text('Friends'),
+        ),
       ],
+      expandedInsets: EdgeInsets.zero,
       selected: {value},
-      onSelectionChanged: (selection) => onChanged(selection.first),
+      onSelectionChanged: (selection) {
+        final next = selection.first;
+        if (next == RankingScope.friends) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Coming soon')),
+          );
+          return;
+        }
+        onChanged(next);
+      },
+      style: ButtonStyle(
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        ),
+        minimumSize: WidgetStateProperty.all(
+          const Size(0, _segmentHeight),
+        ),
+      ),
     );
   }
 }

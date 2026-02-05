@@ -11,6 +11,7 @@ class RankingHeader extends StatelessWidget {
     required this.scope,
     required this.onDateFilterChanged,
     required this.onScopeChanged,
+    required this.onRefresh,
   });
 
   final String title;
@@ -18,6 +19,7 @@ class RankingHeader extends StatelessWidget {
   final RankingScope scope;
   final ValueChanged<DateFilter> onDateFilterChanged;
   final ValueChanged<RankingScope> onScopeChanged;
+  final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -26,36 +28,38 @@ class RankingHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context)
-                .textTheme
-                .headlineLarge
-                ?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
-                child: RankingScopeSegment(
-                  value: scope,
-                  onChanged: onScopeChanged,
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineLarge
+                      ?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
-              const SizedBox(width: 16),
-              SizedBox(
-                width: 96,
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: _DateFilterMenu(
-                    value: dateFilter,
-                    onChanged: onDateFilterChanged,
-                  ),
-                ),
+              const SizedBox(width: 8),
+              _DateFilterMenu(
+                value: dateFilter,
+                onChanged: onDateFilterChanged,
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                tooltip: 'Refresh',
+                onPressed: onRefresh,
+                icon: const Icon(Icons.refresh_rounded, size: 20),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(width: 40, height: 40),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          RankingScopeSegment(
+            value: scope,
+            onChanged: onScopeChanged,
           ),
         ],
       ),
@@ -75,7 +79,6 @@ class _DateFilterMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
     final label = switch (value) {
       DateFilter.today => loc.rankingDayToday,
       DateFilter.yesterday => loc.rankingDayYesterday,
@@ -92,29 +95,21 @@ class _DateFilterMenu extends StatelessWidget {
           child: Text(loc.rankingDayYesterday),
         ),
       ],
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Row(
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            const SizedBox(width: 6),
-            Icon(
-              Icons.expand_more,
-              size: 18,
-              color: colorScheme.onSurface,
-            ),
-          ],
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(width: 4),
+          const Icon(
+            Icons.expand_more,
+            size: 18,
+          ),
+        ],
       ),
     );
   }

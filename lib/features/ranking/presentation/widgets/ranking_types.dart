@@ -1,3 +1,3 @@
 enum DateFilter { today, yesterday }
 
-enum RankingScope { global, local }
+enum RankingScope { global, local, friends }
