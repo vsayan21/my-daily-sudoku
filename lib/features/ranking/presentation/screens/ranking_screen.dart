@@ -22,6 +22,7 @@ import '../../../statistics/application/statistics_view_model.dart';
 import '../widgets/ranking_difficulty_segment.dart';
 import '../widgets/ranking_header.dart';
 import '../widgets/ranking_types.dart';
+import '../widgets/ranking_loading_widget.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({super.key, required this.dependencies});
@@ -32,8 +33,10 @@ class RankingScreen extends StatefulWidget {
   State<RankingScreen> createState() => _RankingScreenState();
 }
 
-class _RankingScreenState extends State<RankingScreen> {
+class _RankingScreenState extends State<RankingScreen>
+    with AutomaticKeepAliveClientMixin {
   static const Duration _cacheTtl = Duration(minutes: 10);
+  static const Duration _refreshCooldown = Duration(seconds: 10);
   static final Map<String, _LeaderboardCacheEntry> _cache = {};
 
   ProfileController? _controller;
@@ -44,6 +47,7 @@ class _RankingScreenState extends State<RankingScreen> {
   DateFilter _dateFilter = DateFilter.today;
   SudokuDifficulty _difficulty = SudokuDifficulty.easy;
   Future<LeaderboardFetchResult>? _leaderboardFuture;
+  DateTime? _lastRefreshAt;
 
   @override
   void initState() {
@@ -292,9 +296,20 @@ class _RankingScreenState extends State<RankingScreen> {
   }
 
   void _refreshLeaderboards(ProfileController controller, {bool force = false}) {
+    if (force && !_canRefresh()) {
+      setState(() {
+        _leaderboardFuture = _resolveLeaderboardFuture(controller, force: false);
+      });
+      return;
+    }
+    if (force) {
+      _lastRefreshAt = DateTime.now();
+    }
     setState(() {
-      _leaderboardFuture =
-          _resolveLeaderboardFuture(controller, force: force);
+      _leaderboardFuture = _resolveLeaderboardFuture(
+        controller,
+        force: force,
+      );
     });
   }
 
@@ -311,6 +326,14 @@ class _RankingScreenState extends State<RankingScreen> {
         ? (profile?.countryCode ?? '')
         : '';
     return '${_selectedDateKey()}|${_difficulty.name}|${_scope.name}|$countryCode';
+  }
+
+  bool _canRefresh() {
+    final last = _lastRefreshAt;
+    if (last == null) {
+      return true;
+    }
+    return DateTime.now().difference(last) >= _refreshCooldown;
   }
 
   Future<LeaderboardFetchResult> _resolveLeaderboardFuture(
@@ -412,6 +435,7 @@ class _RankingScreenState extends State<RankingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final loc = AppLocalizations.of(context)!;
     final controller = _controller;
 
@@ -419,7 +443,10 @@ class _RankingScreenState extends State<RankingScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: controller == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: RankingLoadingWidget(),
+              )
             : AnimatedBuilder(
                 animation: controller,
                 builder: (context, _) {
@@ -477,6 +504,9 @@ class _RankingScreenState extends State<RankingScreen> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 
@@ -554,7 +584,7 @@ class _LeaderboardSections extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Padding(
             padding: EdgeInsets.only(top: 16),
-            child: _RankingShimmer(),
+            child: RankingLoadingWidget(),
           );
         }
         if (snapshot.hasError) {
@@ -636,6 +666,67 @@ class _LeaderboardSection extends StatelessWidget {
     final loc = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (showHeader) ...[
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                entries.isEmpty ? '—' : '${entries.length}',
+                style: textTheme.labelLarge?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+        ],
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (child, animation) {
+            final slide = Tween<Offset>(
+              begin: const Offset(0, 0.05),
+              end: Offset.zero,
+            ).animate(animation);
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(position: slide, child: child),
+            );
+          },
+          child: entries.isEmpty
+              ? _EmptyPlaceholder(text: loc.rankingEmpty)
+              : Column(
+                  key: const ValueKey('rows'),
+                  children: [
+                    for (var index = 0; index < entries.length; index += 1) ...[
+                      _LeaderboardRow(
+                        rank: index + 1,
+                        entry: entries[index],
+                      ),
+                      if (index != entries.length - 1)
+                        Divider(
+                          height: 16,
+                          color:
+                              colorScheme.outlineVariant.withValues(alpha: 153),
+                        ),
+                    ],
+                  ],
+                ),
+        ),
+      ],
+    );
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -645,56 +736,31 @@ class _LeaderboardSection extends StatelessWidget {
           color: colorScheme.outlineVariant.withValues(alpha: 128),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (showHeader) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                Text(
-                  entries.isEmpty ? '—' : '${entries.length}',
-                  style: textTheme.labelLarge?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-          ],
-          if (entries.isEmpty)
-            Text(
-              loc.rankingEmpty,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: colorScheme.onSurfaceVariant),
-            )
-          else
-            Column(
-              children: [
-                for (var index = 0; index < entries.length; index += 1) ...[
-                  _LeaderboardRow(
-                    rank: index + 1,
-                    entry: entries[index],
-                  ),
-                  if (index != entries.length - 1)
-                    Divider(
-                      height: 16,
-                      color: colorScheme.outlineVariant.withValues(alpha: 153),
-                    ),
-                ],
-              ],
-            ),
-        ],
+      child: content,
+    );
+  }
+}
+
+class _EmptyPlaceholder extends StatelessWidget {
+  const _EmptyPlaceholder({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      key: const ValueKey('empty'),
+      height: 120,
+      child: Center(
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
+        ),
       ),
     );
   }
@@ -830,173 +896,6 @@ class _LeaderboardRow extends StatelessWidget {
     }
     return String.fromCharCodes(
       [0x1F1E6 + (first - 65), 0x1F1E6 + (second - 65)],
-    );
-  }
-}
-
-class _RankingShimmer extends StatelessWidget {
-  const _RankingShimmer();
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final base = colorScheme.surfaceContainerHighest;
-    final highlight = colorScheme.surfaceContainerLow;
-    return _Shimmer(
-      baseColor: base,
-      highlightColor: highlight,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 128),
-          ),
-        ),
-        child: Column(
-          children: const [
-            _ShimmerRow(),
-            SizedBox(height: 12),
-            Divider(height: 16),
-            _ShimmerRow(),
-            SizedBox(height: 12),
-            Divider(height: 16),
-            _ShimmerRow(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ShimmerRow extends StatelessWidget {
-  const _ShimmerRow();
-
-  @override
-  Widget build(BuildContext context) {
-    final base = Theme.of(context).colorScheme.surfaceContainerHighest;
-    return Row(
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: base,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 12,
-                width: 120,
-                decoration: BoxDecoration(
-                  color: base,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                height: 10,
-                width: 28,
-                decoration: BoxDecoration(
-                  color: base,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Container(
-              height: 10,
-              width: 48,
-              decoration: BoxDecoration(
-                color: base,
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Container(
-              height: 6,
-              width: 28,
-              decoration: BoxDecoration(
-                color: base,
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _Shimmer extends StatefulWidget {
-  const _Shimmer({
-    required this.child,
-    required this.baseColor,
-    required this.highlightColor,
-  });
-
-  final Widget child;
-  final Color baseColor;
-  final Color highlightColor;
-
-  @override
-  State<_Shimmer> createState() => _ShimmerState();
-}
-
-class _ShimmerState extends State<_Shimmer>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return ShaderMask(
-          shaderCallback: (rect) {
-            final slide = _controller.value * 2 - 1;
-            return LinearGradient(
-              begin: Alignment(-1.0 + slide, 0),
-              end: Alignment(1.0 + slide, 0),
-              colors: [
-                widget.baseColor,
-                widget.highlightColor,
-                widget.baseColor,
-              ],
-              stops: const [0.2, 0.5, 0.8],
-            ).createShader(rect);
-          },
-          blendMode: BlendMode.srcATop,
-          child: child,
-        );
-      },
-      child: widget.child,
     );
   }
 }
