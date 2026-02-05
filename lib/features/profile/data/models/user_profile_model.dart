@@ -4,7 +4,6 @@ class UserProfileModel extends UserProfile {
   const UserProfileModel({
     required super.userId,
     required super.displayName,
-    super.avatarPath,
     super.countryCode,
   });
 
@@ -13,7 +12,6 @@ class UserProfileModel extends UserProfile {
       userId: json['userId'] as String? ?? '',
       displayName:
           json['displayName'] as String? ?? UserProfile.defaultDisplayName,
-      avatarPath: json['avatarPath'] as String?,
       countryCode: json['countryCode'] as String?,
     );
   }
@@ -22,7 +20,6 @@ class UserProfileModel extends UserProfile {
     return UserProfileModel(
       userId: profile.userId,
       displayName: profile.displayName,
-      avatarPath: profile.avatarPath,
       countryCode: profile.countryCode,
     );
   }
@@ -31,7 +28,6 @@ class UserProfileModel extends UserProfile {
     return {
       'userId': userId,
       'displayName': displayName,
-      'avatarPath': avatarPath,
       'countryCode': countryCode,
     };
   }

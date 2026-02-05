@@ -366,24 +366,6 @@ abstract class AppLocalizations {
   /// **'Name check unavailable. Try again.'**
   String get profileDisplayNameCheckUnavailable;
 
-  /// No description provided for @profileAvatarGallery.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose from gallery'**
-  String get profileAvatarGallery;
-
-  /// No description provided for @profileAvatarCamera.
-  ///
-  /// In en, this message translates to:
-  /// **'Take a photo'**
-  String get profileAvatarCamera;
-
-  /// No description provided for @profileAvatarPickError.
-  ///
-  /// In en, this message translates to:
-  /// **'Unable to open the image picker.'**
-  String get profileAvatarPickError;
-
   /// No description provided for @comingSoon.
   ///
   /// In en, this message translates to:

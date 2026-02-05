@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
@@ -9,7 +7,6 @@ import '../../../../app/di/app_dependencies.dart';
 import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 import '../../../daily_sudoku/shared/daily_key.dart';
 import '../../../profile/application/usecases/load_user_profile.dart';
-import '../../../profile/application/usecases/update_avatar_path.dart';
 import '../../../profile/application/usecases/update_country_code.dart';
 import '../../../profile/application/usecases/update_display_name.dart';
 import '../../../profile/data/datasources/user_profile_local_datasource.dart';
@@ -97,7 +94,6 @@ class _RankingScreenState extends State<RankingScreen>
         repository: repository,
         firebaseProfileService: profileService,
       ),
-      updateAvatarPath: UpdateAvatarPath(repository: repository),
       updateCountryCode: UpdateCountryCode(repository: repository),
     );
     await controller.loadProfile();
@@ -451,69 +447,6 @@ class _RankingScreenState extends State<RankingScreen>
     return future;
   }
 
-  Future<void> _pickAvatarImage(ImageSource source) async {
-    final controller = _controller;
-    if (controller == null) {
-      return;
-    }
-    final picker = ImagePicker();
-    try {
-      final file = await picker.pickImage(source: source);
-      if (file == null) {
-        return;
-      }
-      await controller.updateAvatarPath(file.path);
-    } on PlatformException {
-      if (!mounted) {
-        return;
-      }
-      final loc = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.profileAvatarPickError)),
-      );
-    } on MissingPluginException {
-      if (!mounted) {
-        return;
-      }
-      final loc = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.profileAvatarPickError)),
-      );
-    }
-  }
-
-  Future<void> _showAvatarPicker() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      builder: (context) {
-        final loc = AppLocalizations.of(context)!;
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.photo_library_outlined),
-                title: Text(loc.profileAvatarGallery),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _pickAvatarImage(ImageSource.gallery);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_camera_outlined),
-                title: Text(loc.profileAvatarCamera),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _pickAvatarImage(ImageSource.camera);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -550,7 +483,6 @@ class _RankingScreenState extends State<RankingScreen>
                         onEditName: () => _showEditNameSheet(controller),
                         onEditCountry: () =>
                             _showEditCountrySheet(controller),
-                        onPickAvatar: _showAvatarPicker,
                       ),
                       const SizedBox(height: 24),
                       _LeaderboardControls(
@@ -884,19 +816,13 @@ class _LeaderboardRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Container(
-            width: 28,
-            height: 28,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: rank <= 3 ? 230 : 64),
-              shape: BoxShape.circle,
-            ),
+          SizedBox(
+            width: 24,
             child: Text(
               '$rank',
-              style: textTheme.labelMedium?.copyWith(
+              style: textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: badgeTextColor,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ),

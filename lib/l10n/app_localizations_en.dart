@@ -143,15 +143,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Name check unavailable. Try again.';
 
   @override
-  String get profileAvatarGallery => 'Choose from gallery';
-
-  @override
-  String get profileAvatarCamera => 'Take a photo';
-
-  @override
-  String get profileAvatarPickError => 'Unable to open the image picker.';
-
-  @override
   String get comingSoon => 'Coming soon';
 
   @override

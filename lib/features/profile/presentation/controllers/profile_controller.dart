@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 import '../../application/usecases/load_user_profile.dart';
-import '../../application/usecases/update_avatar_path.dart';
 import '../../application/usecases/update_country_code.dart';
 import '../../application/usecases/update_display_name.dart';
 import '../../domain/entities/user_profile.dart';
@@ -11,16 +10,13 @@ class ProfileController extends ChangeNotifier {
   ProfileController({
     required LoadUserProfile loadUserProfile,
     required UpdateDisplayName updateDisplayName,
-    required UpdateAvatarPath updateAvatarPath,
     required UpdateCountryCode updateCountryCode,
   })  : _loadUserProfile = loadUserProfile,
         _updateDisplayName = updateDisplayName,
-        _updateAvatarPath = updateAvatarPath,
         _updateCountryCode = updateCountryCode;
 
   final LoadUserProfile _loadUserProfile;
   final UpdateDisplayName _updateDisplayName;
-  final UpdateAvatarPath _updateAvatarPath;
   final UpdateCountryCode _updateCountryCode;
 
   UserProfile? _profile;
@@ -58,19 +54,6 @@ class ProfileController extends ChangeNotifier {
       _isDisplayNameTaken = true;
       notifyListeners();
     }
-  }
-
-  Future<void> updateAvatarPath(String? avatarPath) async {
-    final current = _profile;
-    if (current == null) {
-      return;
-    }
-    final updated = await _updateAvatarPath.execute(
-      profile: current,
-      avatarPath: avatarPath,
-    );
-    _profile = updated;
-    notifyListeners();
   }
 
   Future<void> updateCountryCode(String? countryCode) async {

@@ -146,16 +146,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Vérification du nom indisponible. Réessayez.';
 
   @override
-  String get profileAvatarGallery => 'Choisir dans la galerie';
-
-  @override
-  String get profileAvatarCamera => 'Prendre une photo';
-
-  @override
-  String get profileAvatarPickError =>
-      'Impossible d\'ouvrir le sélecteur d\'images.';
-
-  @override
   String get comingSoon => 'Bientôt disponible';
 
   @override
