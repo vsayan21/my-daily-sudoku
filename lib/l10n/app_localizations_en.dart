@@ -133,6 +133,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileDisplayNameTakenError => 'Name already taken. Try another.';
 
   @override
+  String get profileDisplayNameNotAllowed => 'Name not allowed.';
+
+  @override
+  String get profileDisplayNameInvalid => 'Please enter a valid name.';
+
+  @override
+  String get profileDisplayNameCheckUnavailable =>
+      'Name check unavailable. Try again.';
+
+  @override
   String get profileAvatarGallery => 'Choose from gallery';
 
   @override

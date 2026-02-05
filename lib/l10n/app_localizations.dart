@@ -348,6 +348,24 @@ abstract class AppLocalizations {
   /// **'Name already taken. Try another.'**
   String get profileDisplayNameTakenError;
 
+  /// No description provided for @profileDisplayNameNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Name not allowed.'**
+  String get profileDisplayNameNotAllowed;
+
+  /// No description provided for @profileDisplayNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid name.'**
+  String get profileDisplayNameInvalid;
+
+  /// No description provided for @profileDisplayNameCheckUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Name check unavailable. Try again.'**
+  String get profileDisplayNameCheckUnavailable;
+
   /// No description provided for @profileAvatarGallery.
   ///
   /// In en, this message translates to:
