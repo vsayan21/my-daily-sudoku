@@ -431,6 +431,9 @@ class _RankingScreenState extends State<RankingScreen>
     );
     _cache[key] = entry;
     future.then((result) {
+      if (!identical(_cache[key], entry)) {
+        return;
+      }
       _cache[key] = _LeaderboardCacheEntry(
         future: Future.value(result),
         fetchedAt: DateTime.now(),
