@@ -21,8 +21,8 @@ class UpdateDisplayName {
       return profile;
     }
     final normalized = _firebaseProfileService.normalizeDisplayName(displayName);
-    final bounded = normalized.length > 24
-        ? normalized.substring(0, 24)
+    final bounded = normalized.length > 16
+        ? normalized.substring(0, 16)
         : normalized;
     final candidate = bounded.isEmpty
         ? _firebaseProfileService.defaultDisplayNameForUid(profile.userId)

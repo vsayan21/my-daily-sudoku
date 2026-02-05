@@ -1,11 +1,13 @@
 class LeaderboardEntry {
   const LeaderboardEntry({
+    required this.userId,
     required this.displayName,
     required this.elapsedSeconds,
     required this.countryCode,
     required this.medal,
   });
 
+  final String userId;
   final String displayName;
   final int elapsedSeconds;
   final String countryCode;
@@ -13,6 +15,7 @@ class LeaderboardEntry {
 
   factory LeaderboardEntry.fromJson(Map<String, dynamic> json) {
     return LeaderboardEntry(
+      userId: json['uid'] as String? ?? '',
       displayName: json['displayName'] as String? ?? 'Player',
       elapsedSeconds: json['elapsedSeconds'] as int? ?? 0,
       countryCode: (json['countryCode'] as String? ?? '').toUpperCase(),

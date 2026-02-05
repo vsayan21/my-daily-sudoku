@@ -45,7 +45,6 @@ class FirebaseSyncService {
       final fallback = UserProfileModel(
         userId: '',
         displayName: UserProfile.defaultDisplayName,
-        avatarPath: null,
       );
       await _profileLocalDataSource.saveProfile(fallback);
       return fallback;
@@ -86,7 +85,6 @@ class FirebaseSyncService {
     final updated = UserProfileModel(
       userId: uid,
       displayName: reservedName,
-      avatarPath: stored?.avatarPath,
       countryCode: _resolveCountryCode(
         existing: stored?.countryCode,
         localeTag: locale,

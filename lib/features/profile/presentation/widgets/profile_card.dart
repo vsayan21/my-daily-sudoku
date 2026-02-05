@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 
 import '../../domain/entities/user_profile.dart';
+import '../../../../shared/presentation/widgets/system_avatar.dart';
 
 class ProfileCard extends StatelessWidget {
   const ProfileCard({
@@ -11,23 +10,17 @@ class ProfileCard extends StatelessWidget {
     required this.profile,
     required this.onEditName,
     required this.onEditCountry,
-    required this.onPickAvatar,
   });
 
   final UserProfile profile;
   final VoidCallback onEditName;
   final VoidCallback onEditCountry;
-  final VoidCallback onPickAvatar;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final loc = AppLocalizations.of(context)!;
-    final avatarFile = profile.avatarPath == null
-        ? null
-        : File(profile.avatarPath!);
-    final avatarExists = avatarFile != null && avatarFile.existsSync();
     final flag = _flagEmoji(profile.countryCode);
     final countryLabel =
         profile.countryCode == null ? loc.profileCountryUnset : profile.countryCode!;
@@ -46,21 +39,10 @@ class ProfileCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                InkWell(
-                  onTap: onPickAvatar,
-                  borderRadius: BorderRadius.circular(40),
-                  child: CircleAvatar(
-                    radius: 40,
-                    backgroundColor: colorScheme.primaryContainer,
-                    backgroundImage: avatarExists ? FileImage(avatarFile) : null,
-                    child: avatarExists
-                        ? null
-                        : Icon(
-                            Icons.person_rounded,
-                            size: 36,
-                            color: colorScheme.onPrimaryContainer,
-                          ),
-                  ),
+                SystemAvatar(
+                  userId: profile.userId,
+                  displayName: profile.displayName,
+                  size: 80,
                 ),
                 const SizedBox(width: 16),
                 Expanded(

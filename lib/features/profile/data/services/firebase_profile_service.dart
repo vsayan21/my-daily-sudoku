@@ -48,7 +48,7 @@ class FirebaseProfileService {
 
   bool isValidDisplayName(String displayName) {
     final normalized = normalizeDisplayName(displayName);
-    if (normalized.isEmpty || normalized.length > 24) {
+    if (normalized.isEmpty || normalized.length > 16) {
       return false;
     }
     return RegExp(r'^[A-Za-z0-9 _-]+$').hasMatch(normalized);
