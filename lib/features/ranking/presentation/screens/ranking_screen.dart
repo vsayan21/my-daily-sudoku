@@ -250,6 +250,14 @@ class _RankingScreenState extends State<RankingScreen>
                         );
                         return;
                       }
+                      final syncService =
+                          await widget.dependencies.firebaseSyncService;
+                      await syncService.uploadAllLocalResults(
+                        profile: controller.profile,
+                      );
+                      if (context.mounted) {
+                        _refreshLeaderboards(controller, force: true);
+                      }
                       Navigator.of(context).pop();
                             } finally {
                               if (context.mounted) {
