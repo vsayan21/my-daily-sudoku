@@ -3,6 +3,7 @@ import '../../../daily_sudoku/domain/entities/sudoku_difficulty.dart';
 class StatisticsSummary {
   const StatisticsSummary({
     required this.completedCount,
+    this.completedByDifficulty = const {},
     required this.bestTimesSeconds,
     required this.averageTimeSeconds,
     required this.totalHints,
@@ -14,6 +15,7 @@ class StatisticsSummary {
   });
 
   final int completedCount;
+  final Map<SudokuDifficulty, int> completedByDifficulty;
   final Map<SudokuDifficulty, int?> bestTimesSeconds;
   final double? averageTimeSeconds;
   final int totalHints;
