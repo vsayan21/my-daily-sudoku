@@ -146,6 +146,10 @@ class AppLocalizationsIt extends AppLocalizations {
       'Controllo nome non disponibile. Riprova.';
 
   @override
+  String get offlineSyncNotice =>
+      'Sei offline. I risultati verranno sincronizzati appena torni online.';
+
+  @override
   String get comingSoon => 'In arrivo';
 
   @override
@@ -260,6 +264,9 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get done => 'Fatto';
+
+  @override
+  String get checkLeaderboard => 'Classifica';
 
   @override
   String streakLabel(num count) {

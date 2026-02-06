@@ -146,6 +146,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Vérification du nom indisponible. Réessayez.';
 
   @override
+  String get offlineSyncNotice =>
+      'Vous êtes hors ligne. Les résultats seront synchronisés dès que vous serez de nouveau en ligne.';
+
+  @override
   String get comingSoon => 'Bientôt disponible';
 
   @override
@@ -260,6 +264,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get done => 'Terminé';
+
+  @override
+  String get checkLeaderboard => 'Classement';
 
   @override
   String streakLabel(num count) {

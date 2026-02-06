@@ -44,6 +44,7 @@
   "profileDisplayNameNotAllowed": "Nome non consentito.",
   "profileDisplayNameInvalid": "Inserisci un nome valido.",
   "profileDisplayNameCheckUnavailable": "Controllo nome non disponibile. Riprova.",
+  "offlineSyncNotice": "Sei offline. I risultati verranno sincronizzati appena torni online.",
   "comingSoon": "In arrivo",
   "sudoku": "Sudoku",
   "activeGameContinueTitle": "Riprendi il tuo Sudoku",
@@ -102,6 +103,7 @@
   },
   "successSolvedTitle": "Risolto!",
   "done": "Fatto",
+  "checkLeaderboard": "Classifica",
   "streakLabel": "{count, plural, =1{Serie iniziata: 1 giorno} other{Serie: {count} giorni}}",
   "@streakLabel": {
     "placeholders": {

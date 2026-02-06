@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../../../../app/di/app_dependencies.dart';
 import '../../../active_game/application/usecases/clear_active_game.dart';
@@ -15,6 +18,7 @@ import '../../../streak/presentation/streak_section.dart';
 import '../../../streak/application/usecases/get_streak_summary.dart';
 import '../../../sudoku_play/presentation/screens/sudoku_play_screen.dart';
 import '../../../sudoku_play/shared/sudoku_play_args.dart';
+import '../../../completion/shared/success_screen_args.dart';
 import '../../../statistics/application/usecases/get_game_result_for_day.dart';
 import '../../../statistics/data/datasources/statistics_local_datasource.dart';
 import '../../../statistics/data/repositories/statistics_repository_impl.dart';
@@ -47,6 +51,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   ActiveGameSession? _activeSession;
   Map<SudokuDifficulty, GameResult?> _todayResults = {};
   StreakSummary _streakSummary = StreakSummary.empty;
+  SudokuDifficulty? _rankingInitialDifficulty;
+  late final Connectivity _connectivity;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  bool _wasOnline = false;
 
   @override
   void initState() {
@@ -56,12 +64,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _activeGameRepository = widget.dependencies.activeGameRepository;
     _statisticsRepository = _buildStatisticsRepository();
     _firebaseSyncService = widget.dependencies.firebaseSyncService;
+    _connectivity = Connectivity();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_handleConnectivityChange);
     WidgetsBinding.instance.addPostFrameCallback((_) => _syncFirebase());
     _refreshHomeData();
   }
 
   @override
   void dispose() {
+    _connectivitySubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
     super.dispose();
@@ -196,6 +208,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     await service.uploadAllLocalResults(profile: profile);
   }
 
+  void _handleConnectivityChange(List<ConnectivityResult> results) {
+    final isOnline =
+        results.any((result) => result != ConnectivityResult.none);
+    if (isOnline && !_wasOnline) {
+      _syncFirebase();
+    }
+    _wasOnline = isOnline;
+  }
+
   String? _resolveCountryCode(Locale locale) {
     final primary = _normalizeCountryCode(locale.countryCode);
     if (primary != null) {
@@ -262,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     required SudokuPlayArgs args,
     ActiveGameSession? session,
   }) async {
-    await Navigator.of(context).push(
+    final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SudokuPlayScreen(
           args: args,
@@ -273,6 +294,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
     if (!mounted) {
       return;
+    }
+    if (result is SuccessScreenResult && result.openRanking) {
+      setState(() {
+        _currentTab = 2;
+        _rankingInitialDifficulty = result.difficulty;
+      });
+      _pageController.animateToPage(
+        2,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
     await _refreshHomeData();
   }
@@ -432,7 +464,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   ),
                   const StatisticsScreen(),
-                  RankingScreen(dependencies: widget.dependencies),
+                  RankingScreen(
+                    dependencies: widget.dependencies,
+                    initialDifficulty: _rankingInitialDifficulty,
+                  ),
                 ],
               ),
             ),

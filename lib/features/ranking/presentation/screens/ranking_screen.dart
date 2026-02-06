@@ -23,9 +23,14 @@ import '../widgets/ranking_types.dart';
 import '../widgets/ranking_loading_widget.dart';
 
 class RankingScreen extends StatefulWidget {
-  const RankingScreen({super.key, required this.dependencies});
+  const RankingScreen({
+    super.key,
+    required this.dependencies,
+    this.initialDifficulty,
+  });
 
   final AppDependencies dependencies;
+  final SudokuDifficulty? initialDifficulty;
 
   @override
   State<RankingScreen> createState() => _RankingScreenState();
@@ -48,17 +53,21 @@ class _RankingScreenState extends State<RankingScreen>
   DateTime? _lastRefreshAt;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _locale ??= Localizations.localeOf(context);
     if (_controller == null && !_isLoadingController) {
       _isLoadingController = true;
       _initializeController();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant RankingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialDifficulty != null &&
+        widget.initialDifficulty != oldWidget.initialDifficulty) {
+      _applyInitialDifficulty(widget.initialDifficulty!);
     }
   }
 
@@ -106,6 +115,21 @@ class _RankingScreenState extends State<RankingScreen>
     setState(() {
       _controller = controller;
       _isLoadingController = false;
+    });
+    if (widget.initialDifficulty != null) {
+      _applyInitialDifficulty(widget.initialDifficulty!);
+    }
+  }
+
+  void _applyInitialDifficulty(SudokuDifficulty difficulty) {
+    if (_difficulty == difficulty) {
+      return;
+    }
+    setState(() {
+      _difficulty = difficulty;
+      if (_controller != null) {
+        _leaderboardFuture = _resolveLeaderboardFuture(_controller!);
+      }
     });
   }
 
@@ -211,6 +235,7 @@ class _RankingScreenState extends State<RankingScreen>
                     onPressed: isSaving
                         ? null
                         : () async {
+                            final navigator = Navigator.of(context);
                             setState(() => isSaving = true);
                             try {
                       final trimmed = textController.text.trim();
@@ -221,42 +246,40 @@ class _RankingScreenState extends State<RankingScreen>
                         return;
                       }
                       final check = await _checkDisplayName(trimmed);
-                      if (!check.allowed) {
-                        final reason = check.reason;
-                        setState(
-                          () => errorText = switch (reason) {
-                            _NameCheckReason.unavailable =>
-                              loc.profileDisplayNameCheckUnavailable,
-                            _NameCheckReason.taken =>
-                              loc.profileDisplayNameTakenError,
-                            _NameCheckReason.notAllowed =>
-                              loc.profileDisplayNameNotAllowed,
-                            _ => loc.profileDisplayNameNotAllowed,
-                          },
-                        );
-                        return;
-                      }
-                      await controller.updateDisplayName(trimmed);
-                      if (!context.mounted) {
-                        return;
-                      }
-                      if (controller.isDisplayNameTaken) {
-                        setState(
-                          () => errorText = loc.profileDisplayNameTakenError,
-                        );
-                        return;
-                      }
-                      final syncService =
-                          await widget.dependencies.firebaseSyncService;
-                      await syncService.uploadAllLocalResults(
-                        profile: controller.profile,
-                      );
-                      if (context.mounted) {
-                        _refreshLeaderboards(controller, force: true);
-                      }
-                      Navigator.of(context).pop();
+      if (!check.allowed) {
+        final reason = check.reason;
+        setState(
+          () => errorText = switch (reason) {
+            _NameCheckReason.unavailable =>
+              loc.profileDisplayNameCheckUnavailable,
+            _NameCheckReason.taken =>
+              loc.profileDisplayNameTakenError,
+            _NameCheckReason.notAllowed =>
+              loc.profileDisplayNameNotAllowed,
+            null => loc.profileDisplayNameNotAllowed,
+          },
+        );
+        return;
+      }
+      await controller.updateDisplayName(trimmed);
+      if (controller.isDisplayNameTaken) {
+        setState(
+          () => errorText = loc.profileDisplayNameTakenError,
+        );
+        return;
+      }
+      final syncService =
+          await widget.dependencies.firebaseSyncService;
+      await syncService.uploadAllLocalResults(
+        profile: controller.profile,
+      );
+      if (!mounted) {
+        return;
+      }
+      _refreshLeaderboards(controller, force: true);
+      navigator.pop();
                             } finally {
-                              if (context.mounted) {
+                              if (mounted) {
                                 setState(() => isSaving = false);
                               }
                             }
@@ -792,25 +815,6 @@ class _LeaderboardRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    final Color badgeColor;
-    final Color badgeTextColor;
-    switch (rank) {
-      case 1:
-        badgeColor = colorScheme.primary;
-        badgeTextColor = colorScheme.onPrimary;
-        break;
-      case 2:
-        badgeColor = colorScheme.tertiary;
-        badgeTextColor = colorScheme.onTertiary;
-        break;
-      case 3:
-        badgeColor = colorScheme.secondary;
-        badgeTextColor = colorScheme.onSecondary;
-        break;
-      default:
-        badgeColor = colorScheme.outlineVariant;
-        badgeTextColor = colorScheme.onSurfaceVariant;
-    }
     final medalColor = _medalColorForEntry(entry.medal);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -933,8 +937,6 @@ class _NameCheckReasonParser {
       case 'invalid_chars':
       case 'too_long':
       case 'flagged':
-      case 'blocked':
-        return _NameCheckReason.notAllowed;
       default:
         return null;
     }

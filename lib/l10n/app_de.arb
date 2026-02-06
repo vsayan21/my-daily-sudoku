@@ -44,6 +44,7 @@
   "profileDisplayNameNotAllowed": "Name nicht erlaubt.",
   "profileDisplayNameInvalid": "Bitte einen gültigen Namen eingeben.",
   "profileDisplayNameCheckUnavailable": "Namensprüfung nicht verfügbar. Bitte erneut versuchen.",
+  "offlineSyncNotice": "Sie sind offline. Ihre Resultate werden hochgeladen, sobald Sie wieder online sind.",
   "comingSoon": "Bald verfügbar",
   "sudoku": "Sudoku",
   "activeGameContinueTitle": "Sudoku fortsetzen",
@@ -102,6 +103,7 @@
   },
   "successSolvedTitle": "Gelöst!",
   "done": "Fertig",
+  "checkLeaderboard": "Rangliste",
   "streakLabel": "{count, plural, =1{Serie gestartet: 1 Tag} other{Serie: {count} Tage}}",
   "@streakLabel": {
     "placeholders": {

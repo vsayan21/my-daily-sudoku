@@ -143,6 +143,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Name check unavailable. Try again.';
 
   @override
+  String get offlineSyncNotice =>
+      'You are offline. Results will sync when you are back online.';
+
+  @override
   String get comingSoon => 'Coming soon';
 
   @override
@@ -257,6 +261,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get done => 'Done';
+
+  @override
+  String get checkLeaderboard => 'Leaderboard';
 
   @override
   String streakLabel(num count) {
