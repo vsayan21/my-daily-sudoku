@@ -31,6 +31,7 @@ import '../widgets/inline_hint_message.dart';
 import '../widgets/sudoku_action_bar.dart';
 import '../widgets/sudoku_timer_bar.dart';
 import '../widgets/sudoku_top_bar.dart';
+import '../../../shared/presentation/widgets/sudoku_loading_widget.dart';
 
 /// Screen for playing a Sudoku puzzle.
 class SudokuPlayScreen extends StatefulWidget {
@@ -133,7 +134,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     if (_isCompleting) {
       return;
     }
-    _isCompleting = true;
+    setState(() => _isCompleting = true);
     final syncService = await widget.dependencies.firebaseSyncService;
     final services = await _completionServices;
     final completedAtEpochMs = DateTime.now().millisecondsSinceEpoch;
@@ -298,104 +299,119 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
           navigator.pop();
         },
         child: SafeArea(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              final selectedCell = _controller.selectedCell;
-              final selectedValue = selectedCell == null
-                  ? null
-                  : _controller
-                      .board
-                      .cellAt(selectedCell.row, selectedCell.col)
-                      .value;
-              return Column(
-                children: [
-                  SudokuTopBar(
-                    difficulty: widget.args.difficulty,
-                    dailyKey: widget.args.dailyKey,
-                    onBack: _handleBack,
-                    isPaused: _controller.isPaused,
-                    onPauseToggle: _controller.togglePause,
-                    onReset: _handleReset,
-                  ),
-                  SudokuTimerBar(
-                    formattedTime: _controller.formattedTime,
-                    penaltyText: _localizedHintPenalty(
-                      loc,
-                      _controller.hintPenaltySeconds,
-                    ),
-                  ),
-                  const SizedBox(height: _spacingMedium),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: _horizontalPadding,
-                    ),
-                    child: SudokuActionBar(
-                      onHintPressed:
-                          _controller.isPaused || _controller.isHintBusy
+          child: Stack(
+            children: [
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  final selectedCell = _controller.selectedCell;
+                  final selectedValue = selectedCell == null
+                      ? null
+                      : _controller
+                          .board
+                          .cellAt(selectedCell.row, selectedCell.col)
+                          .value;
+                  return Column(
+                    children: [
+                      SudokuTopBar(
+                        difficulty: widget.args.difficulty,
+                        dailyKey: widget.args.dailyKey,
+                        onBack: _handleBack,
+                        isPaused: _controller.isPaused,
+                        onPauseToggle: _controller.togglePause,
+                        onReset: _handleReset,
+                      ),
+                      SudokuTimerBar(
+                        formattedTime: _controller.formattedTime,
+                        penaltyText: _localizedHintPenalty(
+                          loc,
+                          _controller.hintPenaltySeconds,
+                        ),
+                      ),
+                      const SizedBox(height: _spacingMedium),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: _horizontalPadding,
+                        ),
+                        child: SudokuActionBar(
+                          onHintPressed:
+                              _controller.isPaused || _controller.isHintBusy
+                                  ? null
+                                  : _controller.onHintPressed,
+                          onNotesPressed: _controller.isPaused
                               ? null
-                              : _controller.onHintPressed,
-                      onNotesPressed: _controller.isPaused
-                          ? null
-                          : _controller.toggleNotesMode,
-                      onErasePressed:
-                          _controller.isPaused ? null : _controller.erase,
-                      onUndoPressed:
-                          _controller.isPaused || !_controller.canUndo
-                              ? null
-                              : _controller.undo,
-                      isNotesMode: _controller.notesMode,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: _horizontalPadding,
-                    ),
-                    child: InlineHintMessage(
-                      message: _localizedHintMessage(
-                        loc,
-                        _controller.inlineHintMessage,
+                              : _controller.toggleNotesMode,
+                          onErasePressed:
+                              _controller.isPaused ? null : _controller.erase,
+                          onUndoPressed:
+                              _controller.isPaused || !_controller.canUndo
+                                  ? null
+                                  : _controller.undo,
+                          isNotesMode: _controller.notesMode,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: _horizontalPadding,
+                        ),
+                        child: InlineHintMessage(
+                          message: _localizedHintMessage(
+                            loc,
+                            _controller.inlineHintMessage,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: _spacingMedium),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: _horizontalPadding,
+                        ),
+                        child: Stack(
+                          children: [
+                            AnimatedOpacity(
+                              duration: const Duration(milliseconds: 200),
+                              opacity: _controller.isPaused ? 0.6 : 1,
+                              child: SudokuGrid(
+                                board: _controller.board,
+                                selectedCell: _controller.selectedCell,
+                                hintedCells: _controller.hintedCells,
+                                transientHighlightedCells:
+                                    _controller.transientHighlightedCells,
+                                onCellTap: _controller.selectCell,
+                              ),
+                            ),
+                            if (_controller.isPaused)
+                              const Positioned.fill(
+                                child: IgnorePointer(
+                                  child: SudokuPauseOverlay(),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: _spacingMedium),
+                      SudokuNumberRow(
+                        onNumberSelected: _controller.inputValue,
+                        isPaused: _controller.isPaused,
+                        selectedValue: selectedValue,
+                      ),
+                    ],
+                  );
+                },
+              ),
+              if (_isCompleting)
+                Positioned.fill(
+                  child: AbsorbPointer(
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.18),
+                      child: const SudokuLoadingWidget(
+                        label: '',
                       ),
                     ),
                   ),
-                  const SizedBox(height: _spacingMedium),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: _horizontalPadding,
-                    ),
-                    child: Stack(
-                      children: [
-                        AnimatedOpacity(
-                          duration: const Duration(milliseconds: 200),
-                          opacity: _controller.isPaused ? 0.6 : 1,
-                          child: SudokuGrid(
-                            board: _controller.board,
-                            selectedCell: _controller.selectedCell,
-                            hintedCells: _controller.hintedCells,
-                            transientHighlightedCells:
-                                _controller.transientHighlightedCells,
-                            onCellTap: _controller.selectCell,
-                          ),
-                        ),
-                        if (_controller.isPaused)
-                          const Positioned.fill(
-                            child: IgnorePointer(
-                              child: SudokuPauseOverlay(),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: _spacingMedium),
-                  SudokuNumberRow(
-                    onNumberSelected: _controller.inputValue,
-                    isPaused: _controller.isPaused,
-                    selectedValue: selectedValue,
-                  ),
-                ],
-              );
-            },
+                ),
+            ],
           ),
         ),
       ),
