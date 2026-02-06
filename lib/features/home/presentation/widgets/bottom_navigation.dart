@@ -24,13 +24,13 @@ class BottomNavigation extends StatelessWidget {
           label: loc.navigationHome,
         ),
         NavigationDestination(
-          icon: const Icon(Icons.bar_chart_outlined),
-          selectedIcon: const Icon(Icons.bar_chart),
+          icon: const Icon(Icons.query_stats_outlined),
+          selectedIcon: const Icon(Icons.query_stats_rounded),
           label: loc.navigationStatistics,
         ),
         NavigationDestination(
-          icon: const Icon(Icons.leaderboard_outlined),
-          selectedIcon: const Icon(Icons.leaderboard_rounded),
+          icon: const Icon(Icons.emoji_events_outlined),
+          selectedIcon: const Icon(Icons.emoji_events_rounded),
           label: loc.navigationProfile,
         ),
       ],

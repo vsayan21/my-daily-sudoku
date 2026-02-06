@@ -103,7 +103,7 @@
   },
   "successSolvedTitle": "Solved!",
   "done": "Done",
-  "checkLeaderboard": "Leaderboard",
+  "checkLeaderboard": "Ranking",
   "streakLabel": "{count, plural, =1{Streak started: 1 day} other{Streak: {count} days}}",
   "@streakLabel": {
     "placeholders": {

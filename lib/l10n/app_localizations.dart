@@ -561,7 +561,7 @@ abstract class AppLocalizations {
   /// No description provided for @checkLeaderboard.
   ///
   /// In en, this message translates to:
-  /// **'Leaderboard'**
+  /// **'Ranking'**
   String get checkLeaderboard;
 
   /// No description provided for @streakLabel.
