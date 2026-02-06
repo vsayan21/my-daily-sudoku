@@ -150,6 +150,68 @@ class AppLocalizationsIt extends AppLocalizations {
       'Sei offline. I risultati verranno sincronizzati appena torni online.';
 
   @override
+  String get settingsTitle => 'Impostazioni';
+
+  @override
+  String get settingsLegal => 'Note legali';
+
+  @override
+  String get settingsPrivacy => 'Informativa sulla privacy';
+
+  @override
+  String get settingsImprint => 'Impressum';
+
+  @override
+  String get settingsData => 'Dati';
+
+  @override
+  String get settingsResetStats => 'Reimposta statistiche';
+
+  @override
+  String get settingsClearData => 'Cancella dati locali';
+
+  @override
+  String get settingsAbout => 'Informazioni';
+
+  @override
+  String get settingsVersion => 'Versione';
+
+  @override
+  String get settingsVersionLoading => 'Caricamento…';
+
+  @override
+  String get settingsContact => 'Contatto';
+
+  @override
+  String get settingsResetStatsTitle => 'Reimpostare le statistiche?';
+
+  @override
+  String get settingsResetStatsMessage =>
+      'Questo rimuoverà le statistiche locali e le serie da questo dispositivo.';
+
+  @override
+  String get settingsResetStatsAction => 'Reimposta';
+
+  @override
+  String get settingsClearDataTitle => 'Cancellare i dati locali?';
+
+  @override
+  String get settingsClearDataMessage =>
+      'Questo rimuoverà statistiche locali, serie, partita in corso e profilo in cache da questo dispositivo.';
+
+  @override
+  String get settingsClearDataAction => 'Cancella';
+
+  @override
+  String get settingsResetStatsDone => 'Statistiche reimpostate.';
+
+  @override
+  String get settingsClearDataDone => 'Dati locali cancellati.';
+
+  @override
+  String get settingsLinkFailed => 'Impossibile aprire il link.';
+
+  @override
   String get comingSoon => 'In arrivo';
 
   @override

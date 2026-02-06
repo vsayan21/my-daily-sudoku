@@ -150,6 +150,68 @@ class AppLocalizationsFr extends AppLocalizations {
       'Vous êtes hors ligne. Les résultats seront synchronisés dès que vous serez de nouveau en ligne.';
 
   @override
+  String get settingsTitle => 'Paramètres';
+
+  @override
+  String get settingsLegal => 'Mentions légales';
+
+  @override
+  String get settingsPrivacy => 'Politique de confidentialité';
+
+  @override
+  String get settingsImprint => 'Impressum';
+
+  @override
+  String get settingsData => 'Données';
+
+  @override
+  String get settingsResetStats => 'Réinitialiser les statistiques';
+
+  @override
+  String get settingsClearData => 'Effacer les données locales';
+
+  @override
+  String get settingsAbout => 'À propos';
+
+  @override
+  String get settingsVersion => 'Version';
+
+  @override
+  String get settingsVersionLoading => 'Chargement…';
+
+  @override
+  String get settingsContact => 'Contact';
+
+  @override
+  String get settingsResetStatsTitle => 'Réinitialiser les statistiques ?';
+
+  @override
+  String get settingsResetStatsMessage =>
+      'Cela supprimera vos statistiques et séries locales de cet appareil.';
+
+  @override
+  String get settingsResetStatsAction => 'Réinitialiser';
+
+  @override
+  String get settingsClearDataTitle => 'Effacer les données locales ?';
+
+  @override
+  String get settingsClearDataMessage =>
+      'Cela supprimera les statistiques locales, les séries, la partie en cours et le profil en cache sur cet appareil.';
+
+  @override
+  String get settingsClearDataAction => 'Effacer';
+
+  @override
+  String get settingsResetStatsDone => 'Statistiques réinitialisées.';
+
+  @override
+  String get settingsClearDataDone => 'Données locales effacées.';
+
+  @override
+  String get settingsLinkFailed => 'Impossible d’ouvrir le lien.';
+
+  @override
   String get comingSoon => 'Bientôt disponible';
 
   @override

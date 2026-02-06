@@ -372,6 +372,126 @@ abstract class AppLocalizations {
   /// **'You are offline. Results will sync when you are back online.'**
   String get offlineSyncNotice;
 
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsLegal.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get settingsLegal;
+
+  /// No description provided for @settingsPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get settingsPrivacy;
+
+  /// No description provided for @settingsImprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Imprint'**
+  String get settingsImprint;
+
+  /// No description provided for @settingsData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsData;
+
+  /// No description provided for @settingsResetStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset statistics'**
+  String get settingsResetStats;
+
+  /// No description provided for @settingsClearData.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear local data'**
+  String get settingsClearData;
+
+  /// No description provided for @settingsAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsAbout;
+
+  /// No description provided for @settingsVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get settingsVersion;
+
+  /// No description provided for @settingsVersionLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get settingsVersionLoading;
+
+  /// No description provided for @settingsContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get settingsContact;
+
+  /// No description provided for @settingsResetStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset statistics?'**
+  String get settingsResetStatsTitle;
+
+  /// No description provided for @settingsResetStatsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove your local statistics and streaks from this device.'**
+  String get settingsResetStatsMessage;
+
+  /// No description provided for @settingsResetStatsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get settingsResetStatsAction;
+
+  /// No description provided for @settingsClearDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear local data?'**
+  String get settingsClearDataTitle;
+
+  /// No description provided for @settingsClearDataMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove local statistics, streaks, active game, and cached profile data from this device.'**
+  String get settingsClearDataMessage;
+
+  /// No description provided for @settingsClearDataAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get settingsClearDataAction;
+
+  /// No description provided for @settingsResetStatsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics reset.'**
+  String get settingsResetStatsDone;
+
+  /// No description provided for @settingsClearDataDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Local data cleared.'**
+  String get settingsClearDataDone;
+
+  /// No description provided for @settingsLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the link.'**
+  String get settingsLinkFailed;
+
   /// No description provided for @comingSoon.
   ///
   /// In en, this message translates to:
