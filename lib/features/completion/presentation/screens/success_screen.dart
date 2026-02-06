@@ -163,7 +163,7 @@ class _SuccessScreenState extends State<SuccessScreen>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.leaderboard_rounded, size: 18),
+                                  const Icon(Icons.emoji_events_rounded, size: 18),
                                   const SizedBox(width: 8),
                                   Text(loc.checkLeaderboard),
                                 ],

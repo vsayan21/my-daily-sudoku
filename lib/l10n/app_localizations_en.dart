@@ -263,7 +263,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get done => 'Done';
 
   @override
-  String get checkLeaderboard => 'Leaderboard';
+  String get checkLeaderboard => 'Ranking';
 
   @override
   String streakLabel(num count) {
