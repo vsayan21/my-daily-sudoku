@@ -148,6 +148,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Namensprüfung nicht verfügbar. Bitte erneut versuchen.';
 
   @override
+  String get offlineSyncNotice =>
+      'Sie sind offline. Ihre Resultate werden hochgeladen, sobald Sie wieder online sind.';
+
+  @override
   String get comingSoon => 'Bald verfügbar';
 
   @override
@@ -262,6 +266,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get done => 'Fertig';
+
+  @override
+  String get checkLeaderboard => 'Rangliste';
 
   @override
   String streakLabel(num count) {

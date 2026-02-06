@@ -150,9 +150,36 @@ class _SuccessScreenState extends State<SuccessScreen>
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
                     child: SizedBox(
                       width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text(loc.done),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.of(context).pop(
+                                SuccessScreenResult(
+                                  openRanking: true,
+                                  difficulty: args.difficulty,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.leaderboard_rounded, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(loc.checkLeaderboard),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: FilledButton(
+                              onPressed: () => Navigator.of(context).pop(
+                                const SuccessScreenResult(openRanking: false),
+                              ),
+                              child: Text(loc.done),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

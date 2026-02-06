@@ -44,6 +44,7 @@
   "profileDisplayNameNotAllowed": "Name not allowed.",
   "profileDisplayNameInvalid": "Please enter a valid name.",
   "profileDisplayNameCheckUnavailable": "Name check unavailable. Try again.",
+  "offlineSyncNotice": "You are offline. Results will sync when you are back online.",
   "comingSoon": "Coming soon",
   "sudoku": "Sudoku",
   "activeGameContinueTitle": "Continue your Sudoku",
@@ -102,6 +103,7 @@
   },
   "successSolvedTitle": "Solved!",
   "done": "Done",
+  "checkLeaderboard": "Leaderboard",
   "streakLabel": "{count, plural, =1{Streak started: 1 day} other{Streak: {count} days}}",
   "@streakLabel": {
     "placeholders": {

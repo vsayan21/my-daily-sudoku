@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:my_daily_sudoku/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -135,6 +137,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
       return;
     }
     setState(() => _isCompleting = true);
+    final loc = AppLocalizations.of(context)!;
     final syncService = await widget.dependencies.firebaseSyncService;
     final services = await _completionServices;
     final completedAtEpochMs = DateTime.now().millisecondsSinceEpoch;
@@ -163,6 +166,9 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     } catch (error, stackTrace) {
       debugPrint('Firebase upload failed: $error');
       debugPrintStack(stackTrace: stackTrace);
+      if (_isOfflineError(error)) {
+        _showOfflineNotice(loc);
+      }
       _scheduleUploadRetry(syncService, locale);
     }
     final streakCount = await services.streakService
@@ -171,7 +177,7 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     if (!mounted) {
       return;
     }
-    Navigator.of(context).pushAndRemoveUntil(
+    final navigationResult = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SuccessScreen(
           args: SuccessScreenArgs(
@@ -186,8 +192,11 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
           ),
         ),
       ),
-      (route) => route.isFirst,
     );
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop(navigationResult);
   }
 
   Future<void> _handleBack() async {
@@ -203,6 +212,33 @@ class _SudokuPlayScreenState extends State<SudokuPlayScreen>
     String? locale,
   ) {
     unawaited(_retryUpload(syncService, locale));
+  }
+
+  bool _isOfflineError(Object error) {
+    if (error is SocketException) {
+      return true;
+    }
+    if (error is FirebaseException) {
+      final code = error.code.toLowerCase();
+      return code == 'network-request-failed' || code == 'unavailable';
+    }
+    final message = error.toString().toLowerCase();
+    return message.contains('socketexception') ||
+        message.contains('network') ||
+        message.contains('connection');
+  }
+
+  void _showOfflineNotice(AppLocalizations loc) {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(loc.offlineSyncNotice),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 6),
+      ),
+    );
   }
 
   Future<void> _retryUpload(

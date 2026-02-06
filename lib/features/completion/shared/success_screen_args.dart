@@ -22,3 +22,13 @@ class SuccessScreenArgs {
   final Medal medal;
   final int streakCount;
 }
+
+class SuccessScreenResult {
+  const SuccessScreenResult({
+    required this.openRanking,
+    this.difficulty,
+  });
+
+  final bool openRanking;
+  final SudokuDifficulty? difficulty;
+}

@@ -366,6 +366,12 @@ abstract class AppLocalizations {
   /// **'Name check unavailable. Try again.'**
   String get profileDisplayNameCheckUnavailable;
 
+  /// No description provided for @offlineSyncNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline. Results will sync when you are back online.'**
+  String get offlineSyncNotice;
+
   /// No description provided for @comingSoon.
   ///
   /// In en, this message translates to:
@@ -551,6 +557,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get done;
+
+  /// No description provided for @checkLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get checkLeaderboard;
 
   /// No description provided for @streakLabel.
   ///
