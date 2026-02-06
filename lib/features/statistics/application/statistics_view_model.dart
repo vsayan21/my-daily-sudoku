@@ -59,6 +59,11 @@ class StatisticsViewModel extends ChangeNotifier {
       SudokuDifficulty.medium: null,
       SudokuDifficulty.hard: null,
     };
+    final completedByDifficulty = <SudokuDifficulty, int>{
+      SudokuDifficulty.easy: 0,
+      SudokuDifficulty.medium: 0,
+      SudokuDifficulty.hard: 0,
+    };
     var totalHints = 0;
     var totalMoves = 0;
     var totalUndo = 0;
@@ -72,6 +77,9 @@ class StatisticsViewModel extends ChangeNotifier {
       totalMoves += record.movesCount;
       totalUndo += record.undoCount;
       totalTime += record.elapsedSeconds;
+
+      completedByDifficulty[record.difficulty] =
+          (completedByDifficulty[record.difficulty] ?? 0) + 1;
 
       final currentBest = bestTimes[record.difficulty];
       if (currentBest == null || record.elapsedSeconds < currentBest) {
@@ -97,6 +105,7 @@ class StatisticsViewModel extends ChangeNotifier {
 
     return StatisticsSummary(
       completedCount: records.length,
+      completedByDifficulty: UnmodifiableMapView(completedByDifficulty),
       bestTimesSeconds: UnmodifiableMapView(bestTimes),
       averageTimeSeconds: averageTimeSeconds,
       totalHints: totalHints,

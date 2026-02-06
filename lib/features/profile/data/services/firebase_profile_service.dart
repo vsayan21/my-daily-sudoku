@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -66,7 +67,8 @@ class FirebaseProfileService {
     final userRef = _firestore.collection('users').doc(uid);
     final shortId = shortIdFromUid(uid);
 
-    await _firestore.runTransaction((transaction) async {
+    await _runTransactionWithRetry(() {
+      return _firestore.runTransaction((transaction) async {
       final usernameSnap = await transaction.get(usernamesRef);
       final userSnap = await transaction.get(userRef);
       DocumentSnapshot<Map<String, dynamic>>? previousSnap;
@@ -124,7 +126,28 @@ class FirebaseProfileService {
         }
       }
     });
+    });
 
     return normalized;
+  }
+
+  Future<void> _runTransactionWithRetry(
+    Future<void> Function() action, {
+    int maxAttempts = 3,
+  }) async {
+    for (var attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        await action();
+        return;
+      } on FirebaseException catch (error) {
+        final code = error.code.toLowerCase();
+        final retryable =
+            code == 'unknown' || code == 'aborted' || code == 'unavailable';
+        if (!retryable || attempt == maxAttempts) {
+          rethrow;
+        }
+        await Future.delayed(Duration(milliseconds: 200 * attempt));
+      }
+    }
   }
 }

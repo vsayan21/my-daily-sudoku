@@ -73,15 +73,18 @@ class _MedalTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       child: Row(
         children: [
           Container(
             decoration: BoxDecoration(
-              color: color.withValues(alpha:  0.15),
+              color: color.withValues(alpha: 0.18),
               shape: BoxShape.circle,
             ),
             padding: const EdgeInsets.all(8),
@@ -102,11 +105,20 @@ class _MedalTile extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  count.toString(),
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.96, end: 1),
+                  duration: const Duration(milliseconds: 420),
+                  curve: Curves.easeOutBack,
+                  builder: (context, scale, child) {
+                    return Transform.scale(scale: scale, child: child);
+                  },
+                  child: Text(
+                    count.toString(),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: colorScheme.onSurface,
+                        ),
+                  ),
                 ),
               ],
             ),
