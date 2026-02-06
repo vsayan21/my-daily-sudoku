@@ -31,6 +31,7 @@ import '../widgets/page_header.dart';
 import '../../../ranking/presentation/screens/ranking_screen.dart';
 import '../../../statistics/presentation/screens/statistics_screen.dart';
 import '../../../firebase/firebase_sync_service.dart';
+import '../../../settings/presentation/screens/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.dependencies});
@@ -407,7 +408,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        PageHeader(title: loc.appTitle),
+                        PageHeader(
+                          title: loc.appTitle,
+                          onSettingsPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const SettingsScreen(),
+                              ),
+                            );
+                          },
+                        ),
                         const SizedBox(height: 16),
                         StreakSection(summary: _streakSummary),
                         if (activeSession != null) ...[

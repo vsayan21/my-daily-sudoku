@@ -152,6 +152,68 @@ class AppLocalizationsDe extends AppLocalizations {
       'Sie sind offline. Ihre Resultate werden hochgeladen, sobald Sie wieder online sind.';
 
   @override
+  String get settingsTitle => 'Einstellungen';
+
+  @override
+  String get settingsLegal => 'Rechtliches';
+
+  @override
+  String get settingsPrivacy => 'Datenschutz';
+
+  @override
+  String get settingsImprint => 'Impressum';
+
+  @override
+  String get settingsData => 'Daten';
+
+  @override
+  String get settingsResetStats => 'Statistiken zurücksetzen';
+
+  @override
+  String get settingsClearData => 'Lokale Daten löschen';
+
+  @override
+  String get settingsAbout => 'Über';
+
+  @override
+  String get settingsVersion => 'Version';
+
+  @override
+  String get settingsVersionLoading => 'Wird geladen…';
+
+  @override
+  String get settingsContact => 'Kontakt';
+
+  @override
+  String get settingsResetStatsTitle => 'Statistiken zurücksetzen?';
+
+  @override
+  String get settingsResetStatsMessage =>
+      'Dies entfernt deine lokalen Statistiken und Serien von diesem Gerät.';
+
+  @override
+  String get settingsResetStatsAction => 'Zurücksetzen';
+
+  @override
+  String get settingsClearDataTitle => 'Lokale Daten löschen?';
+
+  @override
+  String get settingsClearDataMessage =>
+      'Dies entfernt lokale Statistiken, Serien, das aktive Spiel und zwischengespeicherte Profildaten von diesem Gerät.';
+
+  @override
+  String get settingsClearDataAction => 'Löschen';
+
+  @override
+  String get settingsResetStatsDone => 'Statistiken zurückgesetzt.';
+
+  @override
+  String get settingsClearDataDone => 'Lokale Daten gelöscht.';
+
+  @override
+  String get settingsLinkFailed => 'Link konnte nicht geöffnet werden.';
+
+  @override
   String get comingSoon => 'Bald verfügbar';
 
   @override

@@ -147,6 +147,68 @@ class AppLocalizationsEn extends AppLocalizations {
       'You are offline. Results will sync when you are back online.';
 
   @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsLegal => 'Legal';
+
+  @override
+  String get settingsPrivacy => 'Privacy Policy';
+
+  @override
+  String get settingsImprint => 'Imprint';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsResetStats => 'Reset statistics';
+
+  @override
+  String get settingsClearData => 'Clear local data';
+
+  @override
+  String get settingsAbout => 'About';
+
+  @override
+  String get settingsVersion => 'Version';
+
+  @override
+  String get settingsVersionLoading => 'Loading…';
+
+  @override
+  String get settingsContact => 'Contact';
+
+  @override
+  String get settingsResetStatsTitle => 'Reset statistics?';
+
+  @override
+  String get settingsResetStatsMessage =>
+      'This will remove your local statistics and streaks from this device.';
+
+  @override
+  String get settingsResetStatsAction => 'Reset';
+
+  @override
+  String get settingsClearDataTitle => 'Clear local data?';
+
+  @override
+  String get settingsClearDataMessage =>
+      'This will remove local statistics, streaks, active game, and cached profile data from this device.';
+
+  @override
+  String get settingsClearDataAction => 'Clear';
+
+  @override
+  String get settingsResetStatsDone => 'Statistics reset.';
+
+  @override
+  String get settingsClearDataDone => 'Local data cleared.';
+
+  @override
+  String get settingsLinkFailed => 'Could not open the link.';
+
+  @override
   String get comingSoon => 'Coming soon';
 
   @override
